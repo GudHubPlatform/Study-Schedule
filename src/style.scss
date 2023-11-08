@@ -1,3 +1,7 @@
+$drag-element-height: 55px;
+$drag-element-width: 110px;
+$cell-paddings: 10px;
+
 gh-study-schedule {
     .container {
         display: flex;
@@ -29,6 +33,13 @@ gh-study-schedule {
         }
     }
     
+
+    th, td {
+        box-sizing: border-box;
+        padding: $cell-paddings;
+        border: solid 1px #000;
+    }
+
     .table-lessons {
     }
     
@@ -93,8 +104,8 @@ gh-study-schedule {
             }
 
             &.lesson-cell {
-                min-width: 120px;
-                height: 57px;
+                min-width: $drag-element-width + $cell-paddings * 2 + 1.5px;
+                height: $drag-element-height + $cell-paddings * 2 + 1.5px;
             }
         }
 
@@ -105,14 +116,8 @@ gh-study-schedule {
             }
         }
     }
-    
-    th, td {
-        padding: 10px;
-        border: solid 1px #000;
-    }
 
     //dnd
-
     .redips-trash {
         font-weight: normal;
          background-color: pink;
@@ -125,22 +130,39 @@ gh-study-schedule {
         text-align: center;
         font-size: inherit; /* needed for cloned object */
         border-radius: 4px; /* Opera, Chrome */
-        border-width: 2px;
         -moz-border-radius: 4px; /* FF */
+        border-width: 2px;
     }
     
-    /* table cells */
     div.redips-drag {
+        position: relative;
+
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
 
-        box-sizing: border-box;
-        height: 35px;
-        width: 95px;
+        height: $drag-element-height;
+        width: $drag-element-width;
 
-        &:first-letter {
-            text-transform: uppercase;
+        padding: 10px;
+
+        .lesson-title {
+            white-space: nowrap;
+
+            &:first-letter {
+                text-transform: uppercase;
+            }
+        }
+
+        .lesson-teacher-name {
+            white-space: nowrap;
+        }
+
+        .lesson-class-number {
+            position: absolute;
+            top: 2px;
+            right: 4px;
         }
     }
 }

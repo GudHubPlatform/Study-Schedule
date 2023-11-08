@@ -81,6 +81,6 @@ export default class ScheduleModel {
     }
 
     getStorage() {
-        return [...this.scheduleStorage.map((row) => [...row    ])];
+        return [...this.scheduleStorage.map((row) => [...row])];
     }
 }

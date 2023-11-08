@@ -1,4 +1,5 @@
 import localStorage from './utils/localStorage.js';
+import {generateLessonId} from './utils/htmlComponents.js';
 
 const ruleCallbacks = {
     classToClass: (draggedLesson, targetCell) => {
@@ -13,28 +14,13 @@ const ruleCallbacks = {
 const checkForOneLessonRuleForRows = (draggedLesson, cellRows) => {
     const rowsToFilter = [...cellRows];
 
-    const { 
-        title: draggedLessonTitle,
-    } = draggedLesson;
+    const { teacher } = draggedLesson;
 
-    const notAllowedCells = rowsToFilter.reduce((acc, row) => {
-        const notAllowedClassNumbers = [];
-        const cellsInRowWithSameClassAsLesson = [];
+    const notAllowedRows = rowsToFilter.filter((row) => 
+        row.some((cell) => cell.lesson && cell.lesson.teacher === teacher)
+    );
 
-        row.forEach(cell => {
-            if (cell.lesson && cell.lesson.title === draggedLessonTitle) {
-                notAllowedClassNumbers.push(cell.clas.classNumber);
-            }
-        });
-
-        cellsInRowWithSameClassAsLesson.push(...row.filter(cell => 
-            notAllowedClassNumbers.some((classNumber) => classNumber === cell.clas.classNumber)
-        ));
-
-        return [...acc, ...cellsInRowWithSameClassAsLesson];
-    }, []);
-
-
+    const notAllowedCells = notAllowedRows.reduce((acc, row) => [...acc, ...row], []);
 
     return notAllowedCells;
 }
@@ -93,7 +79,9 @@ export default class ScheduleController {
     }
 
     findLessonById(lessonId) {
-        return this.lessons.find(({title, classNumber}) => `${title}:${classNumber}` === lessonId);
+        return this.lessons.find((lesson) => {
+            return generateLessonId(lesson) === lessonId;
+        });
     }
 
     addCellToLocalStorage(cell) {

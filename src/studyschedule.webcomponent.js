@@ -7,6 +7,14 @@ import { classes, lessons } from "./offlineData.js";
 import ScheduleController from "./ScheduleController.js";
 import ScheduleModel from "./ScheduleModel.js";
 
+import { 
+    cellColAttribute, 
+    cellRowAttribute, 
+    lessonCellClass, 
+    lessonIdAttribute,
+    lesson as renderLesson
+} from './utils/htmlComponents.js';
+
 class GhStudySchedule extends GhHtmlElement {
 
     // Constructor with super() is required for native web component initialization
@@ -18,12 +26,13 @@ class GhStudySchedule extends GhHtmlElement {
         this.lessonsPerDay = 7;
         this.classes = classes;
         this.lessons = lessons;
-
-        this.cellRowAttribute = 'data-row';
-        this.cellColAttribute = 'data-col';
-        this.lessonIdAttribute = 'data-id';
-        this.lessonCellClass = '.lesson-cell';
         
+        this.cellColAttribute = cellColAttribute;
+        this.cellRowAttribute = cellRowAttribute;
+        this.lessonCellClass = lessonCellClass;
+        this.lessonIdAttribute = lessonIdAttribute;
+        this.renderLesson = renderLesson;
+
         this.clickedCell;
         this.disableHighlight;
 
@@ -37,7 +46,7 @@ class GhStudySchedule extends GhHtmlElement {
 
     onInit() {
         super.render(html);
-        
+
         this.setCorrespondingHTMLElements();
         this.dndInit();
     };
@@ -47,7 +56,7 @@ class GhStudySchedule extends GhHtmlElement {
         const redips = {};
 
         const handleDrag = this.handleDragElement.bind(this);
-        const handleDrop = this.handleDropElement.bind(this);
+        const handleBeforeDrop = this.handleBeforeDropElement.bind(this);
         const handleDeleted = this.handleDeleted.bind(this);
         const handleFinish = this.handleFinishEvent.bind(this);
 
@@ -67,7 +76,7 @@ class GhStudySchedule extends GhHtmlElement {
             };
 
             rd.event.droppedBefore = (targetCell) => {
-                return handleDrop(targetCell);
+                return handleBeforeDrop(targetCell);
             };
 
             rd.event.deleted = (isExistingCell) => {
@@ -75,6 +84,7 @@ class GhStudySchedule extends GhHtmlElement {
             };
 
             rd.event.finish = () => {
+                console.log(1);
                 handleFinish();
             };
         }
@@ -87,29 +97,29 @@ class GhStudySchedule extends GhHtmlElement {
     handleDragElement(clickedCell) {
         this.clickedCell = clickedCell;
     
-        const lessonId = this.clickedCell.children[0].getAttribute(this.lessonIdAttribute);
+        const lessonId = this.clickedCell.children[0].getAttribute(lessonIdAttribute);
         
-        const row = clickedCell.getAttribute(this.cellRowAttribute);
-        const col = clickedCell.getAttribute(this.cellColAttribute);
+        const row = clickedCell.getAttribute(cellRowAttribute);
+        const col = clickedCell.getAttribute(cellColAttribute);
 
         const clickedCellCoords = {row, col};
-        
+
         this.disableHighlight = this.controller.highlightCells(lessonId, clickedCellCoords);
     }
 
-    handleDropElement(targetCell) {
-        const row = targetCell.getAttribute(this.cellRowAttribute);
-        const col = targetCell.getAttribute(this.cellColAttribute);
+    handleBeforeDropElement(targetCell) {
+        const row = targetCell.getAttribute(cellRowAttribute);
+        const col = targetCell.getAttribute(cellColAttribute);
 
         if (targetCell === this.clickedCell) return false;
 
-        const  lessonId = this.clickedCell.children[0].getAttribute(this.lessonIdAttribute);
+        const lessonId = this.clickedCell.children[0].getAttribute(lessonIdAttribute);
 
         const res = this.controller.setLesson(row, col, lessonId);
 
         if (Boolean(res) && this.clickedCell.classList.contains('lesson-cell')) {
-            const clickedCellRow = this.clickedCell.getAttribute(this.cellRowAttribute);
-            const clickedCellCol = this.clickedCell.getAttribute(this.cellColAttribute);
+            const clickedCellRow = this.clickedCell.getAttribute(cellRowAttribute);
+            const clickedCellCol = this.clickedCell.getAttribute(cellColAttribute);
 
             const removedLesson = this.controller.removeLesson(clickedCellRow, clickedCellCol);
         }
@@ -118,8 +128,8 @@ class GhStudySchedule extends GhHtmlElement {
     }
 
     handleDeleted(isExistingCell) {
-        const clickedCellRow = this.clickedCell.getAttribute(this.cellRowAttribute);
-        const clickedCellCol = this.clickedCell.getAttribute(this.cellColAttribute);
+        const clickedCellRow = this.clickedCell.getAttribute(cellRowAttribute);
+        const clickedCellCol = this.clickedCell.getAttribute(cellColAttribute);
 
         const removedLesson = this.controller.removeLesson(clickedCellRow, clickedCellCol);
     }
@@ -129,44 +139,10 @@ class GhStudySchedule extends GhHtmlElement {
     }
 
     setCorrespondingHTMLElements() {
-        const htmlElements = document.querySelectorAll(this.lessonCellClass);
+        const htmlElements = document.querySelectorAll(lessonCellClass);
 
         this.controller.setHTMLElements(htmlElements);
     }
-
-    // scheduleRulesMatch(clickedCell, targetCell) {
-    //     const lessonName = clickedCell.textContent;
-    //     const targetCellClassNumber = this.getValueFromClassName(targetCell, this.numberClassPrefix);
-    //     const rowOfTargetCell = targetCell.parentElement;
-    //     const targetCellIndex = rowOfTargetCell.children;
-    //     console.log(targetCellIndex);
-
-    //     const cellsInRowWithSameClassNumber = [];
-
-    //     for (let i = targetCellIndex - 1; i > 0; i --) {
-    //         const scheduleCell = rowOfTargetCell.children[i];
-    //         const scheduleCellClassNumber = this.getValueFromClassName(scheduleCell, this.numberClassPrefix);
-
-    //         if (scheduleCellClassNumber === targetCellClassNumber) {
-    //             cellsInRowWithSameClassNumber.push(scheduleCell);
-    //         } else {
-    //             break;
-    //         }
-    //     }
-
-    //     for (let i = targetCellIndex + 1; i < rowOfTargetCell.children.length - 1; i --) {
-    //         const scheduleCell = rowOfTargetCell.children[i];
-    //         const scheduleCellClassNumber = this.getValueFromClassName(scheduleCell, this.numberClassPrefix);
-
-    //         if (scheduleCellClassNumber === targetCellClassNumber) {
-    //             cellsInRowWithSameClassNumber.push(scheduleCell);
-    //         } else {
-    //             break;
-    //         }
-    //     }
-
-    //     console.log(cellsInRowWithSameClassNumber);
-    // };
 
     // disconnectedCallback() is called after the component is destroyed
     disconnectedCallback() {

@@ -7,13 +7,11 @@
                 </tr>
             </thead>
             <tbody>
-                ${lessons.reduce((acc, {title, classNumber}) => acc + 
+                ${lessons.reduce((acc, lesson) => acc + 
                     `
                         <tr>
                             <td class="redips-mark">
-                            <div class="redips-drag redips-clone" ${lessonIdAttribute}="${title}:${classNumber}">
-                                ${(classNumber ? [...title, ':', classNumber] : [...title]).map((el, i) => i === 0 ? el.toUpperCase() : el).join('')}
-                            </div>
+                                ${renderLesson(lesson, true)}
                             </td>
                         </tr>
                     `
@@ -33,24 +31,6 @@
                 </tr>
             </thead>
             <tbody>
-            <!-- Rewrite {return} on callback return -->
-                <!-- ${daysOfWeek.reduce((acc, day, dayIndex) => acc + 
-                    (
-                        Array.apply(null, Array(lessonsPerDay)).reduce((acc, element, index) => {
-                            let str = `
-                                ${
-                                    index === 0
-                                    ? `<td class="day-of-week column-cell-freeze redips-mark" rowspan=${lessonsPerDay}>${day}</td>`
-                                    : ''
-                                }
-                                <td class="column-cell-freeze redips-mark">${index + 1}</td>
-                            ` + classes.reduce((acc, {classNumber, classLetter}, colIndex) => acc + `<td colspan=${columnWidth} class=${lessonCellClass.replace('.','')} ${cellRowAttribute}="${dayIndex * lessonsPerDay + index}" ${cellColAttribute}="${colIndex}"></td>`, '');
-                            
-                            return acc + `<tr>${str}</tr>`
-                        }
-                            , '')
-                    ), '')
-                } -->
                 ${
                     storage.reduce((acc, row, rowIndex) => acc + `
                         <tr>
@@ -62,12 +42,7 @@
                             <td class="column-cell-freeze redips-mark">${rowIndex % lessonsPerDay + 1}</td>
                             ${row.reduce((accRow, {lesson}, colIndex) => accRow + `
                                 <td colspan=${columnWidth} class=${lessonCellClass.replace('.','')} ${cellRowAttribute}="${rowIndex}" ${cellColAttribute}="${colIndex}">
-                                    ${
-                                        lesson  ? `<div class="redips-drag" ${lessonIdAttribute}="${lesson.title}:${lesson.classNumber}">
-                                                        ${[...lesson.title, ':', lesson.classNumber].map((el, i) => i === 0 ? el.toUpperCase() : el).join('')}
-                                                   </div>`
-                                                : ''
-                                    }
+                                    ${lesson ? renderLesson(lesson, false) : ''}
                                 </td>
                             `, '')}
                         </tr>
