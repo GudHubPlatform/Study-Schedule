@@ -1,0 +1,146 @@
+gh-study-schedule {
+    .container {
+        display: flex;
+        align-items: start;
+        user-select: none;
+        width: 100% !important;
+
+        >:first-child {
+            margin-right: 10px;
+        }
+    }
+
+    table {
+        background-color: #ebebeb;
+        border: solid 1px #000;
+    }
+
+    .table-scroll {
+        overflow: auto;
+        position: relative;
+        min-width: 135px;
+        max-height: 950px;
+
+        &-schedule {
+            overflow: auto;
+            position: relative;
+            max-width: 1650px;
+            max-height: 950px;
+        }
+    }
+    
+    .table-lessons {
+    }
+    
+    .table-schedule {
+        border-collapse: collapse;
+
+        tr {
+            &.row-freeze {
+                position: sticky;
+                top: 0;
+                left: 0;
+                background-color: white;
+                box-shadow: 0 0 0 0.5px black;
+                z-index: 1;
+            }
+        }
+
+        td.lesson-cell.redips-mark {
+            background-color: rgb(197, 197, 197);
+        }
+
+        td, th {
+            &.column-cell-freeze {
+                position: sticky;
+                left: 3em;
+                background-color: white;
+
+                &::after {
+                    display: flex;
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+
+                    border-right: solid .5px black;
+                    border-left: solid .5px black;
+                }
+
+                
+
+                &.day-of-week {
+                    min-width: 3em;
+                    width: 3em;
+                    left: 0;
+
+                    &::after {
+                        border-left: none;
+                    }
+                }
+            }
+
+            &.day-of-week {
+                writing-mode: vertical-rl;
+                text-align-last: center;
+                transform: rotate(180deg);
+
+                &:first-letter {
+                    text-transform: uppercase;
+                }
+            }
+
+            &.lesson-cell {
+                min-width: 120px;
+                height: 57px;
+            }
+        }
+
+        th {
+            &.classNumber {
+                text-transform: uppercase;
+                font-weight: normal;
+            }
+        }
+    }
+    
+    th, td {
+        padding: 10px;
+        border: solid 1px #000;
+    }
+
+    //dnd
+
+    .redips-trash {
+        font-weight: normal;
+         background-color: pink;
+    }
+
+    .redips-drag {
+        cursor: move;
+        margin: auto;
+        background-color: white;
+        text-align: center;
+        font-size: inherit; /* needed for cloned object */
+        border-radius: 4px; /* Opera, Chrome */
+        border-width: 2px;
+        -moz-border-radius: 4px; /* FF */
+    }
+    
+    /* table cells */
+    div.redips-drag {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        box-sizing: border-box;
+        height: 35px;
+        width: 95px;
+
+        &:first-letter {
+            text-transform: uppercase;
+        }
+    }
+}
