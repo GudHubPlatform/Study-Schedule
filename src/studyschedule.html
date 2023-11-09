@@ -10,7 +10,7 @@
                 ${lessons.reduce((acc, lesson) => acc + 
                     `
                         <tr>
-                            <td class="redips-mark">
+                            <td class="redips-trash">
                                 ${renderLesson(lesson, true)}
                             </td>
                         </tr>
@@ -40,7 +40,7 @@
                             }
                             <td class="column-cell-freeze redips-mark">${rowIndex % lessonsPerDay + 1}</td>
                             ${row.reduce((accRow, {lesson}, colIndex) => accRow + `
-                                <td colspan=${columnWidth} class=${lessonCellClass.replace('.','')} ${cellRowAttribute}="${rowIndex}" ${cellColAttribute}="${colIndex}">
+                                <td colspan=${columnWidth} class="${lessonCellClass.replace('.','')} redips-single" ${cellRowAttribute}="${rowIndex}" ${cellColAttribute}="${colIndex}">
                                     ${lesson ? renderLesson(lesson, false) : ''}
                                 </td>
                             `, '')}

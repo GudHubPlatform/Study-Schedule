@@ -52,7 +52,6 @@ class GhStudySchedule extends GhHtmlElement {
     };
 
     dndInit() {
-        // create container needed for methods below
         const redips = {};
 
         const handleDrag = this.handleDragElement.bind(this);
@@ -60,16 +59,12 @@ class GhStudySchedule extends GhHtmlElement {
         const handleDeleted = this.handleDeleted.bind(this);
         const handleFinish = this.handleFinishEvent.bind(this);
 
-        // initialization
         redips.init = function () {
-            // reference to the REDIPS.drag library
             const rd = REDIPS.drag;
-            // initialization
+
             rd.init('redips-drag');
-            // set hover color
             rd.hover.colorTd = '#9BB3DA';
-            rd.dropMode = 'single';
-            rd.scroll.bound = 100;
+            rd.scroll.bound = 50;
             
             rd.event.clicked = (clickedCell) => {
                 handleDrag(clickedCell);
@@ -84,7 +79,6 @@ class GhStudySchedule extends GhHtmlElement {
             };
 
             rd.event.finish = () => {
-                console.log(1);
                 handleFinish();
             };
         }
@@ -128,6 +122,7 @@ class GhStudySchedule extends GhHtmlElement {
     }
 
     handleDeleted(isExistingCell) {
+        console.log(1);
         const clickedCellRow = this.clickedCell.getAttribute(cellRowAttribute);
         const clickedCellCol = this.clickedCell.getAttribute(cellColAttribute);
 

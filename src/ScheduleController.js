@@ -37,8 +37,6 @@ const checkForOneTeacherPerLessonRule = (draggedLesson, cellRows) => {
 
     const notAllowedCells = notAllowedRows.reduce((acc, row) => [...acc, ...row], []);
 
-    console.log(notAllowedCells);
-
     return notAllowedCells;
 }
 
