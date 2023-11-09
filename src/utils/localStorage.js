@@ -4,11 +4,34 @@ function addCell(cell) {
     try {
         const existingCells = getCells();
 
-        const isDuplicate = existingCells.some(existinCells => (
-            existinCells.clas.classNumber === cell.clas.classNumber &&
-            existinCells.clas.classLetter === cell.clas.classLetter &&
-            existinCells.lessonNumber === cell.lessonNumber
-        ));
+        const isDuplicate = existingCells.some(existinCell => {
+            const {
+                exLessonNumber,
+                exDay,
+            } = existinCell;
+
+            const {
+                exClassNumber,
+                exClassLetter,
+            } = existinCell.clas;
+
+            const {
+                lessonNumber,
+                day,
+            } = cell;
+
+
+            const {
+                classNumber,
+                classLetter,
+            } = cell.clas;
+
+
+            return (exClassNumber === classNumber &&
+                    exClassLetter === classLetter &&
+                    exLessonNumber === lessonNumber &&
+                    exDay === day)
+        });
 
         if (isDuplicate) {
             console.error('Cell with the same classNumber, classLetter, and lessonNumber already exists.');
