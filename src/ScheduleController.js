@@ -11,16 +11,33 @@ const ruleCallbacks = {
     }
 };
 
-const checkForOneLessonRuleForRows = (draggedLesson, cellRows) => {
+const checkForOneTeacherPerLessonRule = (draggedLesson, cellRows) => {
     const rowsToFilter = [...cellRows];
 
     const { teacher } = draggedLesson;
 
+    if (!teacher) return [];
+
+    const { name, surname } = teacher;
+
+    if (!name || !surname) return [];
+
     const notAllowedRows = rowsToFilter.filter((row) => 
-        row.some((cell) => cell.lesson && cell.lesson.teacher === teacher)
+        row.some((cell) => {
+            if (cell.lesson && cell.lesson.teacher) {
+                const cellTeacherName = cell.lesson.teacher.name;
+                const cellTeacherSurname = cell.lesson.teacher.surname;
+
+                return  cellTeacherName === name && cellTeacherSurname === surname;
+            }
+
+            return false;
+        })
     );
 
     const notAllowedCells = notAllowedRows.reduce((acc, row) => [...acc, ...row], []);
+
+    console.log(notAllowedCells);
 
     return notAllowedCells;
 }
@@ -165,7 +182,7 @@ export default class ScheduleController {
             })
         });
 
-        const filteredCellsByOneLessonRule = checkForOneLessonRuleForRows(foundLesson, allowedRows);
+        const filteredCellsByOneLessonRule = checkForOneTeacherPerLessonRule(foundLesson, allowedRows);
 
         const notAllowedCells  = [
             ...filteredRows.reduce((acc, row) => [...acc, ...row], []),
