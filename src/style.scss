@@ -1,6 +1,9 @@
 $drag-element-height: 55px;
 $drag-element-width: 110px;
 $cell-paddings: 10px;
+$table-schedule-width: 1650px;
+$table-schedule-and-lessons-height: 950px;
+$table-lessons-width: 135px;
 
 gh-study-schedule {
     .container {
@@ -22,14 +25,14 @@ gh-study-schedule {
     .table-scroll {
         overflow: auto;
         position: relative;
-        min-width: 135px;
-        max-height: 950px;
+        min-width: $table-lessons-width;
+        max-height: $table-schedule-and-lessons-height;
 
         &-schedule {
             overflow: auto;
             position: relative;
-            max-width: 1650px;
-            max-height: 950px;
+            max-width: $table-schedule-width;
+            max-height: $table-schedule-and-lessons-height;
         }
     }
     
@@ -53,7 +56,7 @@ gh-study-schedule {
                 left: 0;
                 background-color: white;
                 box-shadow: 0 0 0 0.5px black;
-                z-index: 1;
+                z-index: 2;
             }
         }
 
@@ -121,11 +124,6 @@ gh-study-schedule {
     }
 
     //dnd
-    .redips-trash {
-        font-weight: normal;
-         background-color: pink;
-    }
-
     .redips-drag {
         cursor: move;
         margin: auto;
