@@ -64,6 +64,9 @@ gh-study-schedule {
         td, th {
             &.column-cell-freeze {
                 position: sticky;
+
+                z-index: 1;
+
                 left: 3em;
                 background-color: white;
 
