@@ -37,14 +37,11 @@ class GhStudySchedule extends GhHtmlElement {
         this.lessonIdAttribute = lessonIdAttribute;
         this.renderLesson = renderLesson;
 
-        this.rd;
         this.clickedCell;
         this.disableHighlight;
         this.isClickedCloseIcon;
         this.setIsClickedCloseIcon = (bool) => {this.isClickedCloseIcon = bool};
         this.handleClickCloseIcon = this.handleClickCloseIcon;
-
-        this.isClicked = false;
 
         this.model = new ScheduleModel(classes, this.daysOfWeek, this.lessonsPerDay);
         this.controller = new ScheduleController(this.model, lessons);

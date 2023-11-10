@@ -1,5 +1,4 @@
 import localStorage from './utils/localStorage.js';
-import {generateLessonId} from './lessonComponent.js';
 
 const ruleCallbacks = {
     classToClass: (draggedLesson, targetCell) => {
@@ -14,21 +13,19 @@ const ruleCallbacks = {
 const checkForOneTeacherPerLessonRule = (draggedLesson, cellRows) => {
     const rowsToFilter = [...cellRows];
 
-    const { teacher } = draggedLesson;
+    if (!draggedLesson.teacher) return [];
 
-    if (!teacher) return [];
+    const { id: teacherId } = draggedLesson.teacher;
 
-    const { name, surname } = teacher;
+    if (!teacherId) return [];
 
-    if (!name || !surname) return [];
 
     const notAllowedRows = rowsToFilter.filter((row) => 
         row.some((cell) => {
-            if (cell.lesson && cell.lesson.teacher) {
-                const cellTeacherName = cell.lesson.teacher.name;
-                const cellTeacherSurname = cell.lesson.teacher.surname;
+            if (cell.lesson && cell.lesson.teacher && cell.lesson.teacher.id) {
+                const cellTeacherId = cell.lesson.teacher.id;
 
-                return  cellTeacherName === name && cellTeacherSurname === surname;
+                return  cellTeacherId === teacherId;
             }
 
             return false;
@@ -49,6 +46,7 @@ export default class ScheduleController {
     setLesson(row, col, lessonId) {
         if (!this.checkRowCol(row, col)) return undefined;
         if (!lessonId) return undefined;
+
 
         const foundLesson = this.findLessonById(lessonId);
 
@@ -89,14 +87,12 @@ export default class ScheduleController {
         if (isNaN(row) || isNaN(col)) return false;
         if (!(0 <= row & row <= this.model.getRowCount() - 1)) return false;
         if (!(0 <= col & col <= this.model.getColCount() - 1)) return false;
-
+        
         return true;
     }
 
     findLessonById(lessonId) {
-        return this.lessons.find((lesson) => {
-            return generateLessonId(lesson) === lessonId;
-        });
+        return this.lessons.find((lesson) => lesson.id == lessonId);
     }
 
     addCellToLocalStorage(cell) {
