@@ -1,5 +1,5 @@
 import localStorage from './utils/localStorage.js';
-import {generateLessonId} from './utils/htmlComponents.js';
+import {generateLessonId} from './lessonComponent.js';
 
 const ruleCallbacks = {
     classToClass: (draggedLesson, targetCell) => {

@@ -1,9 +1,12 @@
 $drag-element-height: 55px;
 $drag-element-width: 110px;
+$drag-element-background-color: white;
+$drag-element-hover-background-color: rgb(225, 240, 255);
 $cell-paddings: 10px;
 $table-schedule-width: 1650px;
 $table-schedule-and-lessons-height: 950px;
 $table-lessons-width: 135px;
+$close-icon-color: red;
 
 gh-study-schedule {
     .container {
@@ -56,7 +59,7 @@ gh-study-schedule {
                 left: 0;
                 background-color: white;
                 box-shadow: 0 0 0 0.5px black;
-                z-index: 2;
+                z-index: 3;
             }
         }
 
@@ -68,7 +71,7 @@ gh-study-schedule {
             &.column-cell-freeze {
                 position: sticky;
 
-                z-index: 1;
+                z-index: 2;
 
                 left: 3em;
                 background-color: white;
@@ -139,31 +142,84 @@ gh-study-schedule {
         position: relative;
 
         display: flex;
-        flex-direction: column;
-        justify-content: center;
+        justify-content: flex-start;
         align-items: center;
 
         height: $drag-element-height;
         width: $drag-element-width;
 
-        padding: 10px;
-
-        .lesson-title {
-            white-space: nowrap;
-
-            &:first-letter {
-                text-transform: uppercase;
+        &:hover {
+            .lesson-content-container.removable {
+                width: 85%;
+                background-color: $drag-element-hover-background-color;
             }
         }
 
-        .lesson-teacher-name {
-            white-space: nowrap;
+        .lesson-content-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+
+            height: 100%;
+            width: 100%;
+
+            padding: 10px;
+
+            border-radius: inherit;
+
+            background-color: $drag-element-background-color;
+
+            z-index: 1;
+
+            transition: all 0.5s ease;
+
+            .lesson-title {
+                white-space: nowrap;
+    
+                &:first-letter {
+                    text-transform: uppercase;
+                }
+            }
+    
+            .lesson-teacher-name {
+                white-space: nowrap;
+            }
+    
+            .lesson-class-number {
+                position: absolute;
+                top: 2px;
+                right: 4px;
+            }
         }
 
-        .lesson-class-number {
+        .close-icon {
+            cursor: pointer;
             position: absolute;
-            top: 2px;
-            right: 4px;
+            top: 56%;
+            right: 2px;
+
+            width: 12px;
+            height: 14px;
+
+            z-index: 0;
+
+            transform: translateY(-50%);
+
+
+            &:before, &:after {content: "";
+                 position: absolute;
+
+                 top: 6px;
+                 left: 1px;
+
+                 width: 10px;
+                 height: 2px;
+                 background: $close-icon-color;
+            }
+
+            &:before {transform: rotate(45deg);}
+            &:after {transform: rotate(-45deg);}
         }
     }
 }
