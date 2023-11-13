@@ -4,33 +4,11 @@ function addCell(cell) {
     try {
         const existingCells = getCells();
 
-        const isDuplicate = existingCells.some(existinCell => {
-            const {
-                exLessonNumber,
-                exDay,
-            } = existinCell;
-
-            const {
-                exClassNumber,
-                exClassLetter,
-            } = existinCell.clas;
-
-            const {
-                lessonNumber,
-                day,
-            } = cell;
-
-
-            const {
-                classNumber,
-                classLetter,
-            } = cell.clas;
-
-
-            return (exClassNumber === classNumber &&
-                    exClassLetter === classLetter &&
-                    exLessonNumber === lessonNumber &&
-                    exDay === day)
+        const isDuplicate = existingCells.some(existingCell => {
+            existingCell.clas.id  == cell.clas.id &&
+            existingCell.dayOfWeek == cell.dayOfWeek &&
+            existingCell.lesson.id == cell.lesson.id &&
+            existingCell.lessonNumber == cell.lessonNumber;
         });
 
         if (isDuplicate) {
@@ -51,9 +29,9 @@ function removeCell(cell) {
         const existingCells = getCells();
 
         const cellIndex = existingCells.findIndex(existingCell => (
-            existingCell.clas.classNumber === cell.clas.classNumber &&
-            existingCell.clas.classLetter === cell.clas.classLetter &&
-            existingCell.lessonNumber === cell.lessonNumber
+            existingCell.clas.id  == cell.clas.id &&
+            existingCell.dayOfWeek == cell.dayOfWeek &&
+            existingCell.lessonNumber == cell.lessonNumber
         ));
 
         if (cellIndex !== -1) {

@@ -7,7 +7,7 @@ export const lessonContentContainerRemovableClass = '.removable';
 export const closeIconClass = '.close-icon';
 
 export function lesson(lesson, isClone) {
-    const { id, title, classNumber, teacher } = lesson;
+    const { id, title, clas, teacher } = lesson;
     const { name, surname } = teacher ? teacher : {};
 
     const titleRender = [...title].map((el, i) => i === 0 ? el.toUpperCase() : el).join('');
@@ -17,6 +17,7 @@ export function lesson(lesson, isClone) {
         <div
             class="redips-drag ${isClone ? 'redips-clone' : ''}"
             ${lessonIdAttribute}="${id}"
+            ${this.classIdAttribute}="${clas.id}"
         >
             <div
                 class="${removeDotFromClass(closeIconClass)}"
@@ -25,7 +26,7 @@ export function lesson(lesson, isClone) {
             <div class="${removeDotFromClass(lessonContentContainerClass)} ${isClone ? '' : removeDotFromClass(lessonContentContainerRemovableClass)}">
                 <span class="lesson-title">${shortText(titleRender)}</span>
                 ${teacher ? `<span class="lesson-teacher-name">${shortText(teacherName)}</span>` : ''}
-                ${classNumber ? `<span class="lesson-class-number">${classNumber}</span>` : ''}
+                ${clas ? `<span class="lesson-class">${clas.classNumber}-${clas.classLetter}</span>` : ''}
             </div>
         </div>
     `;

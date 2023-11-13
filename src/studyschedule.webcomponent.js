@@ -23,9 +23,13 @@ import {
     lessonsList as renderLessonsList,
     rerenderTitle as rerenderLessonsListTitle,
     rerenderLessonsList,
+    rerenderLessonsCounters,
     selectedTabClass,
     lessonsListTitleClass,
-    onSelectClassTabEvent,
+    lessonsListId,
+    hoursRemainsClass,
+    lessonCloneDisabledClass,
+    classIdAttribute
 } from './components/lessonsListComponent.js';
 
 class GhStudySchedule extends GhHtmlElement {
@@ -46,7 +50,7 @@ class GhStudySchedule extends GhHtmlElement {
         this.cellColAttribute = cellColAttribute;
         this.cellRowAttribute = cellRowAttribute;
         this.lessonIdAttribute = lessonIdAttribute;
-        this.tabClassIdAttribute = 'data-classId';
+        this.classIdAttribute = classIdAttribute;
         
         // classes
         this.lessonCellClass = lessonCellClass;
@@ -74,10 +78,10 @@ class GhStudySchedule extends GhHtmlElement {
         //components renders
         this.renderLessonsList = renderLessonsList.bind(this);
 
-        this.renderLesson = renderLesson;
+        this.renderLesson = renderLesson.bind(this);
         this.rerenderLessonsListTitle = rerenderLessonsListTitle.bind(this);
         this.rerenderLessonsList = rerenderLessonsList.bind(this);
-        this.onSelectClassTabEvent = onSelectClassTabEvent;
+        this.rerenderLessonsCounters = rerenderLessonsCounters.bind(this);
     }
 
     // onInit() is called after parent gh-element scope is ready
@@ -87,6 +91,8 @@ class GhStudySchedule extends GhHtmlElement {
 
         this.setCorrespondingHTMLElements();
         this.dndInit();
+
+        this.rerenderLessonsCounters();
     };
 
     dndInit() {
@@ -125,8 +131,8 @@ class GhStudySchedule extends GhHtmlElement {
                 return handleBeforeDrop(targetCell);
             };
 
-            rd.event.deleted = (isExistingCell) => {
-                return handleDeleted(isExistingCell);
+            rd.event.deleted = (clonedAndDirectlyMovedToTrasg) => {
+                return handleDeleted(clonedAndDirectlyMovedToTrasg);
             };
 
             rd.event.finish = () => {
@@ -137,10 +143,13 @@ class GhStudySchedule extends GhHtmlElement {
                 const clonedElement = REDIPS.drag.obj;
                 handleCloneDropped(clonedElement);
             };
+
+            return rd;
         }
 
         setTimeout(() => {
-            redips.init();
+            this.rd = redips.init();
+            this.checkAllLessonsForHourLimit();
         }, 0);
     }
 
@@ -180,17 +189,21 @@ class GhStudySchedule extends GhHtmlElement {
             const clickedCellRow = this.clickedCell.getAttribute(cellRowAttribute);
             const clickedCellCol = this.clickedCell.getAttribute(cellColAttribute);
 
-            const removedLesson = this.controller.removeLesson(clickedCellRow, clickedCellCol);
+            const removedLessonId = this.controller.removeLesson(clickedCellRow, clickedCellCol);
         }
 
         return Boolean(resultStorageObject);
     }
 
-    handleDeleted(isExistingCell) {
+    handleDeleted(clonedAndDirectlyMovedToTrasg) {
+        if (clonedAndDirectlyMovedToTrasg) return;
+
         const clickedCellRow = this.clickedCell.getAttribute(cellRowAttribute);
         const clickedCellCol = this.clickedCell.getAttribute(cellColAttribute);
 
-        const removedLesson = this.controller.removeLesson(clickedCellRow, clickedCellCol);
+        const removedLessonId = this.controller.removeLesson(clickedCellRow, clickedCellCol);
+        this.rerenderLessonsCounters();
+        this.checkLessonForHourLimit(removedLessonId);
     }
 
     handleFinishEvent() {
@@ -200,15 +213,44 @@ class GhStudySchedule extends GhHtmlElement {
     }
 
     handleCloneDropped(clonedElement) {
+        const lessonId = clonedElement.getAttribute(lessonIdAttribute);
         const lessonContentContainer = clonedElement.querySelector(lessonContentContainerClass);
         lessonContentContainer.classList.add(removeDotFromClass(lessonContentContainerRemovableClass));
 
         const closeIcon = clonedElement.querySelector(closeIconClass);
         closeIcon.addEventListener('mousedown', () => this.handleClickCloseIcon());
+        this.rerenderLessonsCounters();
+
+        this.checkLessonForHourLimit(lessonId);
     }
 
     handleClickCloseIcon(event) {
         this.setIsClickedCloseIcon(true);
+    }
+
+    checkLessonForHourLimit(lessonId) {
+        const lessonsList = document.getElementById(lessonsListId);
+        const cellElement = lessonsList.querySelector(`tr[data-id="${lessonId}"]`);
+        const remainsCounter = cellElement.querySelector(`.${hoursRemainsClass}`);
+        const dragElement = cellElement.querySelector('.redips-clone');
+
+        const isDragElementEnabled = remainsCounter.textContent != 0;
+
+        this.rd.enableDrag(isDragElementEnabled, dragElement);
+
+        if (isDragElementEnabled) {
+            dragElement.classList.remove(lessonCloneDisabledClass);
+        } else {
+            dragElement.classList.add(lessonCloneDisabledClass);
+        }
+    }
+
+    checkAllLessonsForHourLimit() {
+        const lessonsIdsArr = this.lessons.map(({id}) => id);
+
+        for (const id of lessonsIdsArr) {
+            this.checkLessonForHourLimit(id);
+        }
     }
 
     //lessons tabs handlers
@@ -221,7 +263,7 @@ class GhStudySchedule extends GhHtmlElement {
         };
 
         // handler code start
-        const selectedClassTabId = selectedElement.getAttribute(this.tabClassIdAttribute);
+        const selectedClassTabId = selectedElement.getAttribute(this.classIdAttribute);
         
         if (selectedClassTabId === this.selectedClassTabId) return;
 

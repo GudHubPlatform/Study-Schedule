@@ -5,7 +5,7 @@ $drag-element-hover-background-color: rgb(225, 240, 255);
 $cell-paddings: 10px;
 $table-schedule-width: 1650px;
 $table-schedule-and-lessons-height: 950px;
-$table-lessons-width: 135px;
+$table-lessons-width: 260px;
 $close-icon-color: red;
 
 gh-study-schedule {
@@ -109,6 +109,7 @@ gh-study-schedule {
     }
 
     .table-lessons {
+        max-height: 0px;
         .freeze-header {
             position: sticky;
             top: 0;
@@ -132,8 +133,11 @@ gh-study-schedule {
         }
 
         tr {
-            &.noDisplay {
-                display: none;
+            td {
+                .hours-counter {
+                    display: flex;
+                    flex-direction: column;
+                }
             }
         }
     }
@@ -226,6 +230,14 @@ gh-study-schedule {
         -moz-border-radius: 4px; /* FF */
         border-width: 2px;
     }
+
+    .redips-clone {
+        &.disabled {
+            .lesson-content-container {
+                background-color: rgb(255, 193, 193);
+            }
+        }
+    }
     
     div.redips-drag {
         position: relative;
@@ -275,7 +287,7 @@ gh-study-schedule {
                 white-space: nowrap;
             }
     
-            .lesson-class-number {
+            .lesson-class {
                 position: absolute;
                 top: 2px;
                 right: 4px;

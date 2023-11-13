@@ -1,10 +1,11 @@
-export const tabClassIdAttribute = 'data-classId';
 export const selectedTabClass = '.selected';
 export const lessonsListTitleClass = 'lessons-list-title';
-export const onSelectClassTabEvent = 'onSelectClassTab';
+export const hoursRemainsClass = 'hours-remains';
+const hoursTotalAmountClass = 'hours-total-amount';
 const lessonsListTitleId = 'lessons-list-title';
-const lessonsListId = 'lessons-list';
-const lessonRowNoDisplayClass = 'noDisplay';
+export const lessonsListId = 'lessons-list';
+export const lessonCloneDisabledClass = 'disabled';
+export const classIdAttribute = 'data-class-id'
 
 export function lessonsList() {
     return `
@@ -13,12 +14,13 @@ export function lessonsList() {
             <ul class="tabs-lesson-list">
                 <li class=${selectedTabClass.replace('.', '')} onclick="handleSelectTab()"><label class="tab-lesson">All</label></li>
                 ${this.classes.reduce((acc, { id, classNumber, classLetter }) => acc + `
-                    <li ${tabClassIdAttribute}="${id}" onclick="handleSelectTab()"><label class="tab-lesson">${classNumber}-${classLetter}</label></li>
+                    <li ${this.classIdAttribute}="${id}" onclick="handleSelectTab()"><label class="tab-lesson">${classNumber}-${classLetter}</label></li>
                 `, '')}
             </ul>
             <table class="table-lessons">
                 <thead>
                     <tr>
+                        <th class="redips-mark freeze-header"></th>
                         <th 
                         id="${lessonsListTitleId}"
                         class="${lessonsListTitleClass} redips-mark freeze-header"
@@ -32,6 +34,27 @@ export function lessonsList() {
         </div>
     </div>
     `;
+}
+
+function renderLessonsList(lessons) {
+    return lessons.reduce((acc, lesson) => acc + 
+    `
+        <tr 
+            ${this.lessonIdAttribute}="${lesson.id}"
+            ${this.classIdAttribute}="${lesson.clas.id}"
+        >
+            <td class="redips-trash">
+                <div class=hours-counter redips-trash>
+                    <span class=${hoursTotalAmountClass}>${lesson.academicHours}</span>
+                    <span class="${hoursRemainsClass}">${lesson.academicHours}</span>
+                </div>
+            </td>
+            <td class="redips-trash">
+                ${this.renderLesson(lesson, true)}
+            </td>
+        </tr>
+    `
+    , '');
 }
 
 export function rerenderTitle() {
@@ -50,47 +73,39 @@ export function rerenderTitle() {
     }
 }
 
-function renderLessonsList(lessons) {
-    return lessons.reduce((acc, lesson) => acc + 
-    `
-        <tr ${this.lessonIdAttribute}="${lesson.id}">
-            <td class="redips-trash">
-                ${this.renderLesson(lesson, true)}
-            </td>
-        </tr>
-    `
-    , '');
-}
-
 export function rerenderLessonsList() {
     const listElement = document.getElementById(lessonsListId);
 
-    let filteredLessons;
-
-    const foundClass = this.classes.find(({id}) => id == this.selectedClassTabId);
-
-    if (!foundClass || this.selectedClassTabId === this.lessonsTabAll) {
-        filteredLessons = this.lessons;
-    } else {
-        filteredLessons = this.lessons.filter((clas) => {
-            const { classNumber } = clas;
-    
-            if (!classNumber || classNumber == foundClass.classNumber) {
-                return true;
-            }
-            return false;
-        });
-    }
+    const selectedClassId = this.selectedClassTabId;
 
     for (const el of listElement.children) {
-        const lessonId = el.getAttribute(this.lessonIdAttribute);
+        const classId = el.getAttribute(this.classIdAttribute);
 
-        const isDisplayed = filteredLessons.some(({id}) => lessonId == id);
+        const isDisplayed = classId == selectedClassId;
 
-        if (isDisplayed) {
-            el.classList.remove(lessonRowNoDisplayClass);
+        if (isDisplayed || !selectedClassId) {
+            el.style.display = '';
         } else {
-            el.classList.add(lessonRowNoDisplayClass);
+            el.style.display = 'none';
+        }
+    }
+}
+
+export function rerenderLessonsCounters() {
+    const hours = this.controller.getAcademicHours();
+
+    const listElement = document.getElementById(lessonsListId);
+    
+    for (const row of listElement.children) {
+        const lessonId = row.getAttribute(this.lessonIdAttribute);
+
+        const totalAmountCounter = row.querySelector(`.${hoursTotalAmountClass}`);
+        const remainsCounter = row.querySelector(`.${hoursRemainsClass}`);
+        
+        if (Object.hasOwnProperty.call(hours, [lessonId])) {
+            remainsCounter.textContent = totalAmountCounter.textContent - hours[lessonId];
+        } else {
+            remainsCounter.textContent = totalAmountCounter.textContent;
         }
     }
 }

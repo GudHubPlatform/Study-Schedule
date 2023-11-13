@@ -67,114 +67,27 @@ const teachers = [{
     id: 14,
     name: 'Павло',
     surname: 'Гончар'
-}];
-
-export const lessons = [{
-    id: 0,
-    title: 'укр література',
-    classNumber: '5',
-},{
-    id: 1,
-    title: 'укр література',
-    classNumber: '6',
-},{
-    id: 2,
-    title: 'укр література',
-    classNumber: '7',
-},{
-    id: 3,
-    title: "Основи здоров'я",
-    classNumber: '7',
-    teacher: teachers[0]
-},{
-    id: 4,
-    title: 'трудове навчання',
-    classNumber: '',
-    teacher: teachers[1]
-},{
-    id: 5,
-    title: 'образотворче мистецтво',
-    classNumber: '',
-    teacher: teachers[2]
-},{
-    id: 6,
-    title: 'англійська мова',
-    classNumber: '',
-    teacher: teachers[3]
-},{
-    id: 7,
-    title: 'музичне мистецтво',
-    classNumber: '',
-    teacher: teachers[4]
 },
 {
-    id: 8,
-    title: 'хімія',
-    classNumber: '',
-    teacher: teachers[5]
-},{
-    id: 9,
-    title: 'географія',
-    classNumber: '',
-    teacher: teachers[6]
-},{
-    id: 10,
-    title: 'історія',
-    classNumber: '',
-    teacher: teachers[7]
-},{
-    id: 11,
-    title: 'всесвіт. історія',
-    classNumber: '',
-    teacher: teachers[8]
-},{
-    id: 12,
-    title: 'математика',
-    classNumber: '',
-    teacher: teachers[9]
-},{
-    id: 13,
-    title: 'алгебра',
-    classNumber: '',
-    teacher: teachers[9]
-},{
-    id: 14,
-    title: 'геометрія',
-    classNumber: '5',
-    teacher: teachers[9]
-},{
     id: 15,
-    title: 'укр мова',
-    classNumber: '',
-    teacher: teachers[10]
-},{
+    name: 'Руслан',
+    surname: 'Нечипора'
+},
+{
     id: 16,
-    title: 'укр література',
-    classNumber: '',
-    teacher: teachers[10]
-},{
+    name: 'Оксана',
+    surname: 'Звенигора'
+},
+{
     id: 17,
-    title: 'світова література',
-    classNumber: '',
-    teacher: teachers[11]
-},{
-    id: 18,
-    title: 'фізкультура',
-    classNumber: '',
-    teacher: teachers[12]
-},{
-    id: 19,
-    title: 'екологія',
-    classNumber: '',
-    teacher: teachers[13]
-}
-];
+    name: 'Марія',
+    surname: 'Гудзик'
+}];
 
 export const classes = [{
     id: 0,
     classNumber: 5,
     classLetter: 'а',
-    lessonsAcademicHours: {}, 
 },{
     id: 1,
     classNumber: 5,
@@ -232,3 +145,78 @@ export const classes = [{
     classNumber: 11,
     classLetter: 'а',
 }];
+
+export const lessons = [{
+    id: 0,
+    title: 'укр література',
+    clas: classes[0],
+    teacher: teachers[0],
+    academicHours: 15,
+},{
+    id: 1,
+    title: 'укр література',
+    clas: classes[1],
+    teacher: teachers[0],
+    academicHours: 15,
+},{
+    id: 2,
+    title: 'укр література',
+    clas: classes[2],
+    teacher: teachers[0],
+    academicHours: 15,
+},{
+    id: 3,
+    title: 'укр мова',
+    clas: classes[0],
+    teacher: teachers[0],
+    academicHours: 10,
+},{
+    id: 4,
+    title: 'укр мова',
+    clas: classes[1],
+    teacher: teachers[0],
+    academicHours: 10,
+},{
+    id: 5,
+    title: 'укр мова',
+    clas: classes[2],
+    teacher: teachers[0],
+    academicHours: 10,
+},{
+    id: 6,
+    title: 'алгебра',
+    clas: classes[0],
+    teacher: teachers[1],
+    academicHours: 8,
+},{
+    id: 7,
+    title: 'алгебра',
+    clas: classes[1],
+    teacher: teachers[1],
+    academicHours: 8,
+},{
+    id: 8,
+    title: 'алгебра',
+    clas: classes[2],
+    teacher: teachers[1],
+    academicHours: 8,
+},{
+    id: 9,
+    title: 'геометрія',
+    clas: classes[0],
+    teacher: teachers[1],
+    academicHours: 10,
+},{
+    id: 10,
+    title: 'геометрія',
+    clas: classes[1],
+    teacher: teachers[1],
+    academicHours: 10,
+},{
+    id: 11,
+    title: 'геометрія',
+    clas: classes[2],
+    teacher: teachers[1],
+    academicHours: 10,
+},
+];

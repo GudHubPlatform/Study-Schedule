@@ -6,6 +6,7 @@ export default class ScheduleModel {
         this.rowCount = this.daysOfWeek.length * this.lessonsPerDay;
         this.colCount = this.classes.length;
         this.scheduleStorage = [];
+        this.academicHours = {};
     }
 
     storageInitialization(cellsMap) {
@@ -27,6 +28,7 @@ export default class ScheduleModel {
 
                 if (foundcell) {
                     cell = foundcell;
+                    this.addAcademicHour(cell.lesson.id);
                 }
 
                 this.scheduleStorage[i].push(cell);
@@ -47,13 +49,11 @@ export default class ScheduleModel {
 
     removeLesson(row, col) {
         const foundCell = this.scheduleStorage[row][col];
-        const removedLesson = foundCell.lesson;
-    
-        if (removedLesson !== null) {
-            foundCell.lesson = null;
-        }
+        const removedLessonId = foundCell.lesson.id;
 
-        return removedLesson;
+        foundCell.lesson = null;
+
+        return removedLessonId;
     }
 
     setHTMLElement(row, col, element) {
@@ -82,5 +82,37 @@ export default class ScheduleModel {
 
     getStorage() {
         return [...this.scheduleStorage.map((row) => [...row])];
+    }
+
+    getAcademicHours() {
+        const hours = {};
+
+        for (const [id, value] of Object.entries(this.academicHours)) {
+            hours[id] = value;
+        }
+
+        return hours;
+    }
+
+    addAcademicHour(lessonId) {
+        const isExist = Object.hasOwnProperty.call(this.academicHours, [lessonId]);
+
+        if (isExist) {
+            this.academicHours[lessonId]++;
+        } else {
+            this.academicHours[lessonId] = 1;
+        }
+    }
+
+    subtractAcademicHour(lessonId) {
+        const isExist = Object.hasOwnProperty.call(this.academicHours, [lessonId]);
+
+        if (isExist) {
+            this.academicHours[lessonId]--;
+
+            if (this.academicHours[lessonId] === 0) {
+                delete this.academicHours[lessonId];
+            }
+        }
     }
 }
