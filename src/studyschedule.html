@@ -1,26 +1,5 @@
 <div class="container" id="redips-drag">
-    <div class="table-lessons-and-tabs-container">
-        <div class="table-scroll">
-            <table class="table-lessons">
-                <thead>
-                    <tr>
-                    <th class="redips-mark">Уроки</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${lessons.reduce((acc, lesson) => acc + 
-                        `
-                            <tr>
-                                <td class="redips-trash">
-                                    ${renderLesson(lesson, true)}
-                                </td>
-                            </tr>
-                        `
-                        , '')}
-                </tbody>
-            </table>
-        </div>
-    </div>
+    ${renderLessonsList()}
     <div class="table-scroll-schedule">
         <table class="table-schedule">
             <thead>

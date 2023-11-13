@@ -1,4 +1,4 @@
-$drag-element-height: 55px;
+ $drag-element-height: 55px;
 $drag-element-width: 110px;
 $drag-element-background-color: white;
 $drag-element-hover-background-color: rgb(225, 240, 255);
@@ -31,6 +31,10 @@ gh-study-schedule {
         min-width: $table-lessons-width;
         max-height: $table-schedule-and-lessons-height;
 
+
+        display: flex;
+        flex-direction: row;
+
         &-schedule {
             overflow: auto;
             position: relative;
@@ -45,8 +49,87 @@ gh-study-schedule {
         padding: $cell-paddings;
         border: solid 1px #000;
     }
+    
+    .table-lessons-and-tabs-container {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .tabs-lesson-list {
+        display: flex;
+        flex-direction: column;
+        align-items: end;
+
+        min-width: 70px;
+
+        li {
+            box-sizing: border-box;
+
+            min-width: 35px;
+            height: 55px;
+
+            background-color: #2f95dd;
+            font-weight: 500;
+            color: white;
+
+            border-bottom-left-radius: 6px;
+            border-top-left-radius: 6px;
+
+            border-left: solid 1px black;
+            border-top: solid 1px black;
+            border-bottom: solid 1px black;
+
+            transition: all .2s ease-out;
+
+            &:last-child {
+            border-bottom: solid 1px black;
+            }
+
+            &.selected {
+                min-width: 50px;
+                border-bottom-left-radius: 8px;
+                border-top-left-radius: 8px;
+            }
+
+            &:not(.selected):hover {
+                min-width: 40px;
+            }
+        }
+    }
+
+    .tab-lesson {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 100%;
+        height: 100%;
+
+        border-radius: inherit;
+    }
 
     .table-lessons {
+        .freeze-header {
+            position: sticky;
+            top: 0;
+            left: 0;
+
+            background-color: white;
+            z-index: 2;
+            
+            &::after {
+                display: flex;
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+
+                border-top: solid .5px black;
+                border-bottom: solid .5px black;
+            }
+        }
     }
     
     .table-schedule {

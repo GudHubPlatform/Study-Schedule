@@ -8,16 +8,24 @@ import ScheduleController from "./ScheduleController.js";
 import ScheduleModel from "./ScheduleModel.js";
 
 import { 
+    lesson as renderLesson,
     cellColAttribute, 
     cellRowAttribute, 
     lessonCellClass, 
     lessonIdAttribute,
-    lesson as renderLesson,
     lessonContentContainerClass,
     lessonContentContainerRemovableClass,
     removeDotFromClass,
     closeIconClass
-} from './lessonComponent.js';
+} from './components/lessonComponent.js';
+
+import {
+    lessonsList as renderLessonsList,
+    rerenderTitle as rerenderLessonsListTitle,
+    selectedTabClass,
+    lessonsListTitleClass,
+    onSelectClassTabEvent,
+} from './components/lessonsListComponent.js';
 
 class GhStudySchedule extends GhHtmlElement {
 
@@ -25,24 +33,44 @@ class GhStudySchedule extends GhHtmlElement {
 
     constructor() {
         super();
+
+        //data
         this.columnWidth = 2;
         this.daysOfWeek = ["понеділок","вівторок","середа","четвер","п'ятниця"];
         this.lessonsPerDay = 7;
         this.classes = classes;
         this.lessons = lessons;
         
+        // attributes
         this.cellColAttribute = cellColAttribute;
         this.cellRowAttribute = cellRowAttribute;
-        this.lessonCellClass = lessonCellClass;
         this.lessonIdAttribute = lessonIdAttribute;
-        this.renderLesson = renderLesson;
+        this.tabClassIdAttribute = 'data-classId';
+        
+        // classes
+        this.lessonCellClass = lessonCellClass;
+        this.selectedTabClass = selectedTabClass;
+        this.lessonsListTitleClass = lessonsListTitleClass;
 
+        //components renders
+        this.renderLessonsList = renderLessonsList.bind(this);
+
+        this.renderLesson = renderLesson;
+        this.rerenderLessonsListTitle = rerenderLessonsListTitle;
+        this.onSelectClassTabEvent = onSelectClassTabEvent;
+
+        // all about schedule
         this.clickedCell;
         this.disableHighlight;
         this.isClickedCloseIcon;
         this.setIsClickedCloseIcon = (bool) => {this.isClickedCloseIcon = bool};
         this.handleClickCloseIcon = this.handleClickCloseIcon;
 
+        //lessons list and tabs
+        this.selectedClassTab = 'all';
+        this.handleSelectTab = this.handleSelectTab;
+
+        // mvc
         this.model = new ScheduleModel(classes, this.daysOfWeek, this.lessonsPerDay);
         this.controller = new ScheduleController(this.model, lessons);
         this.controller.loadLocalStorageCellsToStorage();
@@ -113,6 +141,13 @@ class GhStudySchedule extends GhHtmlElement {
         }, 0);
     }
 
+    setCorrespondingHTMLElements() {
+        const htmlElements = document.querySelectorAll(lessonCellClass);
+
+        this.controller.setHTMLElements(htmlElements);
+    }
+
+    // schedule table RedipsDnD handlers
     handleDragElement(clickedCell) {
         this.clickedCell = clickedCell;
     
@@ -173,10 +208,31 @@ class GhStudySchedule extends GhHtmlElement {
         this.setIsClickedCloseIcon(true);
     }
 
-    setCorrespondingHTMLElements() {
-        const htmlElements = document.querySelectorAll(lessonCellClass);
+    //lessons tabs handlers
+    handleSelectTab(selectedElement) {
+        //separated functions
+        const setNewSelectedAndRemovePrevSelectedTab = () => {
+            const tabListElement = selectedElement.parentElement;
+            [...tabListElement.children].forEach((el) => el.classList.remove(this.selectedTabClass.replace('.', '')));
+            selectedElement.classList.add(this.selectedTabClass.replace('.', ''));
+        };
 
-        this.controller.setHTMLElements(htmlElements);
+        // handler code start
+        const selectedClassTabId = selectedElement.getAttribute(this.tabClassIdAttribute);
+        
+        if (selectedClassTabId === this.selectedClassTabId) return;
+
+        this.selectedClassTabId = selectedClassTabId;
+        
+        setNewSelectedAndRemovePrevSelectedTab();
+
+        
+    }
+
+    // rerender components functions
+
+    rerenderLessonsList() {
+        
     }
 
     // disconnectedCallback() is called after the component is destroyed
