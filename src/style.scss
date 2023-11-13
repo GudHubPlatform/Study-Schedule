@@ -130,6 +130,12 @@ gh-study-schedule {
                 border-bottom: solid .5px black;
             }
         }
+
+        tr {
+            &.noDisplay {
+                display: none;
+            }
+        }
     }
     
     .table-schedule {

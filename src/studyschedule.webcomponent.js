@@ -22,6 +22,7 @@ import {
 import {
     lessonsList as renderLessonsList,
     rerenderTitle as rerenderLessonsListTitle,
+    rerenderLessonsList,
     selectedTabClass,
     lessonsListTitleClass,
     onSelectClassTabEvent,
@@ -52,13 +53,6 @@ class GhStudySchedule extends GhHtmlElement {
         this.selectedTabClass = selectedTabClass;
         this.lessonsListTitleClass = lessonsListTitleClass;
 
-        //components renders
-        this.renderLessonsList = renderLessonsList.bind(this);
-
-        this.renderLesson = renderLesson;
-        this.rerenderLessonsListTitle = rerenderLessonsListTitle;
-        this.onSelectClassTabEvent = onSelectClassTabEvent;
-
         // all about schedule
         this.clickedCell;
         this.disableHighlight;
@@ -67,7 +61,8 @@ class GhStudySchedule extends GhHtmlElement {
         this.handleClickCloseIcon = this.handleClickCloseIcon;
 
         //lessons list and tabs
-        this.selectedClassTab = 'all';
+        this.lessonsTabAll = 'all';
+        this.selectedClassTabId = this.lessonsTabAll;
         this.handleSelectTab = this.handleSelectTab;
 
         // mvc
@@ -75,6 +70,14 @@ class GhStudySchedule extends GhHtmlElement {
         this.controller = new ScheduleController(this.model, lessons);
         this.controller.loadLocalStorageCellsToStorage();
         this.storage = this.controller.getStorage();
+
+        //components renders
+        this.renderLessonsList = renderLessonsList.bind(this);
+
+        this.renderLesson = renderLesson;
+        this.rerenderLessonsListTitle = rerenderLessonsListTitle.bind(this);
+        this.rerenderLessonsList = rerenderLessonsList.bind(this);
+        this.onSelectClassTabEvent = onSelectClassTabEvent;
     }
 
     // onInit() is called after parent gh-element scope is ready
@@ -226,13 +229,8 @@ class GhStudySchedule extends GhHtmlElement {
         
         setNewSelectedAndRemovePrevSelectedTab();
 
-        
-    }
-
-    // rerender components functions
-
-    rerenderLessonsList() {
-        
+        this.rerenderLessonsListTitle();
+        this.rerenderLessonsList();
     }
 
     // disconnectedCallback() is called after the component is destroyed
