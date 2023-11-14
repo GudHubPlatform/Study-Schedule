@@ -21,8 +21,11 @@
                             }
                             <td class="column-cell-freeze redips-mark">${rowIndex % lessonsPerDay + 1}</td>
                             ${row.reduce((accRow, {lesson}, colIndex) => accRow + `
-                                <td colspan=${columnWidth} class="${lessonCellClass.replace('.','')} redips-single" ${cellRowAttribute}="${rowIndex}" ${cellColAttribute}="${colIndex}">
+                                <td class="${lessonCellClass.replace('.','')} redips-single" ${cellRowAttribute}="${rowIndex}" ${cellColAttribute}="${colIndex}">
                                     ${lesson ? renderLesson(lesson, false, () => {}) : ''}
+                                </td>
+                                <td class="${classRoomCellClass}">
+                                    КАБ
                                 </td>
                             `, '')}
                         </tr>

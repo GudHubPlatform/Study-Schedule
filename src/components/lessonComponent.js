@@ -2,6 +2,7 @@ export const cellRowAttribute = 'data-row';
 export const cellColAttribute = 'data-col';
 export const lessonIdAttribute = 'data-id';
 export const lessonCellClass = '.lesson-cell';
+export const classRoomCellClass = '.classroom-cell';
 export const lessonContentContainerClass = '.lesson-content-container';
 export const lessonContentContainerRemovableClass = '.removable';
 export const closeIconClass = '.close-icon';

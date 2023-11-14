@@ -12,6 +12,7 @@ import {
     cellColAttribute, 
     cellRowAttribute, 
     lessonCellClass, 
+    classRoomCellClass,
     lessonIdAttribute,
     lessonContentContainerClass,
     lessonContentContainerRemovableClass,
@@ -54,6 +55,7 @@ class GhStudySchedule extends GhHtmlElement {
         
         // classes
         this.lessonCellClass = lessonCellClass;
+        this.classRoomCellClass = classRoomCellClass;
         this.selectedTabClass = selectedTabClass;
         this.lessonsListTitleClass = lessonsListTitleClass;
 

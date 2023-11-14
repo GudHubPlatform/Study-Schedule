@@ -1,11 +1,11 @@
- $drag-element-height: 55px;
-$drag-element-width: 110px;
+ $drag-element-height: 45px;
+$drag-element-width: 85px;
 $drag-element-background-color: white;
 $drag-element-hover-background-color: rgb(225, 240, 255);
-$cell-paddings: 10px;
-$table-schedule-width: 1650px;
-$table-schedule-and-lessons-height: 950px;
-$table-lessons-width: 260px;
+$cell-paddings: 5px;
+$table-schedule-width: 1625px;
+$table-schedule-and-lessons-height: 900px;
+$table-lessons-width: 170px;
 $close-icon-color: red;
 
 @mixin scroll {
@@ -30,6 +30,8 @@ $close-icon-color: red;
 }
 
 gh-study-schedule {
+    font-size: .8em;
+
     .container {
         display: flex;
         align-items: start;
@@ -85,13 +87,11 @@ gh-study-schedule {
         flex-direction: column;
         align-items: end;
 
-        min-width: 70px;
-
         li {
             box-sizing: border-box;
 
-            min-width: 35px;
-            height: 55px;
+            min-width: 30px;
+            height: 45px;
 
             background-color: #2f95dd;
             font-weight: 500;
@@ -111,13 +111,13 @@ gh-study-schedule {
             }
 
             &.selected {
-                min-width: 50px;
+                min-width: 40px;
                 border-bottom-left-radius: 8px;
                 border-top-left-radius: 8px;
             }
 
             &:not(.selected):hover {
-                min-width: 40px;
+                min-width: 35px;
             }
         }
     }
@@ -135,6 +135,7 @@ gh-study-schedule {
 
     .table-lessons {
         max-height: 0px;
+
         .freeze-header {
             position: sticky;
             top: 0;
@@ -160,11 +161,11 @@ gh-study-schedule {
         th {
 
             &.header-hours-counter {
-                min-width: 36px;
+                min-width: 26px;
             }
 
             &.haeder-lesson-clone-cell {
-                min-width: 131px;
+                min-width: 100px;
             }
         }
 
@@ -268,7 +269,7 @@ gh-study-schedule {
         font-size: inherit; /* needed for cloned object */
         border-radius: 4px; /* Opera, Chrome */
         -moz-border-radius: 4px; /* FF */
-        border-width: 2px;
+        border-width: 1px;
     }
 
     .redips-clone {
@@ -299,13 +300,13 @@ gh-study-schedule {
         .lesson-content-container {
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-end;
             align-items: center;
 
             height: 100%;
             width: 100%;
 
-            padding: 10px;
+            padding: 5px;
 
             border-radius: inherit;
 
