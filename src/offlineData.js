@@ -69,7 +69,7 @@ const teachers = [{
     surname: 'Гончар'
 },
 {
-    id: 15,
+    id: 3,
     name: 'Руслан',
     surname: 'Нечипора'
 },
@@ -151,19 +151,19 @@ export const lessons = [{
     title: 'укр література',
     clas: classes[0],
     teacher: teachers[0],
-    academicHours: 15,
+    academicHours: 3,
 },{
     id: 1,
     title: 'укр література',
     clas: classes[1],
     teacher: teachers[0],
-    academicHours: 15,
+    academicHours: 3,
 },{
     id: 2,
     title: 'укр література',
     clas: classes[2],
     teacher: teachers[0],
-    academicHours: 15,
+    academicHours: 3,
 },{
     id: 3,
     title: 'укр мова',

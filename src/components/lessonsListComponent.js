@@ -20,11 +20,13 @@ export function lessonsList() {
             <table class="table-lessons">
                 <thead>
                     <tr>
-                        <th class="redips-mark freeze-header"></th>
+                        <th class="header-hours-counter redips-mark freeze-header"></th>
                         <th 
-                        id="${lessonsListTitleId}"
-                        class="${lessonsListTitleClass} redips-mark freeze-header"
-                        >Уроки</th>
+                            id="${lessonsListTitleId}"
+                            class="${lessonsListTitleClass} redips-mark freeze-header haeder-lesson-clone-cell"
+                        >
+                            Уроки
+                        </th>
                     </tr>
                 </thead>
                 <tbody id="${lessonsListId}">
@@ -44,7 +46,7 @@ function renderLessonsList(lessons) {
             ${this.classIdAttribute}="${lesson.clas.id}"
         >
             <td class="redips-trash">
-                <div class=hours-counter redips-trash>
+                <div class=hours-counter-container redips-trash>
                     <span class=${hoursTotalAmountClass}>${lesson.academicHours}</span>
                     <span class="${hoursRemainsClass}">${lesson.academicHours}</span>
                 </div>

@@ -8,6 +8,27 @@ $table-schedule-and-lessons-height: 950px;
 $table-lessons-width: 260px;
 $close-icon-color: red;
 
+@mixin scroll {
+    &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    &::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+        background-color: #F5F5F5;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        border-radius: 33px;
+        background: #b9b9b9;
+
+        &:hover {
+            background: #0D99FF;
+        }
+    }
+}
+
 gh-study-schedule {
     .container {
         display: flex;
@@ -31,15 +52,19 @@ gh-study-schedule {
         min-width: $table-lessons-width;
         max-height: $table-schedule-and-lessons-height;
 
-
         display: flex;
         flex-direction: row;
+        justify-content: flex-end;
+
+        @include scroll();
 
         &-schedule {
             overflow: auto;
             position: relative;
             max-width: $table-schedule-width;
             max-height: $table-schedule-and-lessons-height;
+
+            @include scroll();
         }
     }
     
@@ -132,11 +157,26 @@ gh-study-schedule {
             }
         }
 
+        th {
+
+            &.header-hours-counter {
+                min-width: 36px;
+            }
+
+            &.haeder-lesson-clone-cell {
+                min-width: 131px;
+            }
+        }
+
         tr {
             td {
-                .hours-counter {
+                .hours-counter-container {
                     display: flex;
                     flex-direction: column;
+
+                    span {
+                        text-align: center;
+                    }
                 }
             }
         }
