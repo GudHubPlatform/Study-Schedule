@@ -24,9 +24,7 @@ export function lessonsList() {
                         <th 
                             id="${lessonsListTitleId}"
                             class="${lessonsListTitleClass} redips-mark freeze-header haeder-lesson-clone-cell"
-                        >
-                            Уроки
-                        </th>
+                        >Уроки</th>
                     </tr>
                 </thead>
                 <tbody id="${lessonsListId}">
@@ -70,8 +68,9 @@ export function rerenderTitle() {
         if (!foundClass) return;
 
         const addText = `${foundClass.classNumber}-${foundClass.classLetter}`;
+        const titleText = titleElement.textContent + ' ' + addText;
 
-        titleElement.textContent = titleElement.textContent + ' ' + addText;
+        titleElement.textContent = titleText;
     }
 }
 
