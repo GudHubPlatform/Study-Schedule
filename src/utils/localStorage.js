@@ -2,25 +2,72 @@ const dataKey = 'scheduleCells';
 
 function addCell(cell) {
     try {
+        console.log(cell);
         const existingCells = getCells();
 
-        const isDuplicate = existingCells.some(existingCell => {
-            existingCell.clas.id  == cell.clas.id &&
-            existingCell.dayOfWeek == cell.dayOfWeek &&
-            existingCell.lesson.id == cell.lesson.id &&
-            existingCell.lessonNumber == cell.lessonNumber;
-        });
+        const existingCellIndex = existingCells.findIndex(existingCell => (
+            existingCell.clas.id === cell.clas.id &&
+            existingCell.dayOfWeek === cell.dayOfWeek &&
+            existingCell.lessonNumber === cell.lessonNumber
+        ));
 
-        if (isDuplicate) {
-            console.error('Cell with the same classNumber, classLetter, and lessonNumber already exists.');
-            return;
+        if (existingCellIndex !== -1) {
+            existingCells[existingCellIndex] = { ...existingCells[existingCellIndex], ...cell };
+        } else {
+            existingCells.push(cell);
         }
-
-        existingCells.push(cell);
 
         saveCells(existingCells);
     } catch (error) {
         console.error('Error adding cell to localStorage:', error);
+    }
+}
+
+function removeLessonFromCell(cell) {
+    try {
+        const existingCells = getCells();
+
+        const cellIndex = existingCells.findIndex(existingCell => (
+            existingCell.clas.id === cell.clas.id &&
+            existingCell.dayOfWeek === cell.dayOfWeek &&
+            existingCell.lessonNumber === cell.lessonNumber
+        ));
+
+        if (cellIndex !== -1) {
+            delete existingCells[cellIndex].lesson;
+
+            if (!existingCells[cellIndex].classroom) {
+                existingCells.splice(cellIndex, 1);
+            }
+
+            saveCells(existingCells);
+        }
+    } catch (error) {
+        console.error('Error removing lesson from cell in localStorage:', error);
+    }
+}
+
+function removeClassroomFromCell(cell) {
+    try {
+        const existingCells = getCells();
+
+        const cellIndex = existingCells.findIndex(existingCell => (
+            existingCell.clas.id === cell.clas.id &&
+            existingCell.dayOfWeek === cell.dayOfWeek &&
+            existingCell.lessonNumber === cell.lessonNumber
+        ));
+
+        if (cellIndex !== -1) {
+            delete existingCells[cellIndex].classroom;
+
+            if (!existingCells[cellIndex].lesson) {
+                existingCells.splice(cellIndex, 1);
+            }
+
+            saveCells(existingCells);
+        }
+    } catch (error) {
+        console.error('Error removing classroom from cell in localStorage:', error);
     }
 }
 
@@ -64,6 +111,7 @@ function saveCells(cells) {
 
 export default {
     addCell,
-    removeCell,
+    removeClassroomFromCell,
+    removeLessonFromCell,
     getCells
 }

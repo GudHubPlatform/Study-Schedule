@@ -5,8 +5,8 @@
             <thead>
                 <tr class="row-freeze">
                 <th class="redips-mark" colspan="2"></th>
-                    ${classes.reduce((acc, {classNumber, classLetter}) => acc + `
-                        <th class="classNumber redips-mark" colspan=${columnWidth}>${`${classNumber}-${classLetter}`}</th>
+                    ${classes.reduce((acc, clas) => acc + `
+                        <th class="classNumber redips-mark" colspan=${columnWidth}>${clas.title}</th>
                     `, '')}
                 </tr>
             </thead>
@@ -16,16 +16,16 @@
                         <tr>
                             ${
                                 rowIndex % lessonsPerDay === 0
-                                ? `<td class="day-of-week column-cell-freeze redips-mark" rowspan=${lessonsPerDay}>${daysOfWeek[Math.floor(rowIndex / lessonsPerDay) % daysOfWeek.length]}</td>`
+                                ? `<td class="day-of-week column-cell-freeze redips-mark" rowspan=${lessonsPerDay}><span>${daysOfWeek[Math.floor(rowIndex / lessonsPerDay) % daysOfWeek.length]}</span></td>`
                                 : ''
                             }
                             <td class="column-cell-freeze redips-mark">${rowIndex % lessonsPerDay + 1}</td>
-                            ${row.reduce((accRow, {lesson}, colIndex) => accRow + `
-                                <td class="${lessonCellClass.replace('.','')} redips-single" ${cellRowAttribute}="${rowIndex}" ${cellColAttribute}="${colIndex}">
-                                    ${lesson ? renderLesson(lesson, false, () => {}) : ''}
+                            ${row.reduce((accRow, {lesson, classroom}, colIndex) => accRow + `
+                                <td class="${lessonCellClass.replace('.','')} redips-single redips-mark lesson-allowed" ${cellRowAttribute}="${rowIndex}" ${cellColAttribute}="${colIndex}">
+                                    ${lesson ? renderLesson(lesson, false) : ''}
                                 </td>
-                                <td class="${classRoomCellClass}">
-                                    КАБ
+                                <td class="redips-mark redips-single ${classRoomCellClass.replace('.', '')} classroom-allowed" ${cellRowAttribute}="${rowIndex}" ${cellColAttribute}="${colIndex}">
+                                    ${classroom ? renderClassroom(classroom, false) : ''}
                                 </td>
                             `, '')}
                         </tr>

@@ -12,7 +12,7 @@ export default class ScheduleModel {
     storageInitialization(cellsMap) {
         for (let i = 0; i < this.rowCount; i++) {
             this.scheduleStorage.push([]);
-    
+
             for (const clas of this.classes) {
                 let cell = {
                     dayOfWeek: this.daysOfWeek[i % this.daysOfWeek.length],
@@ -20,15 +20,19 @@ export default class ScheduleModel {
                     lessonNumber: i % this.lessonsPerDay + 1,
                     lesson: null,
                     htmlElement: null,
+                    classroom: null,
                 };
 
-                const key = `${cell.clas.classNumber}:${cell.clas.classLetter}:${cell.dayOfWeek}:${cell.lessonNumber}`;
+                const key = `${cell.clas.id}:${cell.dayOfWeek}:${cell.lessonNumber}`;
 
                 const foundcell = cellsMap[key];
 
                 if (foundcell) {
                     cell = foundcell;
-                    this.addAcademicHour(cell.lesson.id);
+
+                    if (foundcell.lesson) {
+                        this.addAcademicHour(cell.lesson.uniqueId);
+                    }
                 }
 
                 this.scheduleStorage[i].push(cell);
@@ -49,7 +53,7 @@ export default class ScheduleModel {
 
     removeLesson(row, col) {
         const foundCell = this.scheduleStorage[row][col];
-        const removedLessonId = foundCell.lesson.id;
+        const removedLessonId = foundCell.lesson.uniqueId;
 
         foundCell.lesson = null;
 
@@ -115,4 +119,24 @@ export default class ScheduleModel {
             }
         }
     }
+
+    setClassroom(row, col, classroom) {
+        const foundCell = this.scheduleStorage[row][col];
+        foundCell.classroom = classroom;
+        return foundCell;
+    }
+
+    removeClassroom(row, col) {
+        const foundCell = this.scheduleStorage[row][col];
+        const removedClassroomId = foundCell.classroom.id;
+
+        foundCell.classroom = null;
+
+        return removedClassroomId;
+    }
+}
+
+export function getKeyFromCell(cell) {
+    const key = `${cell.clas.id}:${cell.dayOfWeek}:${cell.lessonNumber}`;
+    return key;
 }

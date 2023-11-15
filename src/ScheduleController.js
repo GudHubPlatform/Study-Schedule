@@ -1,18 +1,18 @@
+import { getKeyFromCell } from './ScheduleModel.js';
 import localStorage from './utils/localStorage.js';
 
 export default class ScheduleController {
-    constructor(model, lessons) {
+    constructor(model, lessons, classrooms) {
         this.model = model;
         this.lessons = lessons;
+        this.classrooms = classrooms;
     }
 
     setLesson(row, col, lessonId) {
         if (!this.checkRowCol(row, col)) return undefined;
         if (!lessonId) return undefined;
-
-
+;
         const foundLesson = this.findLessonById(lessonId);
-
         if (!foundLesson) return undefined;
 
         const resultCell = this.model.setLesson(row, col, foundLesson);
@@ -30,7 +30,7 @@ export default class ScheduleController {
         const cell = this.model.getCell(row, col);
 
         this.model.subtractAcademicHour(removedLessonId);
-        this.removeCellFromLocalStorage(cell);
+        this.removeLessonFromLocalStorageCell(cell);
 
         return removedLessonId;
     }
@@ -57,22 +57,27 @@ export default class ScheduleController {
     }
 
     findLessonById(lessonId) {
-        return this.lessons.find((lesson) => lesson.id == lessonId);
+        return this.lessons.find((lesson) => lesson.uniqueId == lessonId);
+    }
+
+    findClassroomById(classroomId) {
+        return this.classrooms.find((classroom) => classroom.id == classroomId);
     }
 
     addCellToLocalStorage(cell) {
-        const { dayOfWeek, clas, lessonNumber, lesson } = cell;
+        const { dayOfWeek, clas, lessonNumber, lesson, classroom } = cell;
         const cellToSave = {
             dayOfWeek,
             clas,
             lessonNumber,
-            lesson, 
+            lesson,
+            classroom
         };
 
         localStorage.addCell(cellToSave);
     }
 
-    removeCellFromLocalStorage(cell) {
+    removeLessonFromLocalStorageCell(cell) {
         const { dayOfWeek, clas, lessonNumber } = cell;
         const cellToRemove = {
             dayOfWeek,
@@ -80,7 +85,18 @@ export default class ScheduleController {
             lessonNumber,
         };
 
-        localStorage.removeCell(cellToRemove);
+        localStorage.removeLessonFromCell(cellToRemove);
+    }
+
+    removeClassroomFromLocalStorageCell(cell) {
+        const { dayOfWeek, clas, lessonNumber } = cell;
+        const cellToRemove = {
+            dayOfWeek,
+            clas,
+            lessonNumber,
+        };
+
+        localStorage.removeClassroomFromCell(cellToRemove);
     }
 
     loadLocalStorageCellsToStorage() {
@@ -89,14 +105,14 @@ export default class ScheduleController {
         const cellsObj = {};
 
         for (const cell of cells) {
-            const key = `${cell.clas.classNumber}:${cell.clas.classLetter}:${cell.dayOfWeek}:${cell.lessonNumber}`;
+            const key = getKeyFromCell(cell);
             cellsObj[key] = cell;
         }
 
         this.model.storageInitialization(cellsObj);
     }
 
-    highlightCells(lessonId, clickedCellCoords) {
+    highlightLessonsCells(lessonId, clickedCellCoords) {
         const rules = [];
 
         for (const rule of Object.values(ruleCallbacks)) {
@@ -114,13 +130,14 @@ export default class ScheduleController {
         //change real cell on copied cell without lesson to not to highlight clicked cell
         const {row, col} = clickedCellCoords;
         if (row && col) {
-            const { dayOfWeek, clas, htmlElement } = cells[row][col];
+            const { dayOfWeek, clas, htmlElement, classroom } = cells[row][col];
 
             const cellCopyWithoutLesson = {
                 dayOfWeek,
                 clas,
                 htmlElement,
-                lesson: null
+                lesson: null,
+                classroom
             };
 
             cells[row][col] = cellCopyWithoutLesson;
@@ -140,16 +157,67 @@ export default class ScheduleController {
         const notAllowedCellElements = notAllowedCells.map(({htmlElement}) => htmlElement);
 
         for (const td of notAllowedCellElements) {
-            td.classList.add('redips-mark');
+            td.classList.add('disabled');
+            td.classList.remove('lesson-allowed');
+
+            const nextTd = td.nextSibling.nextElementSibling;
+            nextTd.classList.add('disabled');
         }
 
-        const disableHighlight = () => {
+        const highlightOff = () => {
             for (const td of notAllowedCellElements) {
-                td.classList.remove('redips-mark');
+                td.classList.remove('disabled');
+                td.classList.add('lesson-allowed');
+    
+                const nextTd = td.nextSibling.nextElementSibling;
+                nextTd.classList.remove('disabled');
             }
         };
 
-        return disableHighlight;
+        return highlightOff;
+    }
+
+    highlightClassroomsCells(classroomId, clickedCellCoords) {
+        const cells = this.getStorage();
+
+        const { row, col } = clickedCellCoords;
+
+        if (row && col) {
+            const { dayOfWeek, clas, htmlElement, lesson } = cells[row][col];
+
+            const cellCopyWithoutClassroom = {
+                dayOfWeek,
+                clas,
+                htmlElement,
+                lesson,
+                classroom: null
+            };
+
+            cells[row][col] = cellCopyWithoutClassroom;
+        }
+
+        const notAllowedCells = cells.filter(row => checkForOneClassroomInRow(classroomId, row));
+        const notAllowedCellElements = notAllowedCells.reduce((acc, row) => [...acc, ...row.map(cell => cell.htmlElement)], []);
+
+        for (const td of notAllowedCellElements) {
+            td.classList.add('disabled');
+
+            const nextTd = td.nextSibling.nextElementSibling;
+            nextTd.classList.remove('classroom-allowed');
+            nextTd.classList.add('disabled');
+        }
+
+        const highlightOff = () => {
+            for (const td of notAllowedCellElements) {
+                td.classList.remove('disabled');
+
+                const nextTd = td.nextSibling.nextElementSibling;
+                nextTd.classList.add('classroom-allowed');
+                nextTd.classList.remove('disabled');
+            }
+        };
+
+        return highlightOff;
     }
 
     getStorage() {
@@ -158,6 +226,31 @@ export default class ScheduleController {
 
     getAcademicHours() {
         return this.model.getAcademicHours();
+    }
+
+    setClassroom(row, col, classroomId) {
+        if (!this.checkRowCol(row, col)) return undefined;
+        if (!classroomId) return undefined;
+
+        const foundClassroom = this.findClassroomById(classroomId);
+
+        if (!foundClassroom) return undefined;
+
+        const resultCell = this.model.setClassroom(row, col, foundClassroom);
+
+        this.addCellToLocalStorage(resultCell);
+
+        return resultCell;
+    }
+
+    removeClassroom(row, col) {
+        if (!this.checkRowCol(row, col)) return undefined;
+        const removedClassroomId = this.model.removeClassroom(row, col);
+        
+        const cell = this.model.getCell(row, col);
+        this.removeClassroomFromLocalStorageCell(cell);
+
+        return removedClassroomId;
     }
 }
 
@@ -195,3 +288,5 @@ const checkForOneTeacherPerLessonRule = (draggedLesson, cellRows) => {
 
     return notAllowedCells;
 }
+
+const checkForOneClassroomInRow = (classroomId, cellRow) => cellRow.some(cell => cell.classroom && cell.classroom.id == classroomId);

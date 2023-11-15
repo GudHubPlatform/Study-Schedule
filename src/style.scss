@@ -1,5 +1,7 @@
- $drag-element-height: 45px;
-$drag-element-width: 85px;
+$drag-lesson-element-height: 45px;
+$drag-lesson-element-width: 85px;
+$drag-classroom-element-height: 35px;
+$drag-classroom-element-width: 35px;
 $drag-element-background-color: white;
 $drag-element-hover-background-color: rgb(225, 240, 255);
 $cell-paddings: 5px;
@@ -7,6 +9,7 @@ $table-schedule-width: 1625px;
 $table-schedule-and-lessons-height: 900px;
 $table-lessons-width: 170px;
 $close-icon-color: red;
+$background-color-disabled-cell: rgb(197, 197, 197);
 
 @mixin scroll {
     &::-webkit-scrollbar-track {
@@ -197,8 +200,16 @@ gh-study-schedule {
             }
         }
 
-        td.lesson-cell.redips-mark {
-            background-color: rgb(197, 197, 197);
+        td.classroom-cell {
+            min-width: 50px;
+
+            &.disabled {
+                background-color: $background-color-disabled-cell;
+            }
+        }
+
+        td.lesson-cell.disabled {
+            background-color: $background-color-disabled-cell;
         }
 
         td, th {
@@ -237,18 +248,24 @@ gh-study-schedule {
             }
 
             &.day-of-week {
-                writing-mode: vertical-rl;
-                text-align-last: center;
-                transform: rotate(180deg);
+                span {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
 
-                &:first-letter {
-                    text-transform: uppercase;
+                    display: inline-block;
+                    writing-mode: vertical-rl;
+                    transform: translate(-50%, -50%) rotate(-180deg);
+
+                    &:first-letter {
+                        text-transform: uppercase;
+                    }
                 }
             }
 
             &.lesson-cell {
-                min-width: $drag-element-width + $cell-paddings * 2 + 1.5px;
-                height: $drag-element-height + $cell-paddings * 2 + 1.5px;
+                min-width: $drag-lesson-element-width + $cell-paddings * 2 + 1.5px;
+                height: $drag-lesson-element-height + $cell-paddings * 2 + 1.5px;
             }
         }
 
@@ -272,96 +289,108 @@ gh-study-schedule {
         border-width: 1px;
     }
 
-    .redips-clone {
+    div.redips-clone {
         &.disabled {
-            .lesson-content-container {
+            div.lesson-content-container {
                 background-color: rgb(255, 193, 193);
             }
         }
     }
     
     div.redips-drag {
-        position: relative;
 
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-
-        height: $drag-element-height;
-        width: $drag-element-width;
-
-        &:hover {
-            .lesson-content-container.removable {
-                width: 85%;
-                background-color: $drag-element-hover-background-color;
-            }
-        }
-
-        .lesson-content-container {
+        &.classroom {
             display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
+            justify-content: center;
             align-items: center;
 
-            height: 100%;
-            width: 100%;
+            height: $drag-classroom-element-height;
+            width: $drag-classroom-element-width;
+        }
 
-            padding: 5px;
-
-            border-radius: inherit;
-
-            background-color: $drag-element-background-color;
-
-            z-index: 1;
-
-            transition: all 0.5s ease;
-
-            .lesson-title {
-                white-space: nowrap;
+        &.lesson {
+            position: relative;
     
-                &:first-letter {
-                    text-transform: uppercase;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+    
+            height: $drag-lesson-element-height;
+            width: $drag-lesson-element-width;
+    
+            &:hover {
+                .lesson-content-container.removable {
+                    width: 85%;
+                    background-color: $drag-element-hover-background-color;
                 }
             }
     
-            .lesson-teacher-name {
-                white-space: nowrap;
+            .lesson-content-container {
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-end;
+                align-items: center;
+    
+                height: 100%;
+                width: 100%;
+    
+                padding: 5px;
+    
+                border-radius: inherit;
+    
+                background-color: $drag-element-background-color;
+    
+                z-index: 1;
+    
+                transition: all 0.5s ease;
+    
+                .lesson-title {
+                    white-space: nowrap;
+        
+                    &:first-letter {
+                        text-transform: uppercase;
+                    }
+                }
+        
+                .lesson-teacher-name {
+                    white-space: nowrap;
+                }
+        
+                .lesson-class {
+                    position: absolute;
+                    top: 2px;
+                    right: 4px;
+                }
             }
     
-            .lesson-class {
+            .close-icon {
+                cursor: pointer;
                 position: absolute;
-                top: 2px;
-                right: 4px;
+                top: 56%;
+                right: 2px;
+    
+                width: 12px;
+                height: 14px;
+    
+                z-index: 0;
+    
+                transform: translateY(-50%);
+    
+    
+                &:before, &:after {content: "";
+                     position: absolute;
+    
+                     top: 6px;
+                     left: 1px;
+    
+                     width: 10px;
+                     height: 2px;
+                     background: $close-icon-color;
+                }
+    
+                &:before {transform: rotate(45deg);}
+                &:after {transform: rotate(-45deg);}
             }
-        }
-
-        .close-icon {
-            cursor: pointer;
-            position: absolute;
-            top: 56%;
-            right: 2px;
-
-            width: 12px;
-            height: 14px;
-
-            z-index: 0;
-
-            transform: translateY(-50%);
-
-
-            &:before, &:after {content: "";
-                 position: absolute;
-
-                 top: 6px;
-                 left: 1px;
-
-                 width: 10px;
-                 height: 2px;
-                 background: $close-icon-color;
-            }
-
-            &:before {transform: rotate(45deg);}
-            &:after {transform: rotate(-45deg);}
         }
     }
 }

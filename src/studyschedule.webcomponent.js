@@ -3,7 +3,8 @@ import html from "./studyschedule.html";
 import './style.scss';
 
 import {REDIPS} from './redips-drag-min.js';
-import { classes, lessons } from "./offlineData.js";
+import { classesScheme, lessonsScheme } from "./jsonSchemes.js";
+import { classrooms } from "./offlineData.js";
 import ScheduleController from "./ScheduleController.js";
 import ScheduleModel from "./ScheduleModel.js";
 
@@ -16,8 +17,8 @@ import {
     lessonIdAttribute,
     lessonContentContainerClass,
     lessonContentContainerRemovableClass,
-    removeDotFromClass,
-    closeIconClass
+    closeIconClass,
+    lessonClass
 } from './components/lessonComponent.js';
 
 import {
@@ -30,8 +31,21 @@ import {
     lessonsListId,
     hoursRemainsClass,
     lessonCloneDisabledClass,
-    classIdAttribute
+    classIdAttribute,
+    classroomTabId,
 } from './components/lessonsListComponent.js';
+
+import { 
+    classroom as renderClassroom,
+    classroomIdAttribute,
+    classroomClass
+} from "./components/classroomComponent.js";
+import { createLessonsForClasses } from "./utils/dataFunctions.js";
+
+const elementTypes = {
+    lesson: 'lesson',
+    classroom: 'classroom',
+};
 
 class GhStudySchedule extends GhHtmlElement {
 
@@ -44,20 +58,25 @@ class GhStudySchedule extends GhHtmlElement {
         this.columnWidth = 2;
         this.daysOfWeek = ["понеділок","вівторок","середа","четвер","п'ятниця"];
         this.lessonsPerDay = 7;
-        this.classes = classes;
-        this.lessons = lessons;
+        this.classes;
+        this.rawLessons;
+        this.lessons;
+        this.classrooms = classrooms;
         
         // attributes
         this.cellColAttribute = cellColAttribute;
         this.cellRowAttribute = cellRowAttribute;
         this.lessonIdAttribute = lessonIdAttribute;
         this.classIdAttribute = classIdAttribute;
+        this.classroomTabId = classroomTabId;
+        this.classroomIdAttribute = classroomIdAttribute;
         
         // classes
         this.lessonCellClass = lessonCellClass;
         this.classRoomCellClass = classRoomCellClass;
         this.selectedTabClass = selectedTabClass;
         this.lessonsListTitleClass = lessonsListTitleClass;
+        this.classroomClass = classroomClass;
 
         // all about schedule
         this.clickedCell;
@@ -65,6 +84,7 @@ class GhStudySchedule extends GhHtmlElement {
         this.isClickedCloseIcon;
         this.setIsClickedCloseIcon = (bool) => {this.isClickedCloseIcon = bool};
         this.handleClickCloseIcon = this.handleClickCloseIcon;
+        this.draggedElementType;
 
         //lessons list and tabs
         this.lessonsTabAll = 'all';
@@ -72,10 +92,9 @@ class GhStudySchedule extends GhHtmlElement {
         this.handleSelectTab = this.handleSelectTab;
 
         // mvc
-        this.model = new ScheduleModel(classes, this.daysOfWeek, this.lessonsPerDay);
-        this.controller = new ScheduleController(this.model, lessons);
-        this.controller.loadLocalStorageCellsToStorage();
-        this.storage = this.controller.getStorage();
+        this.model;
+        this.controller;
+        this.storage;
 
         //components renders
         this.renderLessonsList = renderLessonsList.bind(this);
@@ -84,11 +103,20 @@ class GhStudySchedule extends GhHtmlElement {
         this.rerenderLessonsListTitle = rerenderLessonsListTitle.bind(this);
         this.rerenderLessonsList = rerenderLessonsList.bind(this);
         this.rerenderLessonsCounters = rerenderLessonsCounters.bind(this);
+
+        this.renderClassroom = renderClassroom.bind(this);
     }
 
     // onInit() is called after parent gh-element scope is ready
 
-    onInit() {
+    async onInit() {
+        await this.loadData();
+        this.lessons = createLessonsForClasses(this.rawLessons, this.classes);
+        this.model = new ScheduleModel(this.classes, this.daysOfWeek, this.lessonsPerDay);
+        this.controller = new ScheduleController(this.model, this.lessons, classrooms);
+        this.controller.loadLocalStorageCellsToStorage();
+        this.storage = this.controller.getStorage();
+
         super.render(html);
 
         this.setCorrespondingHTMLElements();
@@ -96,6 +124,16 @@ class GhStudySchedule extends GhHtmlElement {
 
         this.rerenderLessonsCounters();
     };
+
+    async loadData() {
+        const classesPromise = gudhub.jsonConstructor(classesScheme).then((data) => {this.classes = data.classes});
+        const lessonsPromise = gudhub.jsonConstructor(lessonsScheme).then((data) => {this.rawLessons = data.lessons});
+
+        await Promise.all([
+            classesPromise,
+            lessonsPromise
+        ]);
+    }
 
     dndInit() {
         const redips = {};
@@ -116,7 +154,10 @@ class GhStudySchedule extends GhHtmlElement {
             rd.init('redips-drag');
             rd.hover.colorTd = '#9BB3DA';
             rd.scroll.bound = 30;
-            
+
+            rd.mark.exceptionClass[classroomClass.replace('.','')] = 'classroom-allowed';
+            rd.mark.exceptionClass[lessonClass.replace('.','')] = 'lesson-allowed';
+
             rd.event.clicked = (clickedCell) => {
                 setClickedCell(clickedCell);
 
@@ -165,14 +206,27 @@ class GhStudySchedule extends GhHtmlElement {
     handleDragElement(clickedCell) {
         this.clickedCell = clickedCell;
     
-        const lessonId = this.clickedCell.children[0].getAttribute(lessonIdAttribute);
-        
         const row = clickedCell.getAttribute(cellRowAttribute);
         const col = clickedCell.getAttribute(cellColAttribute);
-
         const clickedCellCoords = {row, col};
 
-        this.disableHighlight = this.controller.highlightCells(lessonId, clickedCellCoords);
+        this.draggedElementType = this.rd.obj.getAttribute(lessonIdAttribute) ? elementTypes.lesson : elementTypes.classroom;
+
+        switch (this.draggedElementType) {
+            case elementTypes.lesson: {
+                const lessonId = this.clickedCell.children[0].getAttribute(lessonIdAttribute);
+                this.disableHighlight = this.controller.highlightLessonsCells(lessonId, clickedCellCoords);
+                break;
+            }
+            case elementTypes.classroom: {
+                const classroomId = clickedCell.children[0].getAttribute(classroomIdAttribute);
+                this.disableHighlight = this.controller.highlightClassroomsCells(classroomId, clickedCellCoords);
+                break;
+            }
+            default: {
+                break;
+            }
+        }
     }
 
     handleBeforeDropElement(targetCell) {
@@ -183,18 +237,38 @@ class GhStudySchedule extends GhHtmlElement {
 
         if (targetCell === this.clickedCell) return false;
 
-        const lessonId = this.clickedCell.children[0].getAttribute(lessonIdAttribute);
+        switch (this.draggedElementType) {
+            case elementTypes.lesson: {
+                const lessonId = this.clickedCell.children[0].getAttribute(lessonIdAttribute);
 
-        const resultStorageObject = this.controller.setLesson(row, col, lessonId);
+                const resultStorageCell = this.controller.setLesson(row, col, lessonId);
 
-        if (Boolean(resultStorageObject) && this.clickedCell.classList.contains('lesson-cell')) {
-            const clickedCellRow = this.clickedCell.getAttribute(cellRowAttribute);
-            const clickedCellCol = this.clickedCell.getAttribute(cellColAttribute);
+                if (Boolean(resultStorageCell)) {
+                    const clickedCellRow = this.clickedCell.getAttribute(cellRowAttribute);
+                    const clickedCellCol = this.clickedCell.getAttribute(cellColAttribute);
 
-            const removedLessonId = this.controller.removeLesson(clickedCellRow, clickedCellCol);
+                    const removedLessonId = this.controller.removeLesson(clickedCellRow, clickedCellCol);
+                }
+
+                return Boolean(resultStorageCell);
+            }
+            case elementTypes.classroom: {
+                const classroomId = this.clickedCell.children[0].getAttribute(classroomIdAttribute);
+                const resultStorageCell = this.controller.setClassroom(row, col, classroomId);
+                if (Boolean(resultStorageCell)) {
+                    const clickedCellRow = this.clickedCell.getAttribute(cellRowAttribute);
+                    const clickedCellCol = this.clickedCell.getAttribute(cellColAttribute);
+
+                    const removedClassroomId = this.controller.removeClassroom(clickedCellRow, clickedCellCol);
+
+                    return Boolean(resultStorageCell);
+                }
+                break;
+            }
+            default: {
+                break;
+            }
         }
-
-        return Boolean(resultStorageObject);
     }
 
     handleDeleted(clonedAndDirectlyMovedToTrasg) {
@@ -203,9 +277,21 @@ class GhStudySchedule extends GhHtmlElement {
         const clickedCellRow = this.clickedCell.getAttribute(cellRowAttribute);
         const clickedCellCol = this.clickedCell.getAttribute(cellColAttribute);
 
-        const removedLessonId = this.controller.removeLesson(clickedCellRow, clickedCellCol);
-        this.rerenderLessonsCounters();
-        this.checkLessonForHourLimit(removedLessonId);
+        switch (this.draggedElementType) {
+            case elementTypes.lesson: {
+                const removedLessonId = this.controller.removeLesson(clickedCellRow, clickedCellCol);
+                this.rerenderLessonsCounters();
+                this.checkLessonForHourLimit(removedLessonId);
+                break;
+            }
+            case elementTypes.classroom: {
+                const removedClassroomId = this.controller.removeClassroom(clickedCellRow, clickedCellCol);
+                break;
+            }
+            default: {
+                break;
+            }
+        }
     }
 
     handleFinishEvent() {
@@ -215,15 +301,24 @@ class GhStudySchedule extends GhHtmlElement {
     }
 
     handleCloneDropped(clonedElement) {
-        const lessonId = clonedElement.getAttribute(lessonIdAttribute);
-        const lessonContentContainer = clonedElement.querySelector(lessonContentContainerClass);
-        lessonContentContainer.classList.add(removeDotFromClass(lessonContentContainerRemovableClass));
 
-        const closeIcon = clonedElement.querySelector(closeIconClass);
-        closeIcon.addEventListener('mousedown', () => this.handleClickCloseIcon());
-        this.rerenderLessonsCounters();
-
-        this.checkLessonForHourLimit(lessonId);
+        switch (this.draggedElementType) {
+            case elementTypes.lesson: {
+                const lessonId = clonedElement.getAttribute(lessonIdAttribute);
+                const lessonContentContainer = clonedElement.querySelector(lessonContentContainerClass);
+                lessonContentContainer.classList.add(lessonContentContainerRemovableClass.replace('.', ''));
+        
+                const closeIcon = clonedElement.querySelector(closeIconClass);
+                closeIcon.addEventListener('mousedown', () => this.handleClickCloseIcon());
+                this.rerenderLessonsCounters();
+        
+                this.checkLessonForHourLimit(lessonId);
+                break;
+            }
+            default: {
+                break;
+            }
+        }
     }
 
     handleClickCloseIcon(event) {
@@ -232,7 +327,7 @@ class GhStudySchedule extends GhHtmlElement {
 
     checkLessonForHourLimit(lessonId) {
         const lessonsList = document.getElementById(lessonsListId);
-        const cellElement = lessonsList.querySelector(`tr[data-id="${lessonId}"]`);
+        const cellElement = lessonsList.querySelector(`tr[${lessonIdAttribute}="${lessonId}"]`);
         const remainsCounter = cellElement.querySelector(`.${hoursRemainsClass}`);
         const dragElement = cellElement.querySelector('.redips-clone');
 
@@ -248,7 +343,7 @@ class GhStudySchedule extends GhHtmlElement {
     }
 
     checkAllLessonsForHourLimit() {
-        const lessonsIdsArr = this.lessons.map(({id}) => id);
+        const lessonsIdsArr = this.lessons.map(({uniqueId}) => uniqueId);
 
         for (const id of lessonsIdsArr) {
             this.checkLessonForHourLimit(id);
@@ -268,6 +363,9 @@ class GhStudySchedule extends GhHtmlElement {
         const selectedClassTabId = selectedElement.getAttribute(this.classIdAttribute);
         
         if (selectedClassTabId === this.selectedClassTabId) return;
+        if (selectedClassTabId === this.classroomTabId) {
+            
+        }
 
         this.selectedClassTabId = selectedClassTabId;
         
