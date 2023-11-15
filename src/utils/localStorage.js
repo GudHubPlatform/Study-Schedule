@@ -2,7 +2,6 @@ const dataKey = 'scheduleCells';
 
 function addCell(cell) {
     try {
-        console.log(cell);
         const existingCells = getCells();
 
         const existingCellIndex = existingCells.findIndex(existingCell => (

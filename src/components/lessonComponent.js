@@ -4,7 +4,7 @@ export const lessonIdAttribute = 'data-lesson-id';
 export const lessonCellClass = '.lesson-cell';
 export const classRoomCellClass = '.classroom-cell';
 export const lessonContentContainerClass = '.lesson-content-container';
-export const lessonContentContainerRemovableClass = '.removable';
+export const removableClass = '.removable';
 export const closeIconClass = '.close-icon';
 export const lessonClass = '.lesson';
 
@@ -23,7 +23,7 @@ export function lesson(lesson, isClone) {
                 class="${closeIconClass.replace('.', '')}"
                 ${isClone ? "" : "onmousedown=handleClickCloseIcon()"}
             ></div>
-            <div class="${lessonContentContainerClass.replace('.', '')} ${isClone ? '' : lessonContentContainerRemovableClass.replace('.', '')}">
+            <div class="${lessonContentContainerClass.replace('.', '')} ${isClone ? '' : removableClass.replace('.', '')}">
                 <span class="lesson-title">${shortText(titleRender)}</span>
                 ${teacherFullName ? `<span class="lesson-teacher-name">${shortText(teacherFullName)}</span>` : ''}
                 ${clas ? `<span class="lesson-class">${clas.title}</span>` : ''}

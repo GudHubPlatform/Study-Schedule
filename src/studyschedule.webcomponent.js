@@ -16,7 +16,7 @@ import {
     classRoomCellClass,
     lessonIdAttribute,
     lessonContentContainerClass,
-    lessonContentContainerRemovableClass,
+    removableClass,
     closeIconClass,
     lessonClass
 } from './components/lessonComponent.js';
@@ -38,7 +38,8 @@ import {
 import { 
     classroom as renderClassroom,
     classroomIdAttribute,
-    classroomClass
+    classroomClass,
+    classroomContentContainerClass
 } from "./components/classroomComponent.js";
 import { createLessonsForClasses } from "./utils/dataFunctions.js";
 
@@ -306,13 +307,22 @@ class GhStudySchedule extends GhHtmlElement {
             case elementTypes.lesson: {
                 const lessonId = clonedElement.getAttribute(lessonIdAttribute);
                 const lessonContentContainer = clonedElement.querySelector(lessonContentContainerClass);
-                lessonContentContainer.classList.add(lessonContentContainerRemovableClass.replace('.', ''));
+                lessonContentContainer.classList.add(removableClass.replace('.', ''));
         
                 const closeIcon = clonedElement.querySelector(closeIconClass);
                 closeIcon.addEventListener('mousedown', () => this.handleClickCloseIcon());
                 this.rerenderLessonsCounters();
         
                 this.checkLessonForHourLimit(lessonId);
+                break;
+            }
+            case elementTypes.classroom: {
+                const classroomId = clonedElement.getAttribute(classroomIdAttribute);
+                const classroomContentContainer = clonedElement.querySelector(classroomContentContainerClass);
+                classroomContentContainer.classList.add(removableClass.replace('.', ''));
+        
+                const closeIcon = clonedElement.querySelector(closeIconClass);
+                closeIcon.addEventListener('mousedown', () => this.handleClickCloseIcon());
                 break;
             }
             default: {
