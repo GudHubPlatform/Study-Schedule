@@ -1,10 +1,11 @@
-$drag-lesson-element-height: 45px;
+$drag-lesson-element-height: 30px;
 $drag-lesson-element-width: 85px;
-$drag-classroom-element-height: 35px;
-$drag-classroom-element-width: 35px;
+$drag-classroom-element-height: 30px;
+$drag-classroom-element-width: 30px;
 $drag-element-background-color: white;
 $drag-element-hover-background-color: rgb(225, 240, 255);
-$cell-paddings: 5px;
+$cell-paddings: 1px;
+$cell-classroom-min-width: $drag-classroom-element-width + 5px;
 $table-schedule-width: 1625px;
 $table-schedule-and-lessons-height: 900px;
 $table-lessons-width: 170px;
@@ -201,7 +202,7 @@ gh-study-schedule {
         }
 
         td.classroom-cell {
-            min-width: 50px;
+            min-width: $cell-classroom-min-width;
 
             &.disabled {
                 background-color: $background-color-disabled-cell;
@@ -215,6 +216,10 @@ gh-study-schedule {
         td, th {
             &.column-cell-freeze {
                 position: sticky;
+
+                min-width: 14px;
+
+                text-align: center;
 
                 z-index: 2;
 
@@ -264,8 +269,8 @@ gh-study-schedule {
             }
 
             &.lesson-cell {
-                min-width: $drag-lesson-element-width + $cell-paddings * 2 + 1.5px;
-                height: $drag-lesson-element-height + $cell-paddings * 2 + 1.5px;
+                min-width: $drag-lesson-element-width + $cell-paddings * 2 + 2px;
+                height: $drag-lesson-element-height + $cell-paddings * 2 + 2px;
             }
         }
 
@@ -279,7 +284,7 @@ gh-study-schedule {
 
     //dnd
     .redips-drag {
-        cursor: move;
+        cursor: grab;
         margin: auto;
         background-color: white;
         text-align: center;
@@ -308,6 +313,8 @@ gh-study-schedule {
 
             height: $drag-classroom-element-height;
             width: $drag-classroom-element-width;
+
+            overflow: hidden;
 
             &:hover {
                 .classroom-content-container.removable {
@@ -350,6 +357,8 @@ gh-study-schedule {
     
             height: $drag-lesson-element-height;
             width: $drag-lesson-element-width;
+
+            overflow: hidden;
     
             &:hover {
                 .lesson-content-container.removable {
@@ -359,15 +368,15 @@ gh-study-schedule {
             }
     
             .lesson-content-container {
+                position: relative;
+
                 display: flex;
                 flex-direction: column;
-                justify-content: flex-end;
+                justify-content: flex-start;
                 align-items: center;
     
                 height: 100%;
                 width: 100%;
-    
-                padding: 5px;
     
                 border-radius: inherit;
     
@@ -393,6 +402,8 @@ gh-study-schedule {
                     position: absolute;
                     top: 2px;
                     right: 4px;
+
+                    background-color: inherit;
                 }
             }
         }
