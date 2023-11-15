@@ -30,7 +30,7 @@ export const classesScheme = {
     "filter": [],
     "isSortable": 1,
     "sortType": "asc",
-    "field_id_to_sort": "807568"
+    "field_id_to_sort": "807567"
   };
 
 export const lessonsScheme = {

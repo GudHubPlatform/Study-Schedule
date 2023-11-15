@@ -118,7 +118,7 @@ export function rerenderTitle() {
                 titleElement.textContent = lessonsListTitle;
             }
 
-            const addText = `${foundClass.classNumber}-${foundClass.classLetter}`;
+            const addText = foundClass.title;
             const titleText = titleElement.textContent + ' ' + addText;
 
             titleElement.textContent = titleText;
