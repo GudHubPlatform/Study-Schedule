@@ -236,11 +236,11 @@ export default class ScheduleController {
 
         if (!foundClassroom) return undefined;
 
-        const resultCell = this.model.setClassroom(row, col, foundClassroom);
+        const cellToSave = this.model.setClassroom(row, col, foundClassroom);
 
-        this.addCellToLocalStorage(resultCell);
+        this.addCellToLocalStorage(cellToSave);
 
-        return resultCell;
+        return cellToSave;
     }
 
     removeClassroom(row, col) {
@@ -265,17 +265,17 @@ const ruleCallbacks = {
 const checkForOneTeacherPerLessonRule = (draggedLesson, cellRows) => {
     const rowsToFilter = [...cellRows];
 
-    if (!draggedLesson.teacher) return [];
+    if (!draggedLesson.teacherId) return [];
 
-    const { id: teacherId } = draggedLesson.teacher;
+    const { teacherId } = draggedLesson;
 
     if (!teacherId) return [];
 
 
     const notAllowedRows = rowsToFilter.filter((row) => 
         row.some((cell) => {
-            if (cell.lesson && cell.lesson.teacher && cell.lesson.teacher.id) {
-                const cellTeacherId = cell.lesson.teacher.id;
+            if (cell.lesson && cell.lesson.teacherId) {
+                const cellTeacherId = cell.lesson.teacherId;
 
                 return  cellTeacherId === teacherId;
             }

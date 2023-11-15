@@ -3,8 +3,7 @@ import html from "./studyschedule.html";
 import './style.scss';
 
 import {REDIPS} from './redips-drag-min.js';
-import { classesScheme, lessonsScheme } from "./jsonSchemes.js";
-import { classrooms } from "./offlineData.js";
+import { classesScheme, classroomsScheme, lessonsScheme } from "./jsonSchemes.js";
 import ScheduleController from "./ScheduleController.js";
 import ScheduleModel from "./ScheduleModel.js";
 
@@ -62,7 +61,7 @@ class GhStudySchedule extends GhHtmlElement {
         this.classes;
         this.rawLessons;
         this.lessons;
-        this.classrooms = classrooms;
+        this.classrooms;
         
         // attributes
         this.cellColAttribute = cellColAttribute;
@@ -114,7 +113,7 @@ class GhStudySchedule extends GhHtmlElement {
         await this.loadData();
         this.lessons = createLessonsForClasses(this.rawLessons, this.classes);
         this.model = new ScheduleModel(this.classes, this.daysOfWeek, this.lessonsPerDay);
-        this.controller = new ScheduleController(this.model, this.lessons, classrooms);
+        this.controller = new ScheduleController(this.model, this.lessons, this.classrooms);
         this.controller.loadLocalStorageCellsToStorage();
         this.storage = this.controller.getStorage();
 
@@ -129,10 +128,12 @@ class GhStudySchedule extends GhHtmlElement {
     async loadData() {
         const classesPromise = gudhub.jsonConstructor(classesScheme).then((data) => {this.classes = data.classes});
         const lessonsPromise = gudhub.jsonConstructor(lessonsScheme).then((data) => {this.rawLessons = data.lessons});
+        const classroomsPromise = gudhub.jsonConstructor(classroomsScheme).then((data) => {this.classrooms = data.classrooms});
 
         await Promise.all([
             classesPromise,
-            lessonsPromise
+            lessonsPromise,
+            classroomsPromise,
         ]);
     }
 

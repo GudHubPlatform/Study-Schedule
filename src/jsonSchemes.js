@@ -86,3 +86,30 @@ export const lessonsScheme = {
     "filter": [],
     "use_variables_for_limit_and_offset": 0
   };
+
+  export const classroomsScheme = {
+    "type": "array",
+    "id": 1,
+    "childs": [
+      {
+        "type": "property",
+        "id": 3,
+        "property_name": "id",
+        "property_type": "variable",
+        "variable_type": "current_item"
+      },
+      {
+        "type": "property",
+        "id": 4,
+        "property_name": "title",
+        "property_type": "field_value",
+        "field_id": "807581"
+      }
+    ],
+    "property_name": "classrooms",
+    "app_id": "33956",
+    "filter": [],
+    "isSortable": 1,
+    "field_id_to_sort": "807581",
+    "sortType": "asc"
+  };
