@@ -40,7 +40,6 @@ export default class Lesson extends HTMLElement {
     }
 
     onItemUpdate = async () => {
-        console.log(`item updated`);
         await this.determineProperties();
         this.render();
     };
@@ -67,12 +66,10 @@ export default class Lesson extends HTMLElement {
 
     connectedCallback() {
         this.itemUpdateSubscribe();
-        console.log('connectedCallback');
     }
 
     disconnectedCallback() {
         this.destroySubscribe();
-        console.log('disconnectedCallback');
     };
 
     render() {
@@ -91,7 +88,6 @@ export default class Lesson extends HTMLElement {
 
         const newTeacherRefId = await this.getTeacherRefId();
         if (this.teacherRefId && this.teacherRefId !== newTeacherRefId) {
-            console.log('помінялось');
             this.destroySubscribe();
             this.itemUpdateSubscribe();
         }

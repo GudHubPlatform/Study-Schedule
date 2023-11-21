@@ -17,6 +17,7 @@ export default class Classroom extends HTMLElement {
         this.item_id;
         this.isClone;
         this.classroom;
+        this.isSubscribedOnItemUpdate = false;
 
         this.onInit();
     }
@@ -29,17 +30,41 @@ export default class Classroom extends HTMLElement {
             const closeIconElement = this.shadowRoot.querySelector(closeIconClass);
             closeIconElement.onmousedown = () => this.handleClickCloseIcon();
         }
+
+        this.itemUpdateSubscribe();
+    }
+
+    onItemUpdate = async () => {
+        await this.determineProperties();
+        this.render();
+    };
+
+    itemUpdateSubscribe() {
+        if (!this.isSubscribedOnItemUpdate) {
+            gudhub.on('gh_item_update', { app_id: this.app_id, item_id: this.item_id }, this.onItemUpdate);
+            this.isSubscribedOnItemUpdate = true;
+        }
+    }
+    destroySubscribe() {
+        if (this.isSubscribedOnItemUpdate) {
+            gudhub.destroy('gh_item_update', { app_id: this.app_id, item_id: this.item_id }, this.onItemUpdate);
+            this.isSubscribedOnItemUpdate = false;
+        }
+    }
+
+    connectedCallback() {
+        this.itemUpdateSubscribe();
     }
 
     disconnectedCallback() {
-        console.log('disconnectedCallback');
+        this.destroySubscribe();
     };
 
     render() {
         const style = document.createElement('style');
+        this.shadowRoot.innerHTML = getHtml.call(this);
         style.textContent = styles;
         this.shadowRoot.appendChild(style);
-        this.shadowRoot.innerHTML += getHtml.call(this);
     }
 
     async determineProperties() {
