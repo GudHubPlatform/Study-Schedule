@@ -1,5 +1,7 @@
-import getHtml, { closeIconClass } from "./classroom.js";
+import getHtml, { closeIconClass, removableClass, contentContainerClass } from "./classroomLayout.js";
 import styles from './classroom.styles.scss';
+import { checkForNodeNameTd } from "../lesson/lesson.webcomponent.js";
+import ScopeSingleton from "../../utils/ScopeSingleton.js";
 
 import { 
     itemRefIdAttribute,
@@ -18,6 +20,12 @@ export default class Classroom extends HTMLElement {
         this.isClone;
         this.classroom;
         this.isSubscribedOnItemUpdate = false;
+
+        this.controller;
+        
+        this.oldParentCell;
+        this.parentCell;
+        this.isRemovable = null;
 
         this.onInit();
     }
@@ -54,10 +62,15 @@ export default class Classroom extends HTMLElement {
 
     connectedCallback() {
         this.itemUpdateSubscribe();
+        const parentCell = this.parentElement.parentElement;
+        if (parentCell && checkForNodeNameTd(parentCell)) {
+            this.setParentCell(parentCell);
+        }
     }
 
     disconnectedCallback() {
         this.destroySubscribe();
+        this.handleDrop();
     };
 
     render() {
@@ -73,6 +86,7 @@ export default class Classroom extends HTMLElement {
         this.item_id = item_id;
         this.isClone = Boolean(Number(this.getAttribute(isCloneAttribute)));
         this.classroom = await this.getInterpretatedClassroom();
+        this.isRemovable = Boolean(this.shadowRoot.querySelector(removableClass));
     };
 
     async getInterpretatedClassroom() {
@@ -93,7 +107,64 @@ export default class Classroom extends HTMLElement {
         return resultClassroom;
     }
 
+    handleRemove() {
+        this.setParentCell(null);
+        if (!this.controller) {
+            this.controller = ScopeSingleton.getInstance().getController();
+        }
+        this.controller.removeClassroom(this.oldParentCell);
+    }
+
     handleClickCloseIcon() {
         console.log('close icon clicked');
+    }
+
+    handleDrop() {
+        const cell = this.parentElement.parentElement;
+
+        if (cell === this.parentCell) return;
+        this.setParentCell(cell);
+
+        if (checkForNodeNameTd(cell) && !cell.classList.contains('redips-trash')) {
+                this.handleDropToCell(cell);
+        } else if (cell === null) {
+            this.handleDropToTrash();
+        }
+    }
+
+    setParentCell(cell) {
+        if (this.parentCell !== cell) {
+            if (this.isRemovable === false && checkForNodeNameTd(cell) && !cell.classList.contains('redips-trash')) {
+                this.addRemovable();
+            }
+            this.oldParentCell = this.parentCell;
+            this.parentCell = cell;
+        }
+    }
+
+    handleDropToTrash() {
+        this.handleRemove();
+    }
+
+    handleDropToCell(cell) {
+        if (!this.controller) {
+            this.controller = ScopeSingleton.getInstance().getController();
+        }
+
+        if (this.oldParentCell) this.controller.removeClassroom(this.oldParentCell);
+        this.controller.setClassroom(`${this.app_id}.${this.item_id}`, cell);
+    }
+
+    addRemovable() {
+        const contentContainer = this.shadowRoot.querySelector(contentContainerClass);
+        const closeIcon = this.shadowRoot.querySelector(closeIconClass);
+        if (contentContainer) {
+            contentContainer.classList.add(removableClass.replace('.', ''));
+            this.isRemovable = true;
+        }
+
+        if (closeIcon) {
+            closeIcon.onclick = this.handleClickCloseIcon;
+        }
     }
 }

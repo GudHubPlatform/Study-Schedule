@@ -26,6 +26,7 @@ export default class ScheduleController {
     }
 
     removeLesson(cell) {
+        if (!cell) return undefined;
         const row = cell.getAttribute('row');
         const col = cell.getAttribute('col');
         if (!this.checkRowCol(row, col)) return undefined;
@@ -238,12 +239,13 @@ export default class ScheduleController {
         return this.model.getAcademicHours();
     }
 
-    setClassroom(row, col, classroomId) {
+    setClassroom(classroomId, cell) {
+        const row = cell.getAttribute('row');
+        const col = cell.getAttribute('col');
         if (!this.checkRowCol(row, col)) return undefined;
         if (!classroomId) return undefined;
 
         const foundClassroom = this.findClassroomById(classroomId);
-
         if (!foundClassroom) return undefined;
 
         const cellToSave = this.model.setClassroom(row, col, foundClassroom);
@@ -253,12 +255,15 @@ export default class ScheduleController {
         return cellToSave;
     }
 
-    removeClassroom(row, col) {
+    removeClassroom(cell) {
+        if (!cell) return undefined;
+        const row = cell.getAttribute('row');
+        const col = cell.getAttribute('col');
         if (!this.checkRowCol(row, col)) return undefined;
         const removedClassroomId = this.model.removeClassroom(row, col);
         
-        const cell = this.model.getCell(row, col);
-        this.removeClassroomFromLocalStorageCell(cell);
+        const cellToRemove = this.model.getCell(row, col);
+        this.removeClassroomFromLocalStorageCell(cellToRemove);
 
         return removedClassroomId;
     }

@@ -1,5 +1,6 @@
 import getHtml, { closeIconClass, contentContainerClass, removableClass } from "./lessonLayout.js";
 import styles from './lesson.styles.scss';
+import ScopeSingleton from "../../utils/ScopeSingleton.js";
 
 import { 
     classFieldIdAttributes,
@@ -8,9 +9,8 @@ import {
     lessonFieldIdAttributes,
     isCloneAttribute
  } from '../../utils/componentsRenderer.js';
-import ScopeSingleton from "../../utils/ScopeSingleton.js";
 
-const checkForNodeNameTd = (element) => {
+export const checkForNodeNameTd = (element) => {
     if (!element) return;
     return element.nodeName.toLocaleLowerCase() == 'td';
 }

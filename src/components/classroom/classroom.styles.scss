@@ -18,7 +18,7 @@ $drag-element-hover-background-color: rgb(225, 240, 255);
 
     &:hover {
         .content-container.removable {
-            width: 70%;
+            width: 60%;
             background-color: $drag-element-hover-background-color;
         }
     }
@@ -31,8 +31,6 @@ $drag-element-hover-background-color: rgb(225, 240, 255);
 
         height: 100%;
         width: 100%;
-
-        padding: 5px;
 
         border-radius: inherit;
 
@@ -63,7 +61,7 @@ $drag-element-hover-background-color: rgb(225, 240, 255);
              top: 6px;
              left: 1px;
 
-             width: 10px;
+             width: 8px;
              height: 2px;
              background: $close-icon-color;
         }
