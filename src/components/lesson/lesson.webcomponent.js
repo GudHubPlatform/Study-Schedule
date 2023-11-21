@@ -22,6 +22,7 @@ export default class Lesson extends HTMLElement {
         this.teacherRefId;
         this.classRefId;
         this.classTitle;
+        this.isSubscribedOnItemUpdate = false;
 
         this.onInit();
     }
@@ -34,17 +35,51 @@ export default class Lesson extends HTMLElement {
             const closeIconElement = this.shadowRoot.querySelector(closeIconClass);
             closeIconElement.onmousedown = () => this.handleClickCloseIcon();
         }
+
+        this.itemUpdateSubscribe();
+    }
+
+    onItemUpdate = async () => {
+        console.log(`item updated`);
+        await this.determineProperties();
+        this.render();
+    };
+
+    itemUpdateSubscribe() {
+        if (!this.isSubscribedOnItemUpdate) {
+            gudhub.on('gh_item_update', { app_id: this.app_id, item_id: this.item_id }, this.onItemUpdate);
+            if (this.teacherRefId) {
+                gudhub.on('gh_item_update', { app_id: this.teacherRefId.split('.')[0], item_id: this.teacherRefId.split('.')[1] }, this.onItemUpdate);
+            }
+
+            this.isSubscribedOnItemUpdate = true;
+        }
+    }
+    destroySubscribe() {
+        if (this.isSubscribedOnItemUpdate) {
+            gudhub.destroy('gh_item_update', { app_id: this.app_id, item_id: this.item_id }, this.onItemUpdate);
+            if (this.teacherRefId) {
+                gudhub.destroy('gh_item_update', { app_id: this.teacherRefId.split('.')[0], item_id: this.teacherRefId.split('.')[1] }, this.onItemUpdate);
+            }
+            this.isSubscribedOnItemUpdate = false;
+        }
+    }
+
+    connectedCallback() {
+        this.itemUpdateSubscribe();
+        console.log('connectedCallback');
     }
 
     disconnectedCallback() {
+        this.destroySubscribe();
         console.log('disconnectedCallback');
     };
 
     render() {
         const style = document.createElement('style');
+        this.shadowRoot.innerHTML = getHtml.call(this);
         style.textContent = styles;
         this.shadowRoot.appendChild(style);
-        this.shadowRoot.innerHTML += getHtml.call(this);
     }
 
     async determineProperties() {
@@ -52,9 +87,16 @@ export default class Lesson extends HTMLElement {
         this.app_id = app_id
         this.item_id = item_id;
         this.isClone = Boolean(Number(this.getAttribute(isCloneAttribute)));
-        console.log(`attr: ${this.getAttribute(isCloneAttribute)}, clone: ${this.isClone}`);
         this.lesson = await this.getInterpretatedLesson();
-        this.teacherRefId = await this.getTeacherRefId();
+
+        const newTeacherRefId = await this.getTeacherRefId();
+        if (this.teacherRefId && this.teacherRefId !== newTeacherRefId) {
+            console.log('помінялось');
+            this.destroySubscribe();
+            this.itemUpdateSubscribe();
+        }
+        this.teacherRefId = newTeacherRefId;
+
         this.classRefId = this.getAttribute(classItemRefIdAttribute);
         this.classTitle = await this.getClassTitle();
     };
