@@ -1,0 +1,36 @@
+<div class="container" id="redips-drag">
+    <schedule-lesson-drag-list></schedule-lesson-drag-list>
+    <div id="lesson-table"></div>
+    <div class="table-scroll-schedule">
+        <table id="schedule-table" class="table-schedule">
+            <thead>
+                <tr class="row-freeze">
+                <th class="redips-mark" colspan="2"></th>
+                </tr>
+            </thead>
+            <tbody>
+                ${
+                    storage.reduce((acc, row, rowIndex) => acc + `
+                        <tr>
+                            ${
+                                rowIndex % lessonsPerDay === 0
+                                ? `<td class="day-of-week column-cell-freeze redips-mark" rowspan=${lessonsPerDay}><span>${daysOfWeek[Math.floor(rowIndex / lessonsPerDay) % daysOfWeek.length]}</span></td>`
+                                : ''
+                            }
+                            <td class="column-cell-freeze redips-mark">${rowIndex % lessonsPerDay + 1}</td>
+                            ${classrooms.reduce((accRow, classroom, colIndex) => accRow + `
+                                <td class="${lessonCellClass.replace('.','')} redips-single redips-mark lesson-allowed">
+                                    ${classroom ? renderer.classroom.call(scope, classroom.id)
+                                             : ''}
+                                </td>
+                                <td class="redips-mark redips-single classroom-allowed">
+                                    
+                                </td>
+                            `, '')}
+                        </tr>
+                    `, '')
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

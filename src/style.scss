@@ -1,0 +1,306 @@
+@use './variables' as *;
+
+gh-study-schedule {
+    font-size: .8em;
+
+    .container {
+        display: flex;
+        align-items: start;
+        user-select: none;
+        width: 100% !important;
+
+        >:first-child {
+            margin-right: 10px;
+        }
+    }
+
+    table {
+        background-color: #ebebeb;
+        border: solid 1px #000;
+    }
+
+    .table-scroll {
+        overflow: auto;
+        position: relative;
+        min-width: $table-lessons-width;
+        max-height: $table-schedule-and-lessons-height;
+
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+
+        @include scroll();
+
+        &-schedule {
+            overflow: auto;
+            position: relative;
+            max-width: $table-schedule-width;
+            max-height: $table-schedule-and-lessons-height;
+
+            @include scroll();
+        }
+    }
+
+    th, td {
+        box-sizing: border-box;
+        padding: $cell-paddings;
+        border: solid 1px #000;
+    }
+    
+    .table-schedule {
+        border-collapse: collapse;
+
+        tr {
+            &.row-freeze {
+                position: sticky;
+                top: 0;
+                left: 0;
+                background-color: white;
+                box-shadow: 0 0 0 0.5px black;
+                z-index: 3;
+            }
+        }
+
+        td.classroom-cell {
+            min-width: $cell-classroom-min-width;
+
+            &.disabled {
+                background-color: $background-color-disabled-cell;
+            }
+        }
+
+        td.lesson-cell.disabled {
+            background-color: $background-color-disabled-cell;
+        }
+
+        td, th {
+            &.column-cell-freeze {
+                position: sticky;
+
+                min-width: 14px;
+
+                text-align: center;
+
+                z-index: 2;
+
+                left: 3em;
+                background-color: white;
+
+                &::after {
+                    display: flex;
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+
+                    border-right: solid .5px black;
+                    border-left: solid .5px black;
+                }
+
+                
+
+                &.day-of-week {
+                    min-width: 3em;
+                    width: 3em;
+                    left: 0;
+
+                    &::after {
+                        border-left: none;
+                    }
+                }
+            }
+
+            &.day-of-week {
+                span {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+
+                    display: inline-block;
+                    writing-mode: vertical-rl;
+                    transform: translate(-50%, -50%) rotate(-180deg);
+
+                    &:first-letter {
+                        text-transform: uppercase;
+                    }
+                }
+            }
+
+            &.lesson-cell {
+                min-width: $drag-lesson-element-width + $cell-paddings * 2 + 2px;
+                height: $drag-lesson-element-height + $cell-paddings * 2 + 2px;
+            }
+        }
+
+        th {
+            &.classNumber {
+                text-transform: uppercase;
+                font-weight: normal;
+            }
+        }
+    }
+
+    //dnd
+    .redips-drag {
+        cursor: grab !important;
+        margin: auto;
+        background-color: white;
+        text-align: center;
+        font-size: inherit; /* needed for cloned object */
+        border-radius: 4px; /* Opera, Chrome */
+        -moz-border-radius: 4px; /* FF */
+        border-width: 1px;
+    }
+
+    div.redips-clone {
+        &.disabled {
+            div.lesson-content-container {
+                background-color: rgb(255, 193, 193);
+            }
+        }
+    }
+    
+    div.redips-drag {
+
+        &.classroom {
+            position: relative;
+
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+
+            height: $drag-classroom-element-height;
+            width: $drag-classroom-element-width;
+
+            overflow: hidden;
+
+            &:hover {
+                .classroom-content-container.removable {
+                    width: 70%;
+                    background-color: $drag-element-hover-background-color;
+                }
+            }
+    
+            .classroom-content-container {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+    
+                height: 100%;
+                width: 100%;
+    
+                padding: 5px;
+    
+                border-radius: inherit;
+    
+                background-color: $drag-element-background-color;
+    
+                z-index: 1;
+    
+                transition: all 0.5s ease;
+            }
+
+            .close-icon {
+                right: 0;
+            }
+        }
+
+        &.lesson {
+            position: relative;
+    
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+    
+            height: $drag-lesson-element-height;
+            width: $drag-lesson-element-width;
+
+            overflow: hidden;
+    
+            &:hover {
+                .lesson-content-container.removable {
+                    width: 85%;
+                    background-color: $drag-element-hover-background-color;
+                }
+            }
+    
+            .lesson-content-container {
+                position: relative;
+
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+    
+                height: 100%;
+                width: 100%;
+    
+                border-radius: inherit;
+    
+                background-color: $drag-element-background-color;
+    
+                z-index: 1;
+    
+                transition: all 0.5s ease;
+    
+                .lesson-title {
+                    white-space: nowrap;
+        
+                    &:first-letter {
+                        text-transform: uppercase;
+                    }
+                }
+        
+                .lesson-teacher-name {
+                    white-space: nowrap;
+
+                    &.no-teacher {
+                        width: 45px;
+                        height: 1em;
+                        background-color: red;
+                    }
+                }
+        
+                .lesson-class {
+                    position: absolute;
+                    top: 2px;
+                    right: 4px;
+
+                    background-color: inherit;
+                }
+            }
+        }
+
+        .close-icon {
+            cursor: pointer;
+            position: absolute;
+            top: 56%;
+            right: 2px;
+
+            width: 12px;
+            height: 14px;
+
+            z-index: 0;
+
+            transform: translateY(-50%);
+
+
+            &:before, &:after {content: "";
+                 position: absolute;
+
+                 top: 6px;
+                 left: 1px;
+
+                 width: 10px;
+                 height: 2px;
+                 background: $close-icon-color;
+            }
+
+            &:before {transform: rotate(45deg);}
+            &:after {transform: rotate(-45deg);}
+        }
+    }
+}

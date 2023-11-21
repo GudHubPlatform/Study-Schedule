@@ -1,0 +1,49 @@
+//table schedule
+$table-schedule-width: 1625px;
+$table-schedule-and-lessons-height: 900px;
+
+//drag element
+$drag-element-background-color: white;
+$drag-element-hover-background-color: rgb(225, 240, 255);
+
+//table-lessons
+$table-lessons-width: 170px;
+
+//lesson
+$drag-lesson-element-height: 30px;
+$drag-lesson-element-width: 85px;
+
+//classroom
+$drag-classroom-element-height: 30px;
+$drag-classroom-element-width: 30px;
+
+//table cell 
+$cell-paddings: 1px;
+$cell-classroom-min-width: $drag-classroom-element-width + 5px;
+$background-color-disabled-cell: rgb(197, 197, 197);
+
+
+//close icon
+$close-icon-color: red;
+
+
+@mixin scroll {
+    &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    &::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+        background-color: #F5F5F5;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        border-radius: 33px;
+        background: #b9b9b9;
+
+        &:hover {
+            background: #0D99FF;
+        }
+    }
+}

@@ -1,0 +1,74 @@
+$drag-classroom-element-height: 30px;
+$drag-classroom-element-width: 30px;
+$close-icon-color: red;
+$drag-element-background-color: white;
+$drag-element-hover-background-color: rgb(225, 240, 255);
+
+.classroom {
+    position: relative;
+
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+
+    height: $drag-classroom-element-height;
+    width: $drag-classroom-element-width;
+
+    overflow: hidden;
+
+    &:hover {
+        .content-container.removable {
+            width: 70%;
+            background-color: $drag-element-hover-background-color;
+        }
+    }
+
+    .content-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        height: 100%;
+        width: 100%;
+
+        padding: 5px;
+
+        border-radius: inherit;
+
+        background-color: $drag-element-background-color;
+
+        z-index: 1;
+
+        transition: all 0.5s ease;
+    }
+
+    .close-icon {
+        cursor: pointer;
+        position: absolute;
+        top: 56%;
+        right: 0;
+
+        width: 12px;
+        height: 14px;
+
+        z-index: 0;
+
+        transform: translateY(-50%);
+
+
+        &:before, &:after {content: "";
+             position: absolute;
+
+             top: 6px;
+             left: 1px;
+
+             width: 10px;
+             height: 2px;
+             background: $close-icon-color;
+        }
+
+        &:before {transform: rotate(45deg);}
+        &:after {transform: rotate(-45deg);}
+    }
+}
