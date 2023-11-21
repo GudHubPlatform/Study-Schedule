@@ -1,4 +1,4 @@
-import getHtml, { closeIconClass } from "./lessonLayout.js";
+import getHtml, { closeIconClass, contentContainerClass, removableClass } from "./lessonLayout.js";
 import styles from './lesson.styles.scss';
 
 import { 
@@ -10,13 +10,17 @@ import {
  } from '../../utils/componentsRenderer.js';
 import ScopeSingleton from "../../utils/ScopeSingleton.js";
 
+const checkForNodeNameTd = (element) => {
+    if (!element) return;
+    return element.nodeName.toLocaleLowerCase() == 'td';
+}
+
 export default class Lesson extends HTMLElement {
     constructor() {
         super();
 
         this.attachShadow({ mode: 'open' });
 
-        this.uniqueId;
         this.app_id;
         this.item_id;
         this.isClone;
@@ -25,7 +29,12 @@ export default class Lesson extends HTMLElement {
         this.classRefId;
         this.classTitle;
         this.isSubscribedOnItemUpdate = null;
+
         this.controller;
+
+        this.oldParentCell;
+        this.parentCell;
+        this.isRemovable = null;
 
         this.onInit();
     }
@@ -71,20 +80,17 @@ export default class Lesson extends HTMLElement {
         if (this.isSubscribedOnItemUpdate !== null) {
             this.itemUpdateSubscribe();
         }
+
+        const parentCell = this.parentElement.parentElement;
+        if (parentCell && checkForNodeNameTd(parentCell)) {
+            this.setParentCell(parentCell);
+        }
     }
 
     disconnectedCallback() {
         this.destroySubscribe();
 
-        const cell = this.parentElement.parentElement;
-        if (cell) {
-            if (!cell.classList.contains('redips-trash')) {
-                if (!this.controller) {
-                    this.controller = ScopeSingleton.getInstance().getController();
-                    // this.controller.setLesson(this.uniqueId, cell);
-                }
-            }
-        }
+        this.handleDrop();
     };
 
     render() {
@@ -95,8 +101,7 @@ export default class Lesson extends HTMLElement {
     }
 
     async determineProperties() {
-        this.uniqueId = this.getAttribute(itemRefIdAttribute);
-        const [app_id, item_id] = this.uniqueId.split('.');
+        const [app_id, item_id] = this.getAttribute(itemRefIdAttribute).split('.');
         this.app_id = app_id
         this.item_id = item_id;
         this.isClone = Boolean(Number(this.getAttribute(isCloneAttribute)));
@@ -111,6 +116,8 @@ export default class Lesson extends HTMLElement {
 
         this.classRefId = this.getAttribute(classItemRefIdAttribute);
         this.classTitle = await this.getClassTitle();
+
+        this.isRemovable = Boolean(this.shadowRoot.querySelector(removableClass));
     };
 
     async getInterpretatedLesson() {
@@ -155,7 +162,66 @@ export default class Lesson extends HTMLElement {
         return classTitle;
     }
 
+    setParentCell(cell) {
+        if (this.parentCell !== cell) {
+            if (this.isRemovable === false && checkForNodeNameTd(cell) && !cell.classList.contains('redips-trash')) {
+                this.addRemovable();
+            }
+            this.oldParentCell = this.parentCell;
+            this.parentCell = cell;
+        }
+    }
+
+    handleRemove() {
+        this.setParentCell(null);
+        if (!this.controller) {
+            this.controller = ScopeSingleton.getInstance().getController();
+        }
+        this.controller.removeLesson(this.oldParentCell);
+    }
+
     handleClickCloseIcon() {
-        console.log('close icon clicked');
+        console.log('close icon');
+        // this.handleRemove();
+    }
+
+    handleDrop() {
+        const cell = this.parentElement.parentElement;
+
+        if (cell === this.parentCell) return;
+        this.setParentCell(cell);
+
+        if (checkForNodeNameTd(cell) && !cell.classList.contains('redips-trash')) {
+                this.handleDropToCell(cell);
+        } else if (cell === null) {
+            this.handleDropToTrash();
+        }
+    }
+
+    handleDropToTrash() {
+        this.handleRemove();
+    }
+
+    handleDropToCell(cell) {
+        if (!this.controller) {
+            this.controller = ScopeSingleton.getInstance().getController();
+        }
+
+        const uniqueId = `${this.app_id}.${this.item_id}/${this.classRefId}`;
+        if (this.oldParentCell) this.controller.removeLesson(this.oldParentCell);
+        this.controller.setLesson(uniqueId, cell);
+    }
+
+    addRemovable() {
+        const contentContainer = this.shadowRoot.querySelector(contentContainerClass);
+        const closeIcon = this.shadowRoot.querySelector(closeIconClass);
+        if (contentContainer) {
+            contentContainer.classList.add(removableClass.replace('.', ''));
+            this.isRemovable = true;
+        }
+
+        if (closeIcon) {
+            closeIcon.onclick = this.handleClickCloseIcon;
+        }
     }
 }

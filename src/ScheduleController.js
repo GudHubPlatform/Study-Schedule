@@ -8,7 +8,9 @@ export default class ScheduleController {
         this.classrooms = classrooms;
     }
 
-    setLesson(row, col, lessonId) {
+    setLesson(lessonId, cell) {
+        const row = cell.getAttribute('row');
+        const col = cell.getAttribute('col');
         if (!this.checkRowCol(row, col)) return undefined;
         if (!lessonId) return undefined;
 ;
@@ -23,14 +25,16 @@ export default class ScheduleController {
         return resultCell;
     }
 
-    removeLesson(row, col) {
+    removeLesson(cell) {
+        const row = cell.getAttribute('row');
+        const col = cell.getAttribute('col');
         if (!this.checkRowCol(row, col)) return undefined;
         const removedLessonId = this.model.removeLesson(row, col);
 
-        const cell = this.model.getCell(row, col);
+        const cellToRemove = this.model.getCell(row, col);
 
         this.model.subtractAcademicHour(removedLessonId);
-        this.removeLessonFromLocalStorageCell(cell);
+        this.removeLessonFromLocalStorageCell(cellToRemove);
 
         return removedLessonId;
     }

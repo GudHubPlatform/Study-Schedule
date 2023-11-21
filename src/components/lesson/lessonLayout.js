@@ -1,5 +1,5 @@
-const contentContainerClass = '.content-container';
-const removableClass = '.removable';
+export const contentContainerClass = '.content-container';
+export const removableClass = '.removable';
 export const closeIconClass = '.close-icon';
 const noTeacherClass = '.no-teacher';
 const titleClass = '.title';

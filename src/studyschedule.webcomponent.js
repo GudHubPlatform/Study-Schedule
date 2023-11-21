@@ -167,7 +167,7 @@ class GhStudySchedule extends GhHtmlElement {
             classes: this.classes,
             classrooms: this.classrooms,
         };
-        ScopeSingleton.getInstance(this.scope, data);
+        ScopeSingleton.getInstance(this.scope, this.controller, data);
     };
 
     // disconnectedCallback() is called after the component is destroyed
