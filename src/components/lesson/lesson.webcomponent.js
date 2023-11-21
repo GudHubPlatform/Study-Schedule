@@ -8,6 +8,7 @@ import {
     lessonFieldIdAttributes,
     isCloneAttribute
  } from '../../utils/componentsRenderer.js';
+import ScopeSingleton from "../../utils/ScopeSingleton.js";
 
 export default class Lesson extends HTMLElement {
     constructor() {
@@ -15,6 +16,7 @@ export default class Lesson extends HTMLElement {
 
         this.attachShadow({ mode: 'open' });
 
+        this.uniqueId;
         this.app_id;
         this.item_id;
         this.isClone;
@@ -22,7 +24,8 @@ export default class Lesson extends HTMLElement {
         this.teacherRefId;
         this.classRefId;
         this.classTitle;
-        this.isSubscribedOnItemUpdate = false;
+        this.isSubscribedOnItemUpdate = null;
+        this.controller;
 
         this.onInit();
     }
@@ -65,11 +68,23 @@ export default class Lesson extends HTMLElement {
     }
 
     connectedCallback() {
-        this.itemUpdateSubscribe();
+        if (this.isSubscribedOnItemUpdate !== null) {
+            this.itemUpdateSubscribe();
+        }
     }
 
     disconnectedCallback() {
         this.destroySubscribe();
+
+        const cell = this.parentElement.parentElement;
+        if (cell) {
+            if (!cell.classList.contains('redips-trash')) {
+                if (!this.controller) {
+                    this.controller = ScopeSingleton.getInstance().getController();
+                    // this.controller.setLesson(this.uniqueId, cell);
+                }
+            }
+        }
     };
 
     render() {
@@ -80,7 +95,8 @@ export default class Lesson extends HTMLElement {
     }
 
     async determineProperties() {
-        const [app_id, item_id] = this.getAttribute(itemRefIdAttribute).split('.');
+        this.uniqueId = this.getAttribute(itemRefIdAttribute);
+        const [app_id, item_id] = this.uniqueId.split('.');
         this.app_id = app_id
         this.item_id = item_id;
         this.isClone = Boolean(Number(this.getAttribute(isCloneAttribute)));
