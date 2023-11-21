@@ -24,7 +24,7 @@ const defaultTabs = [
 export default class LessonDragList extends HTMLElement {
     constructor() {
         super();
-
+        //component
         this.attachShadow({ mode: 'open' });
         this.classroomsInRow = 3;
         this.scope;
@@ -37,7 +37,7 @@ export default class LessonDragList extends HTMLElement {
 
         this.handleSelectTab = this.handleSelectTab;
 
-        this.separatedContainer = this.parentElement.querySelector('#lesson-table');
+        this.separatedContainer = this.parentElement.querySelector('#lesson-table-container');
 
         this.onInit();
     }
@@ -59,7 +59,6 @@ export default class LessonDragList extends HTMLElement {
 
         this.attachOnClicks();
         
-
         while (this.shadowRoot.firstChild) {
             this.separatedContainer.appendChild(this.shadowRoot.firstChild);
         }

@@ -122,7 +122,7 @@ th, td {
         }
 
         &.haeder-lesson-clone-cell {
-            min-width: 100px;
+            min-width: $cell-lesson-min-width;
         }
     }
 

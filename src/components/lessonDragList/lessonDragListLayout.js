@@ -1,5 +1,5 @@
 import { allTab, classroomsTab } from "./lessonDragList.webcomponent.js";
-import { columnWidth } from '../../studyschedule.webcomponent.js';
+import { columnWidth, lessonCellClass, classRoomCellClass } from '../../studyschedule.webcomponent.js';
 
 export const selectedTabClass = '.selected';
 
@@ -45,8 +45,8 @@ export default function getHtml() {
                                 <span class="${hoursRemainsClass}">${lesson.academicHours}</span>
                             </div>
                         </td>
-                        <td class="redips-trash" colspan=${columnWidth}>
-                            ${this.renderer.lesson(lesson.id, lesson.clas.id, true)}
+                        <td class="redips-trash ${lessonCellClass.replace('.', '')}" colspan=${columnWidth}>
+                            ${this.renderer.lesson(lesson.id, lesson.clas.id, 1)}
                         </td>
                     </tr>
                 `, '')}
@@ -70,9 +70,9 @@ export default function getHtml() {
                         >
                             ${row.reduce((rowAcc, classroom) => rowAcc +`
                             <td
-                                class="redips-trash"
+                                class="redips-trash ${classRoomCellClass.replace('.', '')}"
                             >
-                                ${this.renderer.classroom(classroom.id, true)}
+                                ${this.renderer.classroom(classroom.id, 1)}
                             </td>
                             `, '')}
                         </tr>

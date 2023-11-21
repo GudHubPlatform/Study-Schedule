@@ -1,11 +1,14 @@
 <div class="container" id="redips-drag">
     <schedule-lesson-drag-list></schedule-lesson-drag-list>
-    <div id="lesson-table"></div>
+    <div id="lesson-table-container"></div>
     <div class="table-scroll-schedule">
         <table id="schedule-table" class="table-schedule">
             <thead>
                 <tr class="row-freeze">
-                <th class="redips-mark" colspan="2"></th>
+                    <th class="redips-mark" colspan="2"></th>
+                    ${classes.reduce((acc, clas) => acc + `
+                        <th class="classNumber redips-mark" colspan=${columnWidth}>${clas.title}</th>
+                    `, '')}
                 </tr>
             </thead>
             <tbody>
@@ -18,13 +21,12 @@
                                 : ''
                             }
                             <td class="column-cell-freeze redips-mark">${rowIndex % lessonsPerDay + 1}</td>
-                            ${classrooms.reduce((accRow, classroom, colIndex) => accRow + `
-                                <td class="${lessonCellClass.replace('.','')} redips-single redips-mark lesson-allowed">
-                                    ${classroom ? renderer.classroom.call(scope, classroom.id)
-                                             : ''}
+                            ${row.reduce((accRow, {lesson, classroom}, colIndex) => accRow + `
+                                <td class="${lessonCellClass.replace('.','')} redips-single redips-mark lesson-allowed" ${cellRowAttribute}="${rowIndex}" ${cellColAttribute}="${colIndex}">
+                                    ${lesson ? renderer.lesson(lesson.id, lesson.clas.id, false) : ''}
                                 </td>
-                                <td class="redips-mark redips-single classroom-allowed">
-                                    
+                                <td class="redips-mark redips-single ${classRoomCellClass.replace('.', '')} classroom-allowed" ${cellRowAttribute}="${rowIndex}" ${cellColAttribute}="${colIndex}">
+                                    ${classroom ? renderer.classroom(classroom.id, false) : ''}
                                 </td>
                             `, '')}
                         </tr>

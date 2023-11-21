@@ -16,8 +16,12 @@ import ScheduleModel from "./ScheduleModel.js";
 
 import { createLessonsForClasses } from "./utils/dataFunctions.js";
 
-const lessonClass = '.lesson';
-const classroomClass = '.classroom';
+export const lessonClass = '.lesson';
+export const classroomClass = '.classroom';
+export const lessonCellClass = '.lesson-cell';
+export const classRoomCellClass = '.classroom-cell';
+const cellRowAttribute = 'row';
+const cellColAttribute = 'col';
 
 export const columnWidth = 2;
 
@@ -31,7 +35,12 @@ class GhStudySchedule extends GhHtmlElement {
         this.renderer = renderer;
 
         //table classes
-        this.lessonCellClass = '.lesson-cell';
+        this.lessonCellClass = lessonCellClass;
+        this.classRoomCellClass = classRoomCellClass;
+
+        //table attributes
+        this.cellRowAttribute = cellRowAttribute;
+        this.cellColAttribute = cellColAttribute;
 
         //data
         this.columnWidth = columnWidth;

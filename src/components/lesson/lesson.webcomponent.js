@@ -52,6 +52,7 @@ export default class Lesson extends HTMLElement {
         this.app_id = app_id
         this.item_id = item_id;
         this.isClone = Boolean(Number(this.getAttribute(isCloneAttribute)));
+        console.log(`attr: ${this.getAttribute(isCloneAttribute)}, clone: ${this.isClone}`);
         this.lesson = await this.getInterpretatedLesson();
         this.teacherRefId = await this.getTeacherRefId();
         this.classRefId = this.getAttribute(classItemRefIdAttribute);

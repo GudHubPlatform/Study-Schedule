@@ -20,6 +20,8 @@ $drag-classroom-element-width: 30px;
 //table cell 
 $cell-paddings: 1px;
 $cell-classroom-min-width: $drag-classroom-element-width + 5px;
+$cell-lesson-min-width: $drag-lesson-element-width + $cell-paddings * 2 + 2px;
+$cell-lesson-min-height: $drag-lesson-element-height + $cell-paddings * 2 + 2px;
 $background-color-disabled-cell: rgb(197, 197, 197);
 
 

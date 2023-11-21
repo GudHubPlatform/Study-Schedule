@@ -1,5 +1,9 @@
 @use './variables' as *;
 
+schedule-lesson {
+    width: 100%;
+}
+
 gh-study-schedule {
     font-size: .8em;
 
@@ -12,6 +16,10 @@ gh-study-schedule {
         >:first-child {
             margin-right: 10px;
         }
+    }
+
+    #lesson-table-container {
+        margin-right: 5px;
     }
 
     table {
@@ -45,6 +53,11 @@ gh-study-schedule {
         box-sizing: border-box;
         padding: $cell-paddings;
         border: solid 1px #000;
+
+        &.lesson-cell {
+            min-width: $cell-lesson-min-width;
+            height: $cell-lesson-min-height;
+        }
     }
     
     .table-schedule {
@@ -126,11 +139,6 @@ gh-study-schedule {
                         text-transform: uppercase;
                     }
                 }
-            }
-
-            &.lesson-cell {
-                min-width: $drag-lesson-element-width + $cell-paddings * 2 + 2px;
-                height: $drag-lesson-element-height + $cell-paddings * 2 + 2px;
             }
         }
 
