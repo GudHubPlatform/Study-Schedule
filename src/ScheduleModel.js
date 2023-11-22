@@ -9,37 +9,6 @@ export default class ScheduleModel {
         this.academicHours = {};
     }
 
-    storageInitialization(cellsMap) {
-        for (let i = 0; i < this.rowCount; i++) {
-            this.scheduleStorage.push([]);
-
-            for (const clas of this.classes) {
-                let cell = {
-                    dayOfWeek: this.daysOfWeek[i % this.daysOfWeek.length],
-                    clas: clas,
-                    lessonNumber: i % this.lessonsPerDay + 1,
-                    lesson: null,
-                    htmlElement: null,
-                    classroom: null,
-                };
-
-                const key = `${cell.clas.id}:${cell.dayOfWeek}:${cell.lessonNumber}`;
-
-                const foundcell = cellsMap[key];
-
-                if (foundcell) {
-                    cell = foundcell;
-
-                    if (foundcell.lesson) {
-                        this.addAcademicHour(cell.lesson.uniqueId);
-                    }
-                }
-
-                this.scheduleStorage[i].push(cell);
-            }
-        }
-    }
-
     getCell(row, col) {
         const foundCell = this.scheduleStorage[row][col];
         return foundCell;

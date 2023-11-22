@@ -6,20 +6,22 @@ export default class ScheduleController {
         this.model = model;
         this.lessons = lessons;
         this.classrooms = classrooms;
+
+        this.academicHoursCallbackObject = {};
     }
 
-    setLesson(lessonId, cell) {
+    setLesson(uniqueId, cell) {
         const row = cell.getAttribute('row');
         const col = cell.getAttribute('col');
         if (!this.checkRowCol(row, col)) return undefined;
-        if (!lessonId) return undefined;
+        if (!uniqueId) return undefined;
 ;
-        const foundLesson = this.findLessonById(lessonId);
+        const foundLesson = this.findLessonById(uniqueId);
         if (!foundLesson) return undefined;
 
         const resultCell = this.model.setLesson(row, col, foundLesson);
 
-        this.model.addAcademicHour(lessonId);
+        this.addAcademicHour(uniqueId);
         this.addCellToLocalStorage(resultCell);
 
         return resultCell;
@@ -34,14 +36,43 @@ export default class ScheduleController {
 
         const cellToRemove = this.model.getCell(row, col);
 
-        this.model.subtractAcademicHour(removedLessonId);
+        this.subtractAcademicHour(removedLessonId);
         this.removeLessonFromLocalStorageCell(cellToRemove);
 
         return removedLessonId;
     }
 
-    getLesson(lessonId) {
-        const foundLesson = this.lessons.find(lesson => lesson.id === lessonId);
+    setClassroom(classroomId, cell) {
+        const row = cell.getAttribute('row');
+        const col = cell.getAttribute('col');
+        if (!this.checkRowCol(row, col)) return undefined;
+        if (!classroomId) return undefined;
+
+        const foundClassroom = this.findClassroomById(classroomId);
+        if (!foundClassroom) return undefined;
+
+        const cellToSave = this.model.setClassroom(row, col, foundClassroom);
+
+        this.addCellToLocalStorage(cellToSave);
+
+        return cellToSave;
+    }
+
+    removeClassroom(cell) {
+        if (!cell) return undefined;
+        const row = cell.getAttribute('row');
+        const col = cell.getAttribute('col');
+        if (!this.checkRowCol(row, col)) return undefined;
+        const removedClassroomId = this.model.removeClassroom(row, col);
+        
+        const cellToRemove = this.model.getCell(row, col);
+        this.removeClassroomFromLocalStorageCell(cellToRemove);
+
+        return removedClassroomId;
+    }
+
+    getLesson(uniqueId) {
+        const foundLesson = this.lessons.find(lesson => lesson.id === uniqueId);
 
         return foundLesson;
     }
@@ -67,8 +98,8 @@ export default class ScheduleController {
         return true;
     }
 
-    findLessonById(lessonId) {
-        return this.lessons.find((lesson) => lesson.uniqueId == lessonId);
+    findLessonById(uniqueId) {
+        return this.lessons.find((lesson) => lesson.uniqueId == uniqueId);
     }
 
     findClassroomById(classroomId) {
@@ -110,6 +141,40 @@ export default class ScheduleController {
         localStorage.removeClassroomFromCell(cellToRemove);
     }
 
+    addAcademicHour(uniqueId) {
+        this.model.addAcademicHour(uniqueId);
+        this.executeAcademicHoursCallbacks(uniqueId);
+    }
+
+    subtractAcademicHour(uniqueId) {
+        this.model.subtractAcademicHour(uniqueId);
+        this.executeAcademicHoursCallbacks(uniqueId);
+    }
+
+    addHoursCallback(uniqueId, callback) {
+        if (!Object.hasOwnProperty(this.academicHoursCallbackObject, [uniqueId])) {
+            this.academicHoursCallbackObject[uniqueId] = [];
+        }
+        const callbackArray = this.academicHoursCallbackObject[uniqueId];
+
+        callbackArray.push(callback);
+    }
+
+    executeAcademicHoursCallbacks(uniqueId) {
+        if (this.academicHoursCallbackObject.hasOwnProperty([uniqueId])) {
+            const callbacksArray = this.academicHoursCallbackObject[uniqueId];
+            const lesson = this.findLessonById(uniqueId);
+            const remainHours = this.getAcademicHours(uniqueId);
+            const hoursObject = {
+                total: lesson.academicHours,
+                remain: remainHours ? remainHours : 0,
+            };
+            callbacksArray.forEach((method) => {
+                method(hoursObject);
+            });
+        }
+    }
+
     loadLocalStorageCellsToStorage() {
         const cells = localStorage.getCells();
 
@@ -120,17 +185,47 @@ export default class ScheduleController {
             cellsObj[key] = cell;
         }
 
-        this.model.storageInitialization(cellsObj);
+        for (let i = 0; i < this.model.rowCount; i++) {
+
+            this.model.scheduleStorage.push([]);
+
+            const { daysOfWeek, lessonsPerDay } = this.model;
+
+            for (const clas of this.model.classes) {
+                let cell = {
+                    dayOfWeek: daysOfWeek[i % daysOfWeek.length],
+                    clas: clas,
+                    lessonNumber: i % lessonsPerDay + 1,
+                    lesson: null,
+                    htmlElement: null,
+                    classroom: null,
+                };
+
+                const key = `${cell.clas.id}:${cell.dayOfWeek}:${cell.lessonNumber}`;
+
+                const foundcell = cellsObj[key];
+
+                if (foundcell) {
+                    cell = foundcell;
+
+                    if (foundcell.lesson) {
+                        this.addAcademicHour(cell.lesson.uniqueId);
+                    }
+                }
+
+                this.model.scheduleStorage[i].push(cell);
+            }
+        }
     }
 
-    highlightLessonsCells(lessonId, clickedCellCoords) {
+    highlightLessonsCells(uniqueId, clickedCellCoords) {
         const rules = [];
 
         for (const rule of Object.values(ruleCallbacks)) {
             rules.push(rule);
         }
 
-        const foundLesson = this.findLessonById(lessonId);
+        const foundLesson = this.findLessonById(uniqueId);
 
         if (!foundLesson) {
             return () => {};
@@ -235,37 +330,11 @@ export default class ScheduleController {
         return this.model.getStorage();
     }
 
-    getAcademicHours() {
+    getAcademicHours(uniqueId) {
+        if (uniqueId) {
+            return this.model.getAcademicHours()[uniqueId];
+        }
         return this.model.getAcademicHours();
-    }
-
-    setClassroom(classroomId, cell) {
-        const row = cell.getAttribute('row');
-        const col = cell.getAttribute('col');
-        if (!this.checkRowCol(row, col)) return undefined;
-        if (!classroomId) return undefined;
-
-        const foundClassroom = this.findClassroomById(classroomId);
-        if (!foundClassroom) return undefined;
-
-        const cellToSave = this.model.setClassroom(row, col, foundClassroom);
-
-        this.addCellToLocalStorage(cellToSave);
-
-        return cellToSave;
-    }
-
-    removeClassroom(cell) {
-        if (!cell) return undefined;
-        const row = cell.getAttribute('row');
-        const col = cell.getAttribute('col');
-        if (!this.checkRowCol(row, col)) return undefined;
-        const removedClassroomId = this.model.removeClassroom(row, col);
-        
-        const cellToRemove = this.model.getCell(row, col);
-        this.removeClassroomFromLocalStorageCell(cellToRemove);
-
-        return removedClassroomId;
     }
 }
 

@@ -1,15 +1,16 @@
-import { allTab, classroomsTab } from "./lessonDragList.webcomponent.js";
+import { allTab, classroomsTab, render } from "./lessonDragList.webcomponent.js";
 import { columnWidth, lessonCellClass, classRoomCellClass } from '../../studyschedule.webcomponent.js';
 
 export const selectedTabClass = '.selected';
 
 export const lessonsListTitleClass = '.lessons-list-title';
 export const hoursRemainsClass = 'hours-remains';
-const hoursTotalAmountClass = 'hours-total-amount';
+export const hoursTotalAmountClass = 'hours-total-amount';
 
 export const classroomRowClass = '.classroom-row';
 
 export const tabIdAttribute = 'tab-id';
+export const lessonUniqueIdAttribute = 'lesson-unique-id'
 const lessonsHeaderColspan = 2;
 
 export default function getHtml() {
@@ -38,12 +39,9 @@ export default function getHtml() {
                 ${lessons.reduce((acc, lesson) => acc + /*html*/`
                     <tr
                         ${tabIdAttribute}=${lesson.clas.id}
+                        ${lessonUniqueIdAttribute}=${lesson.uniqueId}
                     >
-                        <td class="redips-trash">
-                            <div class=hours-counter-container redips-trash>
-                                <span class=${hoursTotalAmountClass}>${lesson.academicHours}</span>
-                                <span class="${hoursRemainsClass}">${lesson.academicHours}</span>
-                            </div>
+                        <td class="redips-trash hours-counter-cell">
                         </td>
                         <td class="redips-trash ${lessonCellClass.replace('.', '')}" colspan=${columnWidth}>
                             ${this.renderer.lesson(lesson.id, lesson.clas.id, 1)}

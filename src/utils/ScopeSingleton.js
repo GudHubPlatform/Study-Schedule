@@ -25,7 +25,9 @@ export default class ScopeSingleton {
     }
 
     setRD(rd) {
-      this.rd = rd;
+      if (!this.rd) {
+        this.rd = rd;
+      }
     }
 
     getScope() {

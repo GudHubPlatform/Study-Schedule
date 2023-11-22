@@ -23,6 +23,7 @@ export default class Lesson extends HTMLElement {
 
         this.app_id;
         this.item_id;
+        this.uniqueId;
         this.isClone;
         this.lesson;
         this.teacherRefId;
@@ -102,7 +103,7 @@ export default class Lesson extends HTMLElement {
 
     async determineProperties() {
         const [app_id, item_id] = this.getAttribute(itemRefIdAttribute).split('.');
-        this.app_id = app_id
+        this.app_id = app_id;
         this.item_id = item_id;
         this.isClone = Boolean(Number(this.getAttribute(isCloneAttribute)));
         this.lesson = await this.getInterpretatedLesson();
@@ -116,6 +117,8 @@ export default class Lesson extends HTMLElement {
 
         this.classRefId = this.getAttribute(classItemRefIdAttribute);
         this.classTitle = await this.getClassTitle();
+
+        this.uniqueId = `${this.app_id}.${this.item_id}/${this.classRefId}`;
 
         this.isRemovable = Boolean(this.shadowRoot.querySelector(removableClass));
     };
@@ -210,9 +213,8 @@ export default class Lesson extends HTMLElement {
             this.controller = ScopeSingleton.getInstance().getController();
         }
 
-        const uniqueId = `${this.app_id}.${this.item_id}/${this.classRefId}`;
         if (this.oldParentCell) this.controller.removeLesson(this.oldParentCell);
-        this.controller.setLesson(uniqueId, cell);
+        this.controller.setLesson(this.uniqueId, cell);
     }
 
     addRemovable() {

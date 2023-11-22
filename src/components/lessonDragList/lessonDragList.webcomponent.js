@@ -1,9 +1,8 @@
 import styles from './lessonDragList.styles.scss';
-import getHtml, { tabIdAttribute } from './lessonDragListLayout.js';
+import getHtml, { tabIdAttribute, hoursTotalAmountClass, lessonsListTitleClass, hoursRemainsClass, lessonUniqueIdAttribute } from './lessonDragListLayout.js';
 
 import renderer from '../../utils/componentsRenderer.js';
 import ScopeSingleton from '../../utils/ScopeSingleton.js';
-import { lessonsListTitleClass } from './lessonDragListLayout.js';
 
 const defaultTitle = 'Уроки';
 export const allTab = {
@@ -34,6 +33,7 @@ export default class LessonDragList extends HTMLElement {
         this.classes;
         this.classrooms;
         this.selectedClassId = defaultTabs[0];
+        
 
         this.handleSelectTab = this.handleSelectTab;
 
@@ -45,6 +45,7 @@ export default class LessonDragList extends HTMLElement {
     async onInit() {
         await this.determineProperties();
         this.render();
+        this.renderHoursCounters();
     }
 
     disconnectedCallback() {
@@ -154,5 +155,52 @@ export default class LessonDragList extends HTMLElement {
 
     handleClickCloseIcon() {
         console.log('close icon clicked');
+    }
+
+    renderHoursCounters() {
+        const controller = ScopeSingleton.getInstance().getController();
+        const tbody = this.separatedContainer.getElementsByTagName('tbody')[0];
+        
+        for (const tr of tbody.children) {
+            const uniqueId = tr.getAttribute(lessonUniqueIdAttribute);
+            if (!uniqueId) continue;
+
+            const lesson = controller.findLessonById(uniqueId);
+            if (!lesson) continue;
+            
+            const cell = tr.querySelector('.hours-counter-cell');
+            const hoursCounterConteinerHtml = /*html*/`
+                <div class=hours-counter-container redips-trash>
+                    <span class=${hoursTotalAmountClass}>${lesson.academicHours}</span>
+                </div>
+            `;
+            cell.insertAdjacentHTML('afterbegin', hoursCounterConteinerHtml);
+            const hoursCounterConteiner = cell.children[0];
+            const remainHoursHtml = this.getRemainsHoursHtml(lesson);
+            hoursCounterConteiner.insertAdjacentHTML('beforeend', remainHoursHtml);
+
+            const remainsHoursElement = hoursCounterConteiner.children[1];
+            const updateRemainsCounter = ({ remain }) => {
+                remainsHoursElement.textContent = lesson.academicHours - remain;
+            };
+            
+            controller.addHoursCallback(uniqueId, updateRemainsCounter);
+        }
+    }
+
+    getRemainsHoursHtml(lesson) {
+        const { uniqueId } = lesson;
+        const controller = ScopeSingleton.getInstance().getController();
+        const hoursSeted = controller.getAcademicHours(uniqueId);
+        let remainHours;
+        if (hoursSeted) {
+            remainHours = lesson.academicHours - hoursSeted;
+        } else {
+            remainHours = lesson.academicHours;
+        }
+        
+        return /*html*/`
+            <span class="${hoursRemainsClass}">${remainHours}</span>
+        `;
     }
 }
