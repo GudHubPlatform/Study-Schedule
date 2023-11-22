@@ -3,11 +3,13 @@ export default class ScopeSingleton {
     
     static #scope;
     static #controller;
+    static #rd;
     static #data;
   
     constructor() {
       this.scope = ScopeSingleton.#scope;
       this.controller = ScopeSingleton.#controller;
+      this.rd = ScopeSingleton.#rd;
       this.data = ScopeSingleton.#data;
     }
 
@@ -22,6 +24,10 @@ export default class ScopeSingleton {
       return ScopeSingleton.#instance;
     }
 
+    setRD(rd) {
+      this.rd = rd;
+    }
+
     getScope() {
       return this.scope;
     }
@@ -30,5 +36,8 @@ export default class ScopeSingleton {
     }
     getController() {
       return this.controller;
+    }
+    getRD() {
+      return this.rd;
     }
   }

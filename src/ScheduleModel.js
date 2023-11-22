@@ -53,11 +53,28 @@ export default class ScheduleModel {
 
     removeLesson(row, col) {
         const foundCell = this.scheduleStorage[row][col];
+        if (!foundCell.lesson) return false;
         const removedLessonId = foundCell.lesson.uniqueId;
 
         foundCell.lesson = null;
 
         return removedLessonId;
+    }
+
+    setClassroom(row, col, classroom) {
+        const foundCell = this.scheduleStorage[row][col];
+        foundCell.classroom = classroom;
+        return foundCell;
+    }
+
+    removeClassroom(row, col) {
+        const foundCell = this.scheduleStorage[row][col];
+        if (!foundCell.classroom) return false;
+        const removedClassroomId = foundCell.classroom.id;
+
+        foundCell.classroom = null;
+
+        return removedClassroomId;
     }
 
     setHTMLElement(row, col, element) {
@@ -118,21 +135,6 @@ export default class ScheduleModel {
                 delete this.academicHours[lessonId];
             }
         }
-    }
-
-    setClassroom(row, col, classroom) {
-        const foundCell = this.scheduleStorage[row][col];
-        foundCell.classroom = classroom;
-        return foundCell;
-    }
-
-    removeClassroom(row, col) {
-        const foundCell = this.scheduleStorage[row][col];
-        const removedClassroomId = foundCell.classroom.id;
-
-        foundCell.classroom = null;
-
-        return removedClassroomId;
     }
 }
 

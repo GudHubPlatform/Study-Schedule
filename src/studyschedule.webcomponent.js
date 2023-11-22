@@ -31,7 +31,6 @@ class GhStudySchedule extends GhHtmlElement {
 
     constructor() {
         super();
-
         this.renderer = renderer;
 
         //table classes
@@ -158,6 +157,7 @@ class GhStudySchedule extends GhHtmlElement {
 
         setTimeout(() => {
             this.rd = redips.init();
+            ScopeSingleton.getInstance().setRD(this.rd);
         }, 0);
     }
 

@@ -45,7 +45,7 @@ export default class Lesson extends HTMLElement {
 
         if (!this.isClone) {
             const closeIconElement = this.shadowRoot.querySelector(closeIconClass);
-            closeIconElement.onmousedown = () => this.handleClickCloseIcon();
+            closeIconElement.onclick = () => this.handleClickCloseIcon();
         }
 
         this.itemUpdateSubscribe();
@@ -181,8 +181,11 @@ export default class Lesson extends HTMLElement {
     }
 
     handleClickCloseIcon() {
-        console.log('close icon');
-        // this.handleRemove();
+        this.handleRemove();
+        this.isCloseIconClicked = true;
+
+        const rd = ScopeSingleton.getInstance().getRD();
+        rd.deleteObject(rd.obj);
     }
 
     handleDrop() {
@@ -221,7 +224,7 @@ export default class Lesson extends HTMLElement {
         }
 
         if (closeIcon) {
-            closeIcon.onclick = this.handleClickCloseIcon;
+            closeIcon.onclick = () => this.handleClickCloseIcon();
         }
     }
 }
