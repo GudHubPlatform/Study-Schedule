@@ -138,8 +138,9 @@ class GhStudySchedule extends GhHtmlElement {
             rd.mark.exceptionClass[lessonClass.replace('.','')] = 'lesson-allowed';
 
             rd.event.clicked = (clickedCell) => {
-                const lesson = clickedCell.getElementsByTagName('schedule-lesson')[0];
-                if (lesson.isCloseIconClicked) {
+                const dndDiv = clickedCell.getElementsByClassName('redips-drag')[0];
+                const lessonOrClassElement = dndDiv.children[0];
+                if (lessonOrClassElement && lessonOrClassElement.isCloseIconClicked) {
                     console.log('rd click prevented');
                 } else {
 

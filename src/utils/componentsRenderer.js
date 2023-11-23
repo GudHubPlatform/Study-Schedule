@@ -68,8 +68,6 @@ const classroom = (classRefId, isClone = 0) => {
                 <schedule-classroom
                     ${itemRefIdAttribute}=${classRefId}
                     ${title}=${cabinets_app_number_field_id}
-
-                    ${isCloneAttribute}=${isClone}
                 >
                 </schedule-classroom>
             </div>`;

@@ -6,7 +6,6 @@ import ScopeSingleton from "../../utils/ScopeSingleton.js";
 import { 
     itemRefIdAttribute,
     classRoomFieldIdAttributes,
-    isCloneAttribute
  } from "../../utils/componentsRenderer.js";
 
 export default class Classroom extends HTMLElement {
@@ -17,7 +16,6 @@ export default class Classroom extends HTMLElement {
 
         this.app_id;
         this.item_id;
-        this.isClone;
         this.classroom;
         this.isSubscribedOnItemUpdate = false;
 
@@ -25,7 +23,6 @@ export default class Classroom extends HTMLElement {
         
         this.oldParentCell;
         this.parentCell;
-        this.isRemovable = null;
 
         this.onInit();
     }
@@ -34,10 +31,7 @@ export default class Classroom extends HTMLElement {
         await this.determineProperties();
         this.render();
 
-        if (!this.isClone) {
-            const closeIconElement = this.shadowRoot.querySelector(closeIconClass);
-            closeIconElement.onclick = () => this.handleClickCloseIcon();
-        }
+        if (!this.parentElement.classList.contains('redips-clone')) this.attachCloseIconListeners();
 
         this.itemUpdateSubscribe();
     }
@@ -84,9 +78,7 @@ export default class Classroom extends HTMLElement {
         const [app_id, item_id] = this.getAttribute(itemRefIdAttribute).split('.');
         this.app_id = app_id
         this.item_id = item_id;
-        this.isClone = Boolean(Number(this.getAttribute(isCloneAttribute)));
         this.classroom = await this.getInterpretatedClassroom();
-        this.isRemovable = Boolean(this.shadowRoot.querySelector(removableClass));
     };
 
     async getInterpretatedClassroom() {
@@ -115,6 +107,10 @@ export default class Classroom extends HTMLElement {
         this.controller.removeClassroom(this.oldParentCell);
     }
 
+    handleBeforeClickCloseIcon() {
+        this.isCloseIconClicked = true;
+    }
+
     handleClickCloseIcon() {
         this.handleRemove();
         this.isCloseIconClicked = true;
@@ -138,12 +134,18 @@ export default class Classroom extends HTMLElement {
 
     setParentCell(cell) {
         if (this.parentCell !== cell) {
-            if (this.isRemovable === false && checkForNodeNameTd(cell) && !cell.classList.contains('redips-trash')) {
-                this.addRemovable();
-            }
             this.oldParentCell = this.parentCell;
             this.parentCell = cell;
         }
+    }
+
+    attachCloseIconListeners() {
+        const contentContainer = this.shadowRoot.querySelector(contentContainerClass);
+        contentContainer.classList.add(removableClass.replace('.', ''));
+
+        const closeIconElement = this.shadowRoot.querySelector(closeIconClass);
+        closeIconElement.onmousedown = () => this.handleBeforeClickCloseIcon();
+        closeIconElement.onclick = () => this.handleClickCloseIcon();
     }
 
     handleDropToTrash() {
@@ -157,18 +159,5 @@ export default class Classroom extends HTMLElement {
 
         if (this.oldParentCell) this.controller.removeClassroom(this.oldParentCell);
         this.controller.setClassroom(`${this.app_id}.${this.item_id}`, cell);
-    }
-
-    addRemovable() {
-        const contentContainer = this.shadowRoot.querySelector(contentContainerClass);
-        const closeIcon = this.shadowRoot.querySelector(closeIconClass);
-        if (contentContainer) {
-            contentContainer.classList.add(removableClass.replace('.', ''));
-            this.isRemovable = true;
-        }
-
-        if (closeIcon) {
-            closeIcon.onclick = () => this.handleClickCloseIcon();
-        }
     }
 }

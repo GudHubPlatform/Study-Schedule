@@ -7,17 +7,16 @@ export const removableClass = '.removable';
 
 export default function getHtml() {
     const { title } = this.classroom;
-    const isClone = this.isClone;
 
     return /*html*/`
         <div
-            class="${classroomClass.replace('.', '')} ${isClone ? 'redips-clone' : ''}"
+            class="${classroomClass.replace('.', '')}"
         >
             <div
                 class="${closeIconClass.replace('.', '')}"
             >
             </div>
-            <div class="${contentContainerClass.replace('.','')} ${isClone ? '' : removableClass.replace('.', '')}">
+            <div class="${contentContainerClass.replace('.','')}">
                 <span class="${titleClass.replace('.', '')}">${title}</span>
             </div>
         </div>

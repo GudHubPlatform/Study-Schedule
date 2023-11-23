@@ -25,7 +25,6 @@ export default class Lesson extends HTMLElement {
         this.app_id;
         this.item_id;
         this.uniqueId;
-        this.isClone;
         this.lesson;
         this.teacherRefId;
         this.classRefId;
