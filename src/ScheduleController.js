@@ -249,17 +249,17 @@ export default class ScheduleController {
             cells[row][col] = cellCopyWithoutLesson;
         }
 
-        const filteredRows = cells.map((row) => 
-            row.filter((cell) => !rules.every(rule => rule(foundLesson, cell)))
+        const notAllowedByRules = cells.map((row) => 
+            row.filter((cell) => !rules.some(rule => rule(foundLesson, cell)))
         );
 
         const filteredCellsByOneLessonRule = checkForOneTeacherPerLessonRule(foundLesson, cells);
 
         const notAllowedCells  = [
-            ...filteredRows.reduce((acc, row) => [...acc, ...row], []),
+            ...notAllowedByRules.reduce((acc, row) => [...acc, ...row], []),
             ...filteredCellsByOneLessonRule
         ];
-
+        
         const notAllowedCellElements = notAllowedCells.map(({htmlElement}) => htmlElement);
 
         for (const td of notAllowedCellElements) {
@@ -338,11 +338,10 @@ export default class ScheduleController {
     }
 }
 
+// return true if not suitable to rule
 const ruleCallbacks = {
     classToClass: (draggedLesson, targetCell) => {
-        if (draggedLesson.clas.id != targetCell.clas.id) return false;
-
-        return true;
+        return draggedLesson.clas.id == targetCell.clas.id;
     }
 };
 
@@ -373,4 +372,5 @@ const checkForOneTeacherPerLessonRule = (draggedLesson, cellRows) => {
     return notAllowedCells;
 }
 
-const checkForOneClassroomInRow = (classroomId, cellRow) => cellRow.some(cell => cell.classroom && cell.classroom.id == classroomId);
+const checkForOneClassroomInRow = (classroomId, cellRow) => cellRow
+    .some(cell => cell.classroom && cell.classroom.id == classroomId);

@@ -49,7 +49,6 @@ export default class LessonDragList extends HTMLElement {
     }
 
     disconnectedCallback() {
-        console.log('disconnectedCallback');
     };
 
     render() {
@@ -151,10 +150,6 @@ export default class LessonDragList extends HTMLElement {
         this.updateTitle();
         this.filterElements();
         this.setSelectedTab();
-    }
-
-    handleClickCloseIcon() {
-        console.log('close icon clicked');
     }
 
     renderHoursCounters() {

@@ -54,6 +54,9 @@ class GhStudySchedule extends GhHtmlElement {
         this.model;
         this.controller;
         this.storage;
+
+        //highlight cells
+        this.disableHighlight;
     }
 
     // onInit() is called after parent gh-element scope is ready
@@ -70,6 +73,7 @@ class GhStudySchedule extends GhHtmlElement {
         this.initScopeSingleton();
 
         super.render(html);
+        this.setCorrespondingHTMLElements();
 
         this.dndInit();
     };
@@ -127,6 +131,8 @@ class GhStudySchedule extends GhHtmlElement {
     dndInit() {
         const redips = {};
 
+        const controller = this.controller;
+
         redips.init = function () {
             const rd = REDIPS.drag;
 
@@ -139,21 +145,41 @@ class GhStudySchedule extends GhHtmlElement {
 
             rd.event.clicked = (clickedCell) => {
                 const dndDiv = clickedCell.getElementsByClassName('redips-drag')[0];
-                const lessonOrClassElement = dndDiv.children[0];
-                if (lessonOrClassElement && lessonOrClassElement.isCloseIconClicked) {
+                const scheduleElement = dndDiv.children[0];
+                if (scheduleElement && scheduleElement.isCloseIconClicked) {
                     console.log('rd click prevented');
                 } else {
-
+                    const clickedCellCoords = {
+                        row: clickedCell.getAttribute(cellRowAttribute),
+                        col: clickedCell.getAttribute(cellColAttribute),
+                    };
+                    if (scheduleElement instanceof Lesson) {
+                        this.disableHighlight = controller.highlightLessonsCells(scheduleElement.uniqueId, clickedCellCoords);
+                    } else if (scheduleElement instanceof Classroom) {
+                        const  {
+                            app_id,
+                            item_id
+                        } = scheduleElement;
+                        const classroomId = [app_id, item_id].join('.');
+                        this.disableHighlight = controller.highlightClassroomsCells(classroomId, clickedCellCoords);
+                    }
                 }
             };
 
             rd.event.droppedBefore = (targetCell) => {
             };
 
+            rd.event.dropped = () => {
+            }
+
             rd.event.deleted = (clonedAndDirectlyMovedToTrasg) => {
             };
 
             rd.event.finish = () => {
+                if (this.disableHighlight) {
+                    this.disableHighlight();
+                    this.disableHighlight = null;
+                }
             };
 
             rd.event.clonedDropped = () => {
@@ -190,10 +216,20 @@ class GhStudySchedule extends GhHtmlElement {
         ScopeSingleton.getInstance(this.scope, this.controller, data);
     };
 
+
+    setCorrespondingHTMLElements() {
+        const htmlElements = document.querySelectorAll(lessonCellClass);
+        this.controller.setHTMLElements(htmlElements);
+    }
+
     // disconnectedCallback() is called after the component is destroyed
     disconnectedCallback() {
         
     };
+
+    handleEnableHighlight() {
+        this.disableHighlight = this.controller.highlightClassroomsCells()
+    }
 }
 
 // Register web component only if it is not registered yet
