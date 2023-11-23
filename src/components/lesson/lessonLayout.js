@@ -14,10 +14,11 @@ export default function getHtml() {
 
     return /*html*/`
         <div class="container">
-            <div
+            <input
+                type="checkbox"
                 class="${closeIconClass.replace('.', '')}"
-            ></div>
-            <div class="${contentContainerClass.replace('.', '')} ${this.isClone ? '' : removableClass.replace('.', '')}">
+            />
+            <div class="${contentContainerClass.replace('.', '')}">
                 <span class="${titleClass.replace('.', '')}">${shortText(title)}</span>
                 <span
                     class="${lessonTeacherNameClass.replace('.', '')} ${teacher ? '' : noTeacherClass.replace('.','')}"

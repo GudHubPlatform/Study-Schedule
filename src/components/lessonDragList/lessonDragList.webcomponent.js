@@ -4,7 +4,7 @@ import getHtml, { tabIdAttribute, hoursTotalAmountClass, lessonsListTitleClass, 
 import renderer from '../../utils/componentsRenderer.js';
 import ScopeSingleton from '../../utils/ScopeSingleton.js';
 
-const defaultTitle = 'Уроки';
+const defaultTitle = 'Предмети';
 export const allTab = {
     id: 'all',
     title: defaultTitle,
@@ -176,31 +176,37 @@ export default class LessonDragList extends HTMLElement {
             `;
             cell.insertAdjacentHTML('afterbegin', hoursCounterConteinerHtml);
             const hoursCounterConteiner = cell.children[0];
-            const remainHoursHtml = this.getRemainsHoursHtml(lesson);
+
+            const hoursSetted = controller.getAcademicHours(uniqueId);
+            const remainHours = hoursSetted ? lesson.academicHours - hoursSetted : lesson.academicHours;
+            
+            const remainHoursHtml = /*html*/`
+                <span class="${hoursRemainsClass}">${remainHours}</span>
+            `;
             hoursCounterConteiner.insertAdjacentHTML('beforeend', remainHoursHtml);
 
             const remainsHoursElement = hoursCounterConteiner.children[1];
-            const updateRemainsCounter = ({ remain }) => {
-                remainsHoursElement.textContent = lesson.academicHours - remain;
+            const lessonComponent = tr.getElementsByTagName('schedule-lesson')[0];
+            const toggleLessonDrag = (remainHours) => {
+                if (remainHours > 0) {
+                    if (!lessonComponent.isDragEnabled) {
+                        lessonComponent.toggleDrag(true);
+                    }
+                } else {
+                    lessonComponent.toggleDrag(false);
+                }
+            };
+
+            toggleLessonDrag(remainHours);
+
+            const updateRemainsCounter = ({ total, setted }) => {
+                const remain = total - setted;
+                remainsHoursElement.textContent = remain;
+
+                toggleLessonDrag(remain);
             };
             
             controller.addHoursCallback(uniqueId, updateRemainsCounter);
         }
-    }
-
-    getRemainsHoursHtml(lesson) {
-        const { uniqueId } = lesson;
-        const controller = ScopeSingleton.getInstance().getController();
-        const hoursSeted = controller.getAcademicHours(uniqueId);
-        let remainHours;
-        if (hoursSeted) {
-            remainHours = lesson.academicHours - hoursSeted;
-        } else {
-            remainHours = lesson.academicHours;
-        }
-        
-        return /*html*/`
-            <span class="${hoursRemainsClass}">${remainHours}</span>
-        `;
     }
 }

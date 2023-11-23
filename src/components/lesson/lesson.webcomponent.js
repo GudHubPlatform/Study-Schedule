@@ -7,8 +7,9 @@ import {
     classItemRefIdAttribute,
     itemRefIdAttribute,
     lessonFieldIdAttributes,
-    isCloneAttribute
  } from '../../utils/componentsRenderer.js';
+
+export const dragDisabledClass = '.drag-disabled'; 
 
 export const checkForNodeNameTd = (element) => {
     if (!element) return;
@@ -35,7 +36,7 @@ export default class Lesson extends HTMLElement {
 
         this.oldParentCell;
         this.parentCell;
-        this.isRemovable = null;
+        this.isDragEnabled = true;
 
         this.onInit();
     }
@@ -44,10 +45,7 @@ export default class Lesson extends HTMLElement {
         await this.determineProperties();
         this.render();
 
-        if (!this.isClone) {
-            const closeIconElement = this.shadowRoot.querySelector(closeIconClass);
-            closeIconElement.onclick = () => this.handleClickCloseIcon();
-        }
+        if (!this.parentElement.classList.contains('redips-clone')) this.attachCloseIconListeners();
 
         this.itemUpdateSubscribe();
     }
@@ -84,6 +82,7 @@ export default class Lesson extends HTMLElement {
 
         const parentCell = this.parentElement.parentElement;
         if (parentCell && checkForNodeNameTd(parentCell)) {
+
             this.setParentCell(parentCell);
         }
     }
@@ -105,7 +104,6 @@ export default class Lesson extends HTMLElement {
         const [app_id, item_id] = this.getAttribute(itemRefIdAttribute).split('.');
         this.app_id = app_id;
         this.item_id = item_id;
-        this.isClone = Boolean(Number(this.getAttribute(isCloneAttribute)));
         this.lesson = await this.getInterpretatedLesson();
 
         const newTeacherRefId = await this.getTeacherRefId();
@@ -119,8 +117,6 @@ export default class Lesson extends HTMLElement {
         this.classTitle = await this.getClassTitle();
 
         this.uniqueId = `${this.app_id}.${this.item_id}/${this.classRefId}`;
-
-        this.isRemovable = Boolean(this.shadowRoot.querySelector(removableClass));
     };
 
     async getInterpretatedLesson() {
@@ -167,12 +163,18 @@ export default class Lesson extends HTMLElement {
 
     setParentCell(cell) {
         if (this.parentCell !== cell) {
-            if (this.isRemovable === false && checkForNodeNameTd(cell) && !cell.classList.contains('redips-trash')) {
-                this.addRemovable();
-            }
             this.oldParentCell = this.parentCell;
             this.parentCell = cell;
         }
+    }
+
+    attachCloseIconListeners() {
+        const contentContainer = this.shadowRoot.querySelector(contentContainerClass);
+        contentContainer.classList.add(removableClass.replace('.', ''));
+
+        const closeIconElement = this.shadowRoot.querySelector(closeIconClass);
+        closeIconElement.onmousedown = () => this.handleBeforeClickCloseIcon();
+        closeIconElement.onclick = () => this.handleClickCloseIcon();
     }
 
     handleRemove() {
@@ -183,9 +185,12 @@ export default class Lesson extends HTMLElement {
         this.controller.removeLesson(this.oldParentCell);
     }
 
+    handleBeforeClickCloseIcon() {
+        this.isCloseIconClicked = true;
+    }
+
     handleClickCloseIcon() {
         this.handleRemove();
-        this.isCloseIconClicked = true;
 
         const rd = ScopeSingleton.getInstance().getRD();
         rd.deleteObject(rd.obj);
@@ -217,16 +222,19 @@ export default class Lesson extends HTMLElement {
         this.controller.setLesson(this.uniqueId, cell);
     }
 
-    addRemovable() {
-        const contentContainer = this.shadowRoot.querySelector(contentContainerClass);
-        const closeIcon = this.shadowRoot.querySelector(closeIconClass);
-        if (contentContainer) {
-            contentContainer.classList.add(removableClass.replace('.', ''));
-            this.isRemovable = true;
-        }
+    toggleDrag(bool) {
+        if (bool === undefined) return;
+        this.isDragEnabled = bool;
 
-        if (closeIcon) {
-            closeIcon.onclick = () => this.handleClickCloseIcon();
+        const dndWrap = this.parentElement;
+        // const contentContainer = this.shadowRoot.querySelector(contentContainerClass);
+        const rd = ScopeSingleton.getInstance().getRD();
+        if (rd) rd.enableDrag(this.isDragEnabled, this.parentElement);
+
+        if (this.isDragEnabled) {
+            dndWrap.classList.remove(dragDisabledClass.replace('.', ''));
+        } else {
+            dndWrap.classList.add(dragDisabledClass.replace('.', ''));
         }
     }
 }

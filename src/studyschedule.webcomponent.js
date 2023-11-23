@@ -2,7 +2,7 @@ import GhHtmlElement from "@gudhub/gh-html-element";
 import html from "./studyschedule.html";
 import './style.scss';
 
-import Lesson from './components/lesson/lesson.webcomponent.js';
+import Lesson, { dragDisabledClass } from './components/lesson/lesson.webcomponent.js';
 import Classroom from './components/classroom/classroom.webcomponent.js';
 import LessonDragList from "./components/lessonDragList/lessonDragList.webcomponent.js";
 
@@ -138,6 +138,12 @@ class GhStudySchedule extends GhHtmlElement {
             rd.mark.exceptionClass[lessonClass.replace('.','')] = 'lesson-allowed';
 
             rd.event.clicked = (clickedCell) => {
+                const lesson = clickedCell.getElementsByTagName('schedule-lesson')[0];
+                if (lesson.isCloseIconClicked) {
+                    console.log('rd click prevented');
+                } else {
+
+                }
             };
 
             rd.event.droppedBefore = (targetCell) => {
@@ -155,9 +161,22 @@ class GhStudySchedule extends GhHtmlElement {
             return rd;
         }
 
+        const checkForDisabledDivs = () => {
+            const dragListContainer = document.getElementById('lesson-table-container');
+            const lessons = dragListContainer.getElementsByTagName('schedule-lesson');
+            
+            for (const lesson of  lessons) {
+                const dragDiv = lesson.parentElement;
+                if (dragDiv.classList.contains(dragDisabledClass.replace('.', ''))) {
+                    this.rd.enableDrag(false, dragDiv);
+                }
+            }
+        }
+
         setTimeout(() => {
             this.rd = redips.init();
             ScopeSingleton.getInstance().setRD(this.rd);
+            checkForDisabledDivs();
         }, 0);
     }
 

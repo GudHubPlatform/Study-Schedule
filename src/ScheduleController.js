@@ -167,7 +167,7 @@ export default class ScheduleController {
             const remainHours = this.getAcademicHours(uniqueId);
             const hoursObject = {
                 total: lesson.academicHours,
-                remain: remainHours ? remainHours : 0,
+                setted: remainHours ? remainHours : 0,
             };
             callbacksArray.forEach((method) => {
                 method(hoursObject);

@@ -163,9 +163,21 @@ gh-study-schedule {
     }
 
     div.redips-clone {
-        &.disabled {
-            div.lesson-content-container {
-                background-color: rgb(255, 193, 193);
+        &.drag-disabled {
+            &::after{
+                content: '';
+                position: absolute;
+
+                top: 0;
+                left: 0;
+
+                height: 100%;
+                width: 100%;
+
+                z-index: 2;
+
+                opacity: .3;
+                background-color: rgb(228, 61, 19);
             }
         }
     }
