@@ -12,11 +12,13 @@ export function createLessonsForClasses(lessons, classes) {
             const uniqueId = `${lesson.id}/${clas.id}`;
             const itemRefId = lesson.id;
             const clasId = clas.id
+            const teacherRefId = lesson.teacherRefId;
 
             const newLesson = {
                 uniqueId,
                 itemRefId,
-                clasId
+                clasId,
+                teacherRefId,
             };
 
             createdLessons.push(newLesson);

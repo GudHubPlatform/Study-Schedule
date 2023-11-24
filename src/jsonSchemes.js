@@ -51,9 +51,10 @@ export const getLessonsScheme = (settings) => {
     lessons_app_id,
     lessons_app_course_field_id,
     lessons_filters_list,
+    lessons_app_teacher_field_id,
   } = settings;
 
-  if (!lessons_app_id || !lessons_app_course_field_id) return;
+  if (!lessons_app_id || !lessons_app_course_field_id || !lessons_app_teacher_field_id) return;
 
   return {
     "type": "array",
@@ -72,6 +73,13 @@ export const getLessonsScheme = (settings) => {
         "property_name": "course",
         "property_type": "field_value",
         "field_id": lessons_app_course_field_id
+      },
+      {
+        "type": "property",
+        "id": 7,
+        "property_name": "teacherRefId",
+        "property_type": "field_value",
+        "field_id": lessons_app_teacher_field_id
       },
     ],
     "property_name": "lessons",

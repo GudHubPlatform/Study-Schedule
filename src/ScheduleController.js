@@ -359,20 +359,15 @@ const ruleCallbacks = {
 
 const checkForOneTeacherPerLessonRule = (draggedLesson, cellRows) => {
     const rowsToFilter = [...cellRows];
+    if (!draggedLesson.teacherRefId) return [];
 
-    if (!draggedLesson.teacherId) return [];
-
-    const { teacherId } = draggedLesson;
-
-    if (!teacherId) return [];
-
+    const { teacherRefId } = draggedLesson;
 
     const notAllowedRows = rowsToFilter.filter((row) => 
         row.some((cell) => {
-            if (cell.lesson && cell.lesson.teacherId) {
-                const cellTeacherId = cell.lesson.teacherId;
+            if (cell.lesson && cell.lesson.teacherRefId) {
 
-                return  cellTeacherId === teacherId;
+                return  cell.lesson.teacherRefId === teacherRefId;
             }
 
             return false;
