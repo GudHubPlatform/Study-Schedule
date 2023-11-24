@@ -22,8 +22,8 @@ export default class Lesson extends HTMLElement {
 
         this.attachShadow({ mode: 'open' });
 
-        this.app_id;
-        this.item_id;
+        this.appId;
+        this.itemId;
         this.uniqueId;
         this.lesson;
         this.teacherRefId;
@@ -56,7 +56,7 @@ export default class Lesson extends HTMLElement {
 
     itemUpdateSubscribe() {
         if (!this.isSubscribedOnItemUpdate) {
-            gudhub.on('gh_item_update', { app_id: this.app_id, item_id: this.item_id }, this.onItemUpdate);
+            gudhub.on('gh_item_update', { app_id: this.appId, item_id: this.itemId }, this.onItemUpdate);
             if (this.teacherRefId) {
                 gudhub.on('gh_item_update', { app_id: this.teacherRefId.split('.')[0], item_id: this.teacherRefId.split('.')[1] }, this.onItemUpdate);
             }
@@ -66,7 +66,7 @@ export default class Lesson extends HTMLElement {
     }
     destroySubscribe() {
         if (this.isSubscribedOnItemUpdate) {
-            gudhub.destroy('gh_item_update', { app_id: this.app_id, item_id: this.item_id }, this.onItemUpdate);
+            gudhub.destroy('gh_item_update', { app_id: this.appId, item_id: this.itemId }, this.onItemUpdate);
             if (this.teacherRefId) {
                 gudhub.destroy('gh_item_update', { app_id: this.teacherRefId.split('.')[0], item_id: this.teacherRefId.split('.')[1] }, this.onItemUpdate);
             }
@@ -101,8 +101,8 @@ export default class Lesson extends HTMLElement {
 
     async determineProperties() {
         const [app_id, item_id] = this.getAttribute(itemRefIdAttribute).split('.');
-        this.app_id = app_id;
-        this.item_id = item_id;
+        this.appId = app_id;
+        this.itemId = item_id;
         this.lesson = await this.getInterpretatedLesson();
 
         const newTeacherRefId = await this.getTeacherRefId();
@@ -115,7 +115,7 @@ export default class Lesson extends HTMLElement {
         this.classRefId = this.getAttribute(classItemRefIdAttribute);
         this.classTitle = await this.getClassTitle();
 
-        this.uniqueId = `${this.app_id}.${this.item_id}/${this.classRefId}`;
+        this.uniqueId = `${this.appId}.${this.itemId}/${this.classRefId}`;
     };
 
     async getInterpretatedLesson() {
@@ -137,10 +137,10 @@ export default class Lesson extends HTMLElement {
         };
 
         const promises = [
-            gudhub.getInterpretationById(this.app_id, this.item_id, titleField, 'value').then((value) => {resultLesson.title = value}),
-            gudhub.getInterpretationById(this.app_id, this.item_id, courseField, 'value').then((value) => {resultLesson.course = value}),
-            gudhub.getInterpretationById(this.app_id, this.item_id, teacherField, 'value').then((value) => {resultLesson.teacher = value}),
-            gudhub.getInterpretationById(this.app_id, this.item_id, academicHoursField, 'value').then((value) => {resultLesson.academicHours = value}),
+            gudhub.getInterpretationById(this.appId, this.itemId, titleField, 'value').then((value) => {resultLesson.title = value}),
+            gudhub.getInterpretationById(this.appId, this.itemId, courseField, 'value').then((value) => {resultLesson.course = value}),
+            gudhub.getInterpretationById(this.appId, this.itemId, teacherField, 'value').then((value) => {resultLesson.teacher = value}),
+            gudhub.getInterpretationById(this.appId, this.itemId, academicHoursField, 'value').then((value) => {resultLesson.academicHours = value}),
         ];
 
         await Promise.all(promises);
@@ -149,7 +149,7 @@ export default class Lesson extends HTMLElement {
     }
 
     async getTeacherRefId() {
-        const lessonItem = await gudhub.getItem(this.app_id, this.item_id);
+        const lessonItem = await gudhub.getItem(this.appId, this.itemId);
         const teacherField = this.getAttribute(lessonFieldIdAttributes.teacher);
         return lessonItem.fields.find(({field_id}) => field_id == teacherField).field_value;
     }

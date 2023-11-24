@@ -49,14 +49,11 @@ export const getLessonsScheme = (settings) => {
 
   const {
     lessons_app_id,
-    lessons_app_title_field_id,
-    lessons_app_teacher_field_id,
     lessons_app_course_field_id,
-    lessons_app_academic_hours_field_id,
     lessons_filters_list,
   } = settings;
 
-  if (!lessons_app_id || !lessons_app_title_field_id || !lessons_app_teacher_field_id || !lessons_app_course_field_id) return;
+  if (!lessons_app_id || !lessons_app_course_field_id) return;
 
   return {
     "type": "array",
@@ -71,40 +68,11 @@ export const getLessonsScheme = (settings) => {
       },
       {
         "type": "property",
-        "id": 5,
-        "property_name": "title",
-        "property_type": "field_value",
-        "field_id": lessons_app_title_field_id
-      },
-      {
-        "type": "property",
-        "id": 4,
-        "property_name": "teacherId",
-        "property_type": "field_value",
-        "field_id": lessons_app_teacher_field_id
-      },
-      {
-        "type": "property",
-        "id": 8,
-        "property_name": "teacherFullName",
-        "property_type": "field_value",
-        "field_id": lessons_app_teacher_field_id,
-        "interpretation": 1
-      },
-      {
-        "type": "property",
         "id": 6,
         "property_name": "course",
         "property_type": "field_value",
         "field_id": lessons_app_course_field_id
       },
-      {
-        "type": "property",
-        "id": 7,
-        "property_name": "academicHours",
-        "property_type": "field_value",
-        "field_id": lessons_app_academic_hours_field_id
-      }
     ],
     "property_name": "lessons",
     "app_id": lessons_app_id,
@@ -116,10 +84,9 @@ export const getLessonsScheme = (settings) => {
   export const getClassroomsScheme = (settings) => {
     const {
       cabinets_app_id,
-      cabinets_app_number_field_id,
     } = settings;
 
-    if (!cabinets_app_id || !cabinets_app_number_field_id) return;
+    if (!cabinets_app_id) return;
 
     return {
       "type": "array",
@@ -132,13 +99,6 @@ export const getLessonsScheme = (settings) => {
           "property_type": "variable",
           "variable_type": "current_item"
         },
-        {
-          "type": "property",
-          "id": 4,
-          "property_name": "title",
-          "property_type": "field_value",
-          "field_id": "807581"
-        }
       ],
       "property_name": "classrooms",
       "app_id": "33956",

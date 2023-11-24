@@ -23,7 +23,7 @@
                             <td class="column-cell-freeze redips-mark">${rowIndex % lessonsPerDay + 1}</td>
                             ${row.reduce((accRow, {lesson, classroom}, colIndex) => accRow + `
                                 <td class="${lessonCellClass.replace('.','')} redips-single redips-mark lesson-allowed" ${cellRowAttribute}="${rowIndex}" ${cellColAttribute}="${colIndex}">
-                                    ${lesson ? renderer.lesson(lesson.id, lesson.clas.id, false) : ''}
+                                    ${lesson ? renderer.lesson(lesson.itemRefId, lesson.clasId, false) : ''}
                                 </td>
                                 <td class="redips-mark redips-single ${classRoomCellClass.replace('.', '')} classroom-allowed" ${cellRowAttribute}="${rowIndex}" ${cellColAttribute}="${colIndex}">
                                     ${classroom ? renderer.classroom(classroom.id, false) : ''}

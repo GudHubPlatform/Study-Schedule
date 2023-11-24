@@ -57,12 +57,14 @@ class GhStudySchedule extends GhHtmlElement {
 
         //highlight cells
         this.disableHighlight;
+
+        this.onDisconnectCallbacks = [];
     }
 
     // onInit() is called after parent gh-element scope is ready
 
     async onInit() {
-        await this.loadData();
+        await this.loadData.all();
         this.lessonsPerDay = this.scope.field_model.data_model.lessons_per_day;
         this.lessons = createLessonsForClasses(this.rawLessons, this.classes);
         this.model = new ScheduleModel(this.classes, this.daysOfWeek, this.lessonsPerDay);
@@ -76,57 +78,109 @@ class GhStudySchedule extends GhHtmlElement {
         this.setCorrespondingHTMLElements();
 
         this.dndInit();
+
+        const destroyLessonsSubscribe = this.subscribeOnItemsUpdate.lessons();
+        const destroyClassroomsSubscribe = this.subscribeOnItemsUpdate.classrooms();
+
+        this.onDisconnectCallbacks.push(
+            destroyLessonsSubscribe,
+            destroyClassroomsSubscribe,
+        );
     };
 
-    async loadData() {
-        const { 
-            classes_app_id,
-            classes_app_title_field_id,
-            classes_app_course_field_id,
-            classes_filters_list = [],
-            classes_sorting_type = 'asc',
-            lessons_app_id,
-            lessons_app_title_field_id,
-            lessons_app_teacher_field_id,
-            lessons_app_course_field_id,
-            lessons_app_academic_hours_field_id,
-            lessons_filters_list = [],
-            cabinets_app_id,
-            cabinets_app_number_field_id,
-        } = this.scope.field_model.data_model;
+    // disconnectedCallback() is called after the component is destroyed
+    disconnectedCallback() {
+        this.onDisconnectCallbacks.forEach((callback) => 
+            callback()
+        );
+    };
 
-        const classesScheme = getClassesScheme({
-            classes_app_id,
-            classes_app_title_field_id,
-            classes_app_course_field_id,
-            classes_filters_list,
-            classes_sorting_type,
-        });
-
-        const lessonsScheme = getLessonsScheme({
-            lessons_app_id,
-            lessons_app_title_field_id,
-            lessons_app_teacher_field_id,
-            lessons_app_course_field_id,
-            lessons_app_academic_hours_field_id,
-            lessons_filters_list,
-        });
-
-        const classroomsScheme = getClassroomsScheme({
-            cabinets_app_id,
-            cabinets_app_number_field_id,
-        });
-
-        const classesPromise = gudhub.jsonConstructor(classesScheme).then((data) => {this.classes = data.classes});
-        const lessonsPromise = gudhub.jsonConstructor(lessonsScheme).then((data) => {this.rawLessons = data.lessons});
-        const classroomsPromise = gudhub.jsonConstructor(classroomsScheme).then((data) => {this.classrooms = data.classrooms});
-
-        await Promise.all([
-            classesPromise,
-            lessonsPromise,
-            classroomsPromise,
-        ]);
+    loadData = {
+        lessons: () => {
+            const {
+                lessons_app_id,
+                lessons_app_title_field_id,
+                lessons_app_teacher_field_id,
+                lessons_app_course_field_id,
+                lessons_app_academic_hours_field_id,
+                lessons_filters_list = [],
+            } = this.scope.field_model.data_model;
+            const lessonsScheme = getLessonsScheme({
+                lessons_app_id,
+                lessons_app_title_field_id,
+                lessons_app_teacher_field_id,
+                lessons_app_course_field_id,
+                lessons_app_academic_hours_field_id,
+                lessons_filters_list,
+            });
+            return gudhub.jsonConstructor(lessonsScheme).then((data) => {this.rawLessons = data.lessons});
+        },
+        classes: () => {
+            const { 
+                classes_app_id,
+                classes_app_title_field_id,
+                classes_app_course_field_id,
+                classes_filters_list = [],
+                classes_sorting_type = 'asc',
+            } = this.scope.field_model.data_model;
+            const classesScheme = getClassesScheme({
+                classes_app_id,
+                classes_app_title_field_id,
+                classes_app_course_field_id,
+                classes_filters_list,
+                classes_sorting_type,
+            });
+            return gudhub.jsonConstructor(classesScheme).then((data) => {this.classes = data.classes});
+        },
+        classrooms: () => {
+            const { 
+                cabinets_app_id,
+                cabinets_app_number_field_id,
+            } = this.scope.field_model.data_model;
+            const classroomsScheme = getClassroomsScheme({
+                cabinets_app_id,
+                cabinets_app_number_field_id,
+            });
+            return gudhub.jsonConstructor(classroomsScheme).then((data) => {this.classrooms = data.classrooms});
+    
+        },
+        all: () => {
+            const classesPromise = this.loadData.lessons();
+            const lessonsPromise = this.loadData.classes();
+            const classroomsPromise = this.loadData.classrooms();
+            return Promise.all([
+                classesPromise,
+                lessonsPromise,
+                classroomsPromise,
+            ]);
+        },
     }
+
+    subscribeOnItemsUpdate = {
+        lessons: () => {
+            const { lessons_app_id } = this.scope.field_model.data_model;
+    
+            const onLessonsItemsUpdate = async () => {
+                await this.loadData.lessons();
+                this.lessons = createLessonsForClasses(this.rawLessons, this.classes);
+            };
+    
+            gudhub.on('gh_items_update', {lessons_app_id}, onLessonsItemsUpdate);
+    
+            return gudhub.destroy('gh_items_update', {lessons_app_id}, onLessonsItemsUpdate);
+        },
+        classrooms: () => {
+            const { cabinets_app_id } = this.scope.field_model.data_model;
+    
+            const onClassroomsItemsUpdate = async () => {
+                await this.loadData.classrooms();
+            };
+    
+            gudhub.on('gh_items_update', {cabinets_app_id}, onClassroomsItemsUpdate);
+    
+            return gudhub.destroy('gh_items_update', {cabinets_app_id}, onClassroomsItemsUpdate);
+        },
+    };
 
     dndInit() {
         const redips = {};
@@ -221,11 +275,6 @@ class GhStudySchedule extends GhHtmlElement {
         const htmlElements = document.querySelectorAll(lessonCellClass);
         this.controller.setHTMLElements(htmlElements);
     }
-
-    // disconnectedCallback() is called after the component is destroyed
-    disconnectedCallback() {
-        
-    };
 
     handleEnableHighlight() {
         this.disableHighlight = this.controller.highlightClassroomsCells()

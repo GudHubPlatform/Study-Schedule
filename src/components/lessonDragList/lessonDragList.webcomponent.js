@@ -1,8 +1,12 @@
 import styles from './lessonDragList.styles.scss';
-import getHtml, { tabIdAttribute, hoursTotalAmountClass, lessonsListTitleClass, hoursRemainsClass, lessonUniqueIdAttribute } from './lessonDragListLayout.js';
+import getHtml, { tabIdAttribute, lessonsListTitleClass, lessonUniqueIdAttribute } from './lessonDragListLayout.js';
 
 import renderer from '../../utils/componentsRenderer.js';
 import ScopeSingleton from '../../utils/ScopeSingleton.js';
+
+
+const hoursRemainsClass = '.hours-remains';
+const hoursTotalAmountClass = '.hours-total-amount';
 
 const defaultTitle = 'Предмети';
 export const allTab = {
@@ -45,7 +49,7 @@ export default class LessonDragList extends HTMLElement {
     async onInit() {
         await this.determineProperties();
         this.render();
-        this.renderHoursCounters();
+        await this.renderHoursCounters();
     }
 
     disconnectedCallback() {
@@ -152,8 +156,9 @@ export default class LessonDragList extends HTMLElement {
         this.setSelectedTab();
     }
 
-    renderHoursCounters() {
+    async renderHoursCounters() {
         const controller = ScopeSingleton.getInstance().getController();
+        const scope = ScopeSingleton.getInstance().getScope();
         const tbody = this.separatedContainer.getElementsByTagName('tbody')[0];
         
         for (const tr of tbody.children) {
@@ -164,23 +169,44 @@ export default class LessonDragList extends HTMLElement {
             if (!lesson) continue;
             
             const cell = tr.querySelector('.hours-counter-cell');
+
+            //hours counter container
             const hoursCounterConteinerHtml = /*html*/`
                 <div class=hours-counter-container redips-trash>
-                    <span class=${hoursTotalAmountClass}>${lesson.academicHours}</span>
                 </div>
             `;
             cell.insertAdjacentHTML('afterbegin', hoursCounterConteinerHtml);
-            const hoursCounterConteiner = cell.children[0];
+            const hoursCounterContainer = cell.children[0];
 
-            const hoursSetted = controller.getAcademicHours(uniqueId);
-            const remainHours = hoursSetted ? lesson.academicHours - hoursSetted : lesson.academicHours;
+            //total hours
+            const {
+                lessons_app_academic_hours_field_id
+            } = scope.field_model.data_model;
+            const getTotalHours = () => gudhub.getInterpretationById(...lesson.itemRefId.split('.'), lessons_app_academic_hours_field_id, 'value');
+
+            const hoursObject = {
+                totalHours: await getTotalHours(),
+            };
+
+            const totalHoursHtml = /*html*/`
+                <span class=${hoursTotalAmountClass.replace('.', '')}>${hoursObject.totalHours}</span>
+            `;
+            hoursCounterContainer.insertAdjacentHTML('afterbegin', totalHoursHtml);
+            const totalHoursElement = hoursCounterContainer.querySelector(hoursTotalAmountClass);
+
+
+            // remains hours
+            hoursObject.settedHours = controller.getAcademicHours(uniqueId);
+            const remainHours = hoursObject.settedHours > 0 ? hoursObject.totalHours - hoursObject.settedHours : hoursObject.totalHours;
             
             const remainHoursHtml = /*html*/`
-                <span class="${hoursRemainsClass}">${remainHours}</span>
+                <span class="${hoursRemainsClass.replace('.', '')}">${remainHours}</span>
             `;
-            hoursCounterConteiner.insertAdjacentHTML('beforeend', remainHoursHtml);
+            hoursCounterContainer.insertAdjacentHTML('beforeend', remainHoursHtml);
 
-            const remainsHoursElement = hoursCounterConteiner.children[1];
+            const remainsHoursElement = hoursCounterContainer.querySelector(hoursRemainsClass);
+
+            //add listeners
             const lessonComponent = tr.getElementsByTagName('schedule-lesson')[0];
             const toggleLessonDrag = (remainHours) => {
                 if (remainHours > 0) {
@@ -192,16 +218,38 @@ export default class LessonDragList extends HTMLElement {
                 }
             };
 
-            toggleLessonDrag(remainHours);
-
-            const updateRemainsCounter = ({ total, setted }) => {
-                const remain = total - setted;
+            const updateRemainsCounter = (settedHours) => {
+                if (!isNaN(settedHours)) hoursObject.settedHours = settedHours;
+                const remain = hoursObject.totalHours - hoursObject.settedHours;
                 remainsHoursElement.textContent = remain;
 
                 toggleLessonDrag(remain);
             };
+
+            const updateTotalCounter = (totalAmount) => {
+                hoursObject.totalHours = totalAmount;
+                totalHoursElement.textContent = hoursObject.totalHours;
+                updateRemainsCounter();
+            };
+
+            const subscribeOnLessonTotalAcademicHours = () => {
+                const onAcademicHoursUpdate = async () => {
+                    const updatedTotalHours = await getTotalHours();
+                    updateTotalCounter(updatedTotalHours);
+                };
+
+                const [app_id, item_id] = lesson.itemRefId.split('.');
+                const address = {
+                    app_id,
+                    item_id,
+                    field_id: lessons_app_academic_hours_field_id,
+                };
+                gudhub.on('gh_value_update', address, onAcademicHoursUpdate);
+            };
             
+            toggleLessonDrag(remainHours);
             controller.addHoursCallback(uniqueId, updateRemainsCounter);
+            subscribeOnLessonTotalAcademicHours();
         }
     }
 }

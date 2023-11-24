@@ -9,13 +9,17 @@ export function createLessonsForClasses(lessons, classes) {
         const filteredClassesByCourse = classes.filter((clas) => clas.course === lesson.course);
 
         for (const clas of filteredClassesByCourse) {
-            const lessonWithClas = {
-                uniqueId: `${lesson.id}/${clas.id}`,
-                ...lesson,
-                clas
+            const uniqueId = `${lesson.id}/${clas.id}`;
+            const itemRefId = lesson.id;
+            const clasId = clas.id
+
+            const newLesson = {
+                uniqueId,
+                itemRefId,
+                clasId
             };
 
-            createdLessons.push(lessonWithClas);
+            createdLessons.push(newLesson);
         }
     }
 
