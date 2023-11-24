@@ -143,7 +143,7 @@ export default class Classroom extends HTMLElement {
             this.oldParentCell = this.parentCell;
             this.parentCell = cell;
 
-            if (!this.isAttachedCloseIcon) {
+            if (!this.isAttachedCloseIcon && this.parentCell) {
                 if (this.parentCell.classList.contains(classroomAllowedClass.replace('.', ''))) {
                     this.attachCloseIconListeners();
                 }

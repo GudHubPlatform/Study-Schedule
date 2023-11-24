@@ -168,7 +168,7 @@ export default class Lesson extends HTMLElement {
             this.oldParentCell = this.parentCell;
             this.parentCell = cell;
 
-            if (!this.isAttachedCloseIcon) {
+            if (!this.isAttachedCloseIcon && this.parentCell) {
                 if (this.parentCell.classList.contains(lessonAllowedClass.replace('.', ''))) {
                     this.attachCloseIconListeners();
                 }
