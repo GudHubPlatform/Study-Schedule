@@ -11,7 +11,7 @@ const hoursTotalAmountClass = '.hours-total-amount';
 const defaultTitle = 'Предмети';
 export const allTab = {
     id: 'all',
-    title: defaultTitle,
+    title: 'Всі',
 };
 
 export const classroomsTab = {
@@ -37,7 +37,8 @@ export default class LessonDragList extends HTMLElement {
         this.classes;
         this.classrooms;
         this.selectedClassId = defaultTabs[0];
-        
+
+        this.onDisconnectCallbacks = [];        
 
         this.handleSelectTab = this.handleSelectTab;
 
@@ -53,6 +54,9 @@ export default class LessonDragList extends HTMLElement {
     }
 
     disconnectedCallback() {
+        this.onDisconnectCallbacks.forEach(method => {
+            method();
+        })
     };
 
     render() {
@@ -245,11 +249,15 @@ export default class LessonDragList extends HTMLElement {
                     field_id: lessons_app_academic_hours_field_id,
                 };
                 gudhub.on('gh_value_update', address, onAcademicHoursUpdate);
+
+                return () => gudhub.destroy('gh_value_update', address, onAcademicHoursUpdate);
             };
             
             toggleLessonDrag(remainHours);
             controller.addHoursCallback(uniqueId, updateRemainsCounter);
-            subscribeOnLessonTotalAcademicHours();
+            this.onDisconnectCallbacks.push(
+                subscribeOnLessonTotalAcademicHours()
+            );
         }
     }
 }

@@ -167,7 +167,7 @@ class GhStudySchedule extends GhHtmlElement {
     
             gudhub.on('gh_items_update', {lessons_app_id}, onLessonsItemsUpdate);
     
-            return gudhub.destroy('gh_items_update', {lessons_app_id}, onLessonsItemsUpdate);
+            return () => gudhub.destroy('gh_items_update', {lessons_app_id}, onLessonsItemsUpdate);
         },
         classrooms: () => {
             const { cabinets_app_id } = this.scope.field_model.data_model;
@@ -178,7 +178,7 @@ class GhStudySchedule extends GhHtmlElement {
     
             gudhub.on('gh_items_update', {cabinets_app_id}, onClassroomsItemsUpdate);
     
-            return gudhub.destroy('gh_items_update', {cabinets_app_id}, onClassroomsItemsUpdate);
+            return () => gudhub.destroy('gh_items_update', {cabinets_app_id}, onClassroomsItemsUpdate);
         },
     };
 
