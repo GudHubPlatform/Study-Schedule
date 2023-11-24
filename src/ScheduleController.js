@@ -6,33 +6,71 @@ export default class ScheduleController {
         this.model = model;
         this.lessons = lessons;
         this.classrooms = classrooms;
+
+        this.academicHoursCallbackObject = {};
     }
 
-    setLesson(row, col, lessonId) {
+    setLesson(uniqueId, cell) {
+        const { row, col } = getCoordsFromCell(cell);
         if (!this.checkRowCol(row, col)) return undefined;
-        if (!lessonId) return undefined;
+        if (!uniqueId) return undefined;
 ;
-        const foundLesson = this.findLessonById(lessonId);
+        const foundLesson = this.findLessonById(uniqueId);
         if (!foundLesson) return undefined;
 
         const resultCell = this.model.setLesson(row, col, foundLesson);
 
-        this.model.addAcademicHour(lessonId);
+        this.addAcademicHour(uniqueId);
         this.addCellToLocalStorage(resultCell);
 
         return resultCell;
     }
 
-    removeLesson(row, col) {
+    removeLesson(cell) {
+        if (!cell) return undefined;
+        const { row, col } = getCoordsFromCell(cell);
         if (!this.checkRowCol(row, col)) return undefined;
         const removedLessonId = this.model.removeLesson(row, col);
 
-        const cell = this.model.getCell(row, col);
+        const cellToRemove = this.model.getCell(row, col);
 
-        this.model.subtractAcademicHour(removedLessonId);
-        this.removeLessonFromLocalStorageCell(cell);
+        this.subtractAcademicHour(removedLessonId);
+        this.removeLessonFromLocalStorageCell(cellToRemove);
 
         return removedLessonId;
+    }
+
+    setClassroom(classroomId, cell) {
+        const { row, col } = getCoordsFromCell(cell);
+        if (!this.checkRowCol(row, col)) return undefined;
+        if (!classroomId) return undefined;
+
+        const foundClassroom = this.findClassroomById(classroomId);
+        if (!foundClassroom) return undefined;
+
+        const cellToSave = this.model.setClassroom(row, col, foundClassroom);
+
+        this.addCellToLocalStorage(cellToSave);
+
+        return cellToSave;
+    }
+
+    removeClassroom(cell) {
+        if (!cell) return undefined;
+        const { row, col } = getCoordsFromCell(cell);
+        if (!this.checkRowCol(row, col)) return undefined;
+        const removedClassroomId = this.model.removeClassroom(row, col);
+        
+        const cellToRemove = this.model.getCell(row, col);
+        this.removeClassroomFromLocalStorageCell(cellToRemove);
+
+        return removedClassroomId;
+    }
+
+    getLesson(uniqueId) {
+        const foundLesson = this.lessons.find(lesson => lesson.id === uniqueId);
+
+        return foundLesson;
     }
 
     setHTMLElements(htmlElements) {
@@ -48,7 +86,6 @@ export default class ScheduleController {
     getHTMLElement() {}
 
     checkRowCol(row, col) {
-        if (!row || !col) return false;
         if (isNaN(row) || isNaN(col)) return false;
         if (!(0 <= row & row <= this.model.getRowCount() - 1)) return false;
         if (!(0 <= col & col <= this.model.getColCount() - 1)) return false;
@@ -56,8 +93,8 @@ export default class ScheduleController {
         return true;
     }
 
-    findLessonById(lessonId) {
-        return this.lessons.find((lesson) => lesson.uniqueId == lessonId);
+    findLessonById(uniqueId) {
+        return this.lessons.find((lesson) => lesson.uniqueId == uniqueId);
     }
 
     findClassroomById(classroomId) {
@@ -99,27 +136,96 @@ export default class ScheduleController {
         localStorage.removeClassroomFromCell(cellToRemove);
     }
 
-    loadLocalStorageCellsToStorage() {
-        const cells = localStorage.getCells();
-
-        const cellsObj = {};
-
-        for (const cell of cells) {
-            const key = getKeyFromCell(cell);
-            cellsObj[key] = cell;
-        }
-
-        this.model.storageInitialization(cellsObj);
+    addAcademicHour(uniqueId) {
+        this.model.addAcademicHour(uniqueId);
+        this.executeAcademicHoursCallbacks(uniqueId);
     }
 
-    highlightLessonsCells(lessonId, clickedCellCoords) {
+    subtractAcademicHour(uniqueId) {
+        this.model.subtractAcademicHour(uniqueId);
+        this.executeAcademicHoursCallbacks(uniqueId);
+    }
+
+    addHoursCallback(uniqueId, callback) {
+        if (!Object.hasOwnProperty(this.academicHoursCallbackObject, [uniqueId])) {
+            this.academicHoursCallbackObject[uniqueId] = [];
+        }
+        const callbackArray = this.academicHoursCallbackObject[uniqueId];
+
+        callbackArray.push(callback);
+    }
+
+    executeAcademicHoursCallbacks(uniqueId) {
+        if (this.academicHoursCallbackObject.hasOwnProperty([uniqueId])) {
+            const callbacksArray = this.academicHoursCallbackObject[uniqueId];
+            const remainHours = this.getAcademicHours(uniqueId);
+            const settedHours = remainHours ? remainHours : 0
+            callbacksArray.forEach((method) => {
+                method(settedHours);
+            });
+        }
+    }
+
+    loadLocalStorageCellsToStorage() {
+        const localStorageCells = localStorage.getCells();
+
+        const localStorageCellsObj = {};
+
+        for (const cell of localStorageCells) {
+            const key = getKeyFromCell(cell);
+            localStorageCellsObj[key] = cell;
+        }
+
+        for (let i = 0; i < this.model.rowCount; i++) {
+
+            this.model.scheduleStorage.push([]);
+
+            const { daysOfWeek, lessonsPerDay } = this.model;
+            for (const clas of this.model.classes) {
+                let cell = {
+                    dayOfWeek: daysOfWeek[Math.floor(i / lessonsPerDay)],
+                    clas: clas,
+                    lessonNumber: i % lessonsPerDay + 1,
+                    lesson: null,
+                    htmlElement: null,
+                    classroom: null,
+                };
+
+                this.model.scheduleStorage[i].push(cell);
+
+                const key = `${cell.clas.id}:${cell.dayOfWeek}:${cell.lessonNumber}`;
+
+                const foundLocalCell = localStorageCellsObj[key];
+
+                if (foundLocalCell) {
+                    const row = daysOfWeek.findIndex((day) => day === cell.dayOfWeek) * lessonsPerDay + cell.lessonNumber - 1;
+                    const col = this.model.classes.findIndex(({id}) => id == foundLocalCell.clas.id);
+                    const cellCoords = {
+                        row,
+                        col,
+                    };
+
+                    if (foundLocalCell.lesson) {
+                        const {uniqueId} = foundLocalCell.lesson;
+                        this.setLesson(uniqueId, cellCoords);
+                    }
+                    if (foundLocalCell.classroom) {
+                        const {id} = foundLocalCell.classroom;
+                        this.setClassroom(id, cellCoords);
+                    }
+                }
+            }
+        }
+    }
+
+    highlightLessonsCells(uniqueId, clickedCellCoords) {
         const rules = [];
 
         for (const rule of Object.values(ruleCallbacks)) {
             rules.push(rule);
         }
 
-        const foundLesson = this.findLessonById(lessonId);
+        const foundLesson = this.findLessonById(uniqueId);
 
         if (!foundLesson) {
             return () => {};
@@ -143,17 +249,17 @@ export default class ScheduleController {
             cells[row][col] = cellCopyWithoutLesson;
         }
 
-        const filteredRows = cells.map((row) => 
-            row.filter((cell) => !rules.every(rule => rule(foundLesson, cell)))
+        const notAllowedByRules = cells.map((row) => 
+            row.filter((cell) => !rules.some(rule => rule(foundLesson, cell)))
         );
 
         const filteredCellsByOneLessonRule = checkForOneTeacherPerLessonRule(foundLesson, cells);
 
         const notAllowedCells  = [
-            ...filteredRows.reduce((acc, row) => [...acc, ...row], []),
+            ...notAllowedByRules.reduce((acc, row) => [...acc, ...row], []),
             ...filteredCellsByOneLessonRule
         ];
-
+        
         const notAllowedCellElements = notAllowedCells.map(({htmlElement}) => htmlElement);
 
         for (const td of notAllowedCellElements) {
@@ -224,60 +330,44 @@ export default class ScheduleController {
         return this.model.getStorage();
     }
 
-    getAcademicHours() {
+    getAcademicHours(uniqueId) {
+        if (uniqueId) {
+            const academicHoursObject = this.model.getAcademicHours();
+            return academicHoursObject[uniqueId] ? academicHoursObject[uniqueId] : 0;
+        }
         return this.model.getAcademicHours();
-    }
-
-    setClassroom(row, col, classroomId) {
-        if (!this.checkRowCol(row, col)) return undefined;
-        if (!classroomId) return undefined;
-
-        const foundClassroom = this.findClassroomById(classroomId);
-
-        if (!foundClassroom) return undefined;
-
-        const cellToSave = this.model.setClassroom(row, col, foundClassroom);
-
-        this.addCellToLocalStorage(cellToSave);
-
-        return cellToSave;
-    }
-
-    removeClassroom(row, col) {
-        if (!this.checkRowCol(row, col)) return undefined;
-        const removedClassroomId = this.model.removeClassroom(row, col);
-        
-        const cell = this.model.getCell(row, col);
-        this.removeClassroomFromLocalStorageCell(cell);
-
-        return removedClassroomId;
     }
 }
 
-const ruleCallbacks = {
-    classToClass: (draggedLesson, targetCell) => {
-        if (draggedLesson.clas.id != targetCell.clas.id) return false;
-
-        return true;
+const getCoordsFromCell = (cell) => {
+    const coords = {};
+    if (cell instanceof HTMLElement) {
+        coords.row = cell.getAttribute('row');
+        coords.col = cell.getAttribute('col');
+    } else if (cell instanceof Object) {
+        coords.row = cell.row;
+        coords.col = cell.col;
     }
+
+    return coords;
+};
+
+// return true if not suitable to rule
+const ruleCallbacks = {
+    classToClass: (draggedLesson, targetCell) => draggedLesson.clasId == targetCell.clas.id,
 };
 
 const checkForOneTeacherPerLessonRule = (draggedLesson, cellRows) => {
     const rowsToFilter = [...cellRows];
+    if (!draggedLesson.teacherRefId) return [];
 
-    if (!draggedLesson.teacherId) return [];
-
-    const { teacherId } = draggedLesson;
-
-    if (!teacherId) return [];
-
+    const { teacherRefId } = draggedLesson;
 
     const notAllowedRows = rowsToFilter.filter((row) => 
         row.some((cell) => {
-            if (cell.lesson && cell.lesson.teacherId) {
-                const cellTeacherId = cell.lesson.teacherId;
+            if (cell.lesson && cell.lesson.teacherRefId) {
 
-                return  cellTeacherId === teacherId;
+                return  cell.lesson.teacherRefId === teacherRefId;
             }
 
             return false;
@@ -289,4 +379,5 @@ const checkForOneTeacherPerLessonRule = (draggedLesson, cellRows) => {
     return notAllowedCells;
 }
 
-const checkForOneClassroomInRow = (classroomId, cellRow) => cellRow.some(cell => cell.classroom && cell.classroom.id == classroomId);
+const checkForOneClassroomInRow = (classroomId, cellRow) => cellRow
+    .some(cell => cell.classroom && cell.classroom.id == classroomId);

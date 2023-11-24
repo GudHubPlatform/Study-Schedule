@@ -1,0 +1,105 @@
+@use '../../variables' as *;
+
+.container {
+    position: relative;
+
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+
+    height: $drag-lesson-element-height;
+    width: $drag-lesson-element-width;
+
+    overflow: hidden;
+
+    &:hover {
+        .content-container.removable {
+            width: 85%;
+            background-color: $drag-element-hover-background-color;
+        }
+    }
+
+    .content-container {
+        position: relative;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+
+        height: 100%;
+        width: 100%;
+
+        border-radius: inherit;
+
+        background-color: $drag-element-background-color;
+
+        z-index: 1;
+
+        transition: all 0.5s ease;
+
+        &.bg-red {
+                background-color: rgb(255, 193, 193);
+        }
+
+        .title {
+            white-space: nowrap;
+
+            &:first-letter {
+                text-transform: uppercase;
+            }
+        }
+
+        .teacher-name {
+            white-space: nowrap;
+
+            &.no-teacher {
+                width: 45px;
+                height: 1em;
+                background-color: red;
+            }
+        }
+
+        .class-title {
+            position: absolute;
+            top: 2px;
+            right: 4px;
+
+            background-color: inherit;
+        }
+    }
+
+    .close-icon {
+        border: none;
+        background-color: transparent;
+
+        cursor: pointer;
+        position: absolute;
+        top: 56%;
+        right: 2px;
+
+        width: 12px;
+        height: 14px;
+
+        z-index: 0;
+
+        transform: translateY(-50%);
+
+
+        &:before, &:after {content: "";
+             position: absolute;
+
+             top: 6px;
+             left: 1px;
+
+             width: 10px;
+             height: 2px;
+             background: $close-icon-color;
+
+             z-index: 1;
+        }
+
+        &:before {transform: rotate(45deg);}
+        &:after {transform: rotate(-45deg);}
+    }
+}

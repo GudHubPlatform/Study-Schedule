@@ -29,6 +29,7 @@ export default {
             },
             {
                 test: /\.(sass|scss|css)$/,
+                exclude: [/\.styles.scss$/, /node_modules/],
                 use: [
                     MiniCssExtractPlugin.loader,
                     {
@@ -41,7 +42,22 @@ export default {
                     },
                     'sass-loader',
                 ],
-            }
+            },
+            {
+                test: /\.styles.scss$/,
+                exclude: /node_modules/,
+                use: [
+                  "sass-to-string",
+                  {
+                    loader: "sass-loader",
+                    options: {
+                      sassOptions: {
+                        outputStyle: "compressed",
+                      },
+                    },
+                  },
+                ],
+              },
         ]
     },
     plugins: [

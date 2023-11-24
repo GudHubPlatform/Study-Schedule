@@ -1,10 +1,11 @@
 <div class="container" id="redips-drag">
-    ${renderLessonsList()}
+    <schedule-lesson-drag-list></schedule-lesson-drag-list>
+    <div id="lesson-table-container"></div>
     <div class="table-scroll-schedule">
-        <table class="table-schedule">
+        <table id="schedule-table" class="table-schedule">
             <thead>
                 <tr class="row-freeze">
-                <th class="redips-mark" colspan="2"></th>
+                    <th class="redips-mark" colspan="2"></th>
                     ${classes.reduce((acc, clas) => acc + `
                         <th class="classNumber redips-mark" colspan=${columnWidth}>${clas.title}</th>
                     `, '')}
@@ -22,10 +23,10 @@
                             <td class="column-cell-freeze redips-mark">${rowIndex % lessonsPerDay + 1}</td>
                             ${row.reduce((accRow, {lesson, classroom}, colIndex) => accRow + `
                                 <td class="${lessonCellClass.replace('.','')} redips-single redips-mark lesson-allowed" ${cellRowAttribute}="${rowIndex}" ${cellColAttribute}="${colIndex}">
-                                    ${lesson ? renderLesson(lesson, false) : ''}
+                                    ${lesson ? renderer.lesson(lesson.itemRefId, lesson.clasId, false) : ''}
                                 </td>
                                 <td class="redips-mark redips-single ${classRoomCellClass.replace('.', '')} classroom-allowed" ${cellRowAttribute}="${rowIndex}" ${cellColAttribute}="${colIndex}">
-                                    ${classroom ? renderClassroom(classroom, false) : ''}
+                                    ${classroom ? renderer.classroom(classroom.id, false) : ''}
                                 </td>
                             `, '')}
                         </tr>

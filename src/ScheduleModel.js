@@ -9,37 +9,6 @@ export default class ScheduleModel {
         this.academicHours = {};
     }
 
-    storageInitialization(cellsMap) {
-        for (let i = 0; i < this.rowCount; i++) {
-            this.scheduleStorage.push([]);
-
-            for (const clas of this.classes) {
-                let cell = {
-                    dayOfWeek: this.daysOfWeek[i % this.daysOfWeek.length],
-                    clas: clas,
-                    lessonNumber: i % this.lessonsPerDay + 1,
-                    lesson: null,
-                    htmlElement: null,
-                    classroom: null,
-                };
-
-                const key = `${cell.clas.id}:${cell.dayOfWeek}:${cell.lessonNumber}`;
-
-                const foundcell = cellsMap[key];
-
-                if (foundcell) {
-                    cell = foundcell;
-
-                    if (foundcell.lesson) {
-                        this.addAcademicHour(cell.lesson.uniqueId);
-                    }
-                }
-
-                this.scheduleStorage[i].push(cell);
-            }
-        }
-    }
-
     getCell(row, col) {
         const foundCell = this.scheduleStorage[row][col];
         return foundCell;
@@ -53,11 +22,28 @@ export default class ScheduleModel {
 
     removeLesson(row, col) {
         const foundCell = this.scheduleStorage[row][col];
+        if (!foundCell.lesson) return false;
         const removedLessonId = foundCell.lesson.uniqueId;
 
         foundCell.lesson = null;
 
         return removedLessonId;
+    }
+
+    setClassroom(row, col, classroom) {
+        const foundCell = this.scheduleStorage[row][col];
+        foundCell.classroom = classroom;
+        return foundCell;
+    }
+
+    removeClassroom(row, col) {
+        const foundCell = this.scheduleStorage[row][col];
+        if (!foundCell.classroom) return false;
+        const removedClassroomId = foundCell.classroom.id;
+
+        foundCell.classroom = null;
+
+        return removedClassroomId;
     }
 
     setHTMLElement(row, col, element) {
@@ -118,21 +104,6 @@ export default class ScheduleModel {
                 delete this.academicHours[lessonId];
             }
         }
-    }
-
-    setClassroom(row, col, classroom) {
-        const foundCell = this.scheduleStorage[row][col];
-        foundCell.classroom = classroom;
-        return foundCell;
-    }
-
-    removeClassroom(row, col) {
-        const foundCell = this.scheduleStorage[row][col];
-        const removedClassroomId = foundCell.classroom.id;
-
-        foundCell.classroom = null;
-
-        return removedClassroomId;
     }
 }
 

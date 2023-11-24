@@ -1,36 +1,7 @@
-$drag-lesson-element-height: 30px;
-$drag-lesson-element-width: 85px;
-$drag-classroom-element-height: 30px;
-$drag-classroom-element-width: 30px;
-$drag-element-background-color: white;
-$drag-element-hover-background-color: rgb(225, 240, 255);
-$cell-paddings: 1px;
-$cell-classroom-min-width: $drag-classroom-element-width + 5px;
-$table-schedule-width: 1625px;
-$table-schedule-and-lessons-height: 900px;
-$table-lessons-width: 170px;
-$close-icon-color: red;
-$background-color-disabled-cell: rgb(197, 197, 197);
+@use './variables' as *;
 
-@mixin scroll {
-    &::-webkit-scrollbar-track {
-        background: #f1f1f1;
-    }
-
-    &::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
-        background-color: #F5F5F5;
-    }
-
-    &::-webkit-scrollbar-thumb {
-        border-radius: 33px;
-        background: #b9b9b9;
-
-        &:hover {
-            background: #0D99FF;
-        }
-    }
+schedule-lesson {
+    width: 100%;
 }
 
 gh-study-schedule {
@@ -45,6 +16,10 @@ gh-study-schedule {
         >:first-child {
             margin-right: 10px;
         }
+    }
+
+    #lesson-table-container {
+        margin-right: 5px;
     }
 
     table {
@@ -73,117 +48,15 @@ gh-study-schedule {
             @include scroll();
         }
     }
-    
 
     th, td {
         box-sizing: border-box;
         padding: $cell-paddings;
         border: solid 1px #000;
-    }
-    
-    .table-lessons-and-tabs-container {
-        display: flex;
-        flex-direction: row;
-    }
 
-    .tabs-lesson-list {
-        display: flex;
-        flex-direction: column;
-        align-items: end;
-
-        li {
-            box-sizing: border-box;
-
-            min-width: 30px;
-            height: 45px;
-
-            background-color: #2f95dd;
-            font-weight: 500;
-            color: white;
-
-            border-bottom-left-radius: 6px;
-            border-top-left-radius: 6px;
-
-            border-left: solid 1px black;
-            border-top: solid 1px black;
-            border-bottom: solid 1px black;
-
-            transition: all .2s ease-out;
-
-            &:last-child {
-            border-bottom: solid 1px black;
-            }
-
-            &.selected {
-                min-width: 40px;
-                border-bottom-left-radius: 8px;
-                border-top-left-radius: 8px;
-            }
-
-            &:not(.selected):hover {
-                min-width: 35px;
-            }
-        }
-    }
-
-    .tab-lesson {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        width: 100%;
-        height: 100%;
-
-        border-radius: inherit;
-    }
-
-    .table-lessons {
-        max-height: 0px;
-
-        .freeze-header {
-            position: sticky;
-            top: 0;
-            left: 0;
-
-            background-color: white;
-            z-index: 2;
-            
-            &::after {
-                display: flex;
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-
-                border-top: solid .5px black;
-                border-bottom: solid .5px black;
-            }
-        }
-
-        th {
-
-            &.header-hours-counter {
-                min-width: 26px;
-            }
-
-            &.haeder-lesson-clone-cell {
-                min-width: 100px;
-            }
-        }
-
-        tr {
-            td {
-                .hours-counter-container {
-                    display: flex;
-                    flex-direction: column;
-
-                    span {
-                        text-align: center;
-                    }
-                }
-            }
+        &.lesson-cell {
+            min-width: $cell-lesson-min-width;
+            height: $cell-lesson-min-height;
         }
     }
     
@@ -247,7 +120,7 @@ gh-study-schedule {
                     left: 0;
 
                     &::after {
-                        border-left: none;
+                        border-right: none;
                     }
                 }
             }
@@ -266,11 +139,6 @@ gh-study-schedule {
                         text-transform: uppercase;
                     }
                 }
-            }
-
-            &.lesson-cell {
-                min-width: $drag-lesson-element-width + $cell-paddings * 2 + 2px;
-                height: $drag-lesson-element-height + $cell-paddings * 2 + 2px;
             }
         }
 
@@ -295,9 +163,21 @@ gh-study-schedule {
     }
 
     div.redips-clone {
-        &.disabled {
-            div.lesson-content-container {
-                background-color: rgb(255, 193, 193);
+        &.drag-disabled {
+            &::after{
+                content: '';
+                position: absolute;
+
+                top: 0;
+                left: 0;
+
+                height: 100%;
+                width: 100%;
+
+                z-index: 2;
+
+                opacity: .3;
+                background-color: rgb(228, 61, 19);
             }
         }
     }
@@ -396,6 +276,12 @@ gh-study-schedule {
         
                 .lesson-teacher-name {
                     white-space: nowrap;
+
+                    &.no-teacher {
+                        width: 45px;
+                        height: 1em;
+                        background-color: red;
+                    }
                 }
         
                 .lesson-class {

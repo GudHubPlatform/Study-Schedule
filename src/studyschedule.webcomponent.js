@@ -2,50 +2,28 @@ import GhHtmlElement from "@gudhub/gh-html-element";
 import html from "./studyschedule.html";
 import './style.scss';
 
+import Lesson, { dragDisabledClass } from './components/lesson/lesson.webcomponent.js';
+import Classroom from './components/classroom/classroom.webcomponent.js';
+import LessonDragList from "./components/lessonDragList/lessonDragList.webcomponent.js";
+
+import renderer from './utils/componentsRenderer.js';
+import ScopeSingleton from './utils/ScopeSingleton.js';
+
 import {REDIPS} from './redips-drag-min.js';
-import { classesScheme, classroomsScheme, lessonsScheme } from "./jsonSchemes.js";
+import { getClassesScheme, getClassroomsScheme, getLessonsScheme } from "./jsonSchemes.js";
 import ScheduleController from "./ScheduleController.js";
 import ScheduleModel from "./ScheduleModel.js";
 
-import { 
-    lesson as renderLesson,
-    cellColAttribute, 
-    cellRowAttribute, 
-    lessonCellClass, 
-    classRoomCellClass,
-    lessonIdAttribute,
-    lessonContentContainerClass,
-    removableClass,
-    closeIconClass,
-    lessonClass
-} from './components/lessonComponent.js';
-
-import {
-    lessonsList as renderLessonsList,
-    rerenderTitle as rerenderLessonsListTitle,
-    rerenderLessonsList,
-    rerenderLessonsCounters,
-    selectedTabClass,
-    lessonsListTitleClass,
-    lessonsListId,
-    hoursRemainsClass,
-    lessonCloneDisabledClass,
-    classIdAttribute,
-    classroomTabId,
-} from './components/lessonsListComponent.js';
-
-import { 
-    classroom as renderClassroom,
-    classroomIdAttribute,
-    classroomClass,
-    classroomContentContainerClass
-} from "./components/classroomComponent.js";
 import { createLessonsForClasses } from "./utils/dataFunctions.js";
 
-const elementTypes = {
-    lesson: 'lesson',
-    classroom: 'classroom',
-};
+export const lessonClass = '.lesson';
+export const classroomClass = '.classroom';
+export const lessonCellClass = '.lesson-cell';
+export const classRoomCellClass = '.classroom-cell';
+const cellRowAttribute = 'row';
+const cellColAttribute = 'col';
+
+export const columnWidth = 2;
 
 class GhStudySchedule extends GhHtmlElement {
 
@@ -53,102 +31,161 @@ class GhStudySchedule extends GhHtmlElement {
 
     constructor() {
         super();
+        this.renderer = renderer;
+
+        //table classes
+        this.lessonCellClass = lessonCellClass;
+        this.classRoomCellClass = classRoomCellClass;
+
+        //table attributes
+        this.cellRowAttribute = cellRowAttribute;
+        this.cellColAttribute = cellColAttribute;
 
         //data
-        this.columnWidth = 2;
+        this.columnWidth = columnWidth;
         this.daysOfWeek = ["понеділок","вівторок","середа","четвер","п'ятниця"];
-        this.lessonsPerDay = 7;
+        this.lessonsPerDay;
         this.classes;
         this.rawLessons;
         this.lessons;
         this.classrooms;
-        
-        // attributes
-        this.cellColAttribute = cellColAttribute;
-        this.cellRowAttribute = cellRowAttribute;
-        this.lessonIdAttribute = lessonIdAttribute;
-        this.classIdAttribute = classIdAttribute;
-        this.classroomTabId = classroomTabId;
-        this.classroomIdAttribute = classroomIdAttribute;
-        
-        // classes
-        this.lessonCellClass = lessonCellClass;
-        this.classRoomCellClass = classRoomCellClass;
-        this.selectedTabClass = selectedTabClass;
-        this.lessonsListTitleClass = lessonsListTitleClass;
-        this.classroomClass = classroomClass;
-
-        // all about schedule
-        this.clickedCell;
-        this.disableHighlight;
-        this.isClickedCloseIcon;
-        this.setIsClickedCloseIcon = (bool) => {this.isClickedCloseIcon = bool};
-        this.handleClickCloseIcon = this.handleClickCloseIcon;
-        this.draggedElementType;
-
-        //lessons list and tabs
-        this.lessonsTabAll = 'all';
-        this.selectedClassTabId = this.lessonsTabAll;
-        this.handleSelectTab = this.handleSelectTab;
 
         // mvc
         this.model;
         this.controller;
         this.storage;
 
-        //components renders
-        this.renderLessonsList = renderLessonsList.bind(this);
+        //highlight cells
+        this.disableHighlight;
 
-        this.renderLesson = renderLesson.bind(this);
-        this.rerenderLessonsListTitle = rerenderLessonsListTitle.bind(this);
-        this.rerenderLessonsList = rerenderLessonsList.bind(this);
-        this.rerenderLessonsCounters = rerenderLessonsCounters.bind(this);
-
-        this.renderClassroom = renderClassroom.bind(this);
+        this.onDisconnectCallbacks = [];
     }
 
     // onInit() is called after parent gh-element scope is ready
 
     async onInit() {
-        await this.loadData();
+        await this.loadData.all();
+        this.lessonsPerDay = this.scope.field_model.data_model.lessons_per_day;
         this.lessons = createLessonsForClasses(this.rawLessons, this.classes);
         this.model = new ScheduleModel(this.classes, this.daysOfWeek, this.lessonsPerDay);
         this.controller = new ScheduleController(this.model, this.lessons, this.classrooms);
         this.controller.loadLocalStorageCellsToStorage();
         this.storage = this.controller.getStorage();
 
-        super.render(html);
+        this.initScopeSingleton();
 
+        super.render(html);
         this.setCorrespondingHTMLElements();
+
         this.dndInit();
 
-        this.rerenderLessonsCounters();
+        const destroyLessonsSubscribe = this.subscribeOnItemsUpdate.lessons();
+        const destroyClassroomsSubscribe = this.subscribeOnItemsUpdate.classrooms();
+
+        this.onDisconnectCallbacks.push(
+            destroyLessonsSubscribe,
+            destroyClassroomsSubscribe,
+        );
     };
 
-    async loadData() {
-        const classesPromise = gudhub.jsonConstructor(classesScheme).then((data) => {this.classes = data.classes});
-        const lessonsPromise = gudhub.jsonConstructor(lessonsScheme).then((data) => {this.rawLessons = data.lessons});
-        const classroomsPromise = gudhub.jsonConstructor(classroomsScheme).then((data) => {this.classrooms = data.classrooms});
+    // disconnectedCallback() is called after the component is destroyed
+    disconnectedCallback() {
+        this.onDisconnectCallbacks.forEach((callback) => 
+            callback()
+        );
+    };
 
-        await Promise.all([
-            classesPromise,
-            lessonsPromise,
-            classroomsPromise,
-        ]);
+    loadData = {
+        lessons: () => {
+            const {
+                lessons_app_id,
+                lessons_app_title_field_id,
+                lessons_app_teacher_field_id,
+                lessons_app_course_field_id,
+                lessons_app_academic_hours_field_id,
+                lessons_filters_list = [],
+            } = this.scope.field_model.data_model;
+            const lessonsScheme = getLessonsScheme({
+                lessons_app_id,
+                lessons_app_title_field_id,
+                lessons_app_teacher_field_id,
+                lessons_app_course_field_id,
+                lessons_app_academic_hours_field_id,
+                lessons_filters_list,
+            });
+            return gudhub.jsonConstructor(lessonsScheme).then((data) => {this.rawLessons = data.lessons});
+        },
+        classes: () => {
+            const { 
+                classes_app_id,
+                classes_app_title_field_id,
+                classes_app_course_field_id,
+                classes_filters_list = [],
+                classes_sorting_type = 'asc',
+            } = this.scope.field_model.data_model;
+            const classesScheme = getClassesScheme({
+                classes_app_id,
+                classes_app_title_field_id,
+                classes_app_course_field_id,
+                classes_filters_list,
+                classes_sorting_type,
+            });
+            return gudhub.jsonConstructor(classesScheme).then((data) => {this.classes = data.classes});
+        },
+        classrooms: () => {
+            const { 
+                cabinets_app_id,
+                cabinets_app_number_field_id,
+            } = this.scope.field_model.data_model;
+            const classroomsScheme = getClassroomsScheme({
+                cabinets_app_id,
+                cabinets_app_number_field_id,
+            });
+            return gudhub.jsonConstructor(classroomsScheme).then((data) => {this.classrooms = data.classrooms});
+    
+        },
+        all: () => {
+            const classesPromise = this.loadData.lessons();
+            const lessonsPromise = this.loadData.classes();
+            const classroomsPromise = this.loadData.classrooms();
+            return Promise.all([
+                classesPromise,
+                lessonsPromise,
+                classroomsPromise,
+            ]);
+        },
     }
+
+    subscribeOnItemsUpdate = {
+        lessons: () => {
+            const { lessons_app_id } = this.scope.field_model.data_model;
+    
+            const onLessonsItemsUpdate = async () => {
+                await this.loadData.lessons();
+                this.lessons = createLessonsForClasses(this.rawLessons, this.classes);
+            };
+    
+            gudhub.on('gh_items_update', {lessons_app_id}, onLessonsItemsUpdate);
+    
+            return gudhub.destroy('gh_items_update', {lessons_app_id}, onLessonsItemsUpdate);
+        },
+        classrooms: () => {
+            const { cabinets_app_id } = this.scope.field_model.data_model;
+    
+            const onClassroomsItemsUpdate = async () => {
+                await this.loadData.classrooms();
+            };
+    
+            gudhub.on('gh_items_update', {cabinets_app_id}, onClassroomsItemsUpdate);
+    
+            return gudhub.destroy('gh_items_update', {cabinets_app_id}, onClassroomsItemsUpdate);
+        },
+    };
 
     dndInit() {
         const redips = {};
 
-        const isClickedCloseIcon = () => this.isClickedCloseIcon;
-        const setIsClickedCloseIcon = (bool) => this.setIsClickedCloseIcon(bool);
-        const setClickedCell = (cell) => {this.clickedCell = cell};
-
-        const handleDrag = this.handleDragElement.bind(this);
-        const handleBeforeDrop = this.handleBeforeDropElement.bind(this);
-        const handleDeleted = this.handleDeleted.bind(this);
-        const handleFinish = this.handleFinishEvent.bind(this);
-        const handleCloneDropped = this.handleCloneDropped.bind(this);
+        const controller = this.controller;
 
         redips.init = function () {
             const rd = REDIPS.drag;
@@ -161,237 +198,100 @@ class GhStudySchedule extends GhHtmlElement {
             rd.mark.exceptionClass[lessonClass.replace('.','')] = 'lesson-allowed';
 
             rd.event.clicked = (clickedCell) => {
-                setClickedCell(clickedCell);
-
-                if (isClickedCloseIcon()) {
-                    handleDeleted();
-                    rd.emptyCell(clickedCell);
-                    setIsClickedCloseIcon(false);
+                const dndDiv = clickedCell.getElementsByClassName('redips-drag')[0];
+                const scheduleElement = dndDiv.children[0];
+                if (scheduleElement && scheduleElement.isCloseIconClicked) {
+                    console.log('rd click prevented');
                 } else {
-                    handleDrag(clickedCell);
+                    const clickedCellCoords = {
+                        row: clickedCell.getAttribute(cellRowAttribute),
+                        col: clickedCell.getAttribute(cellColAttribute),
+                    };
+                    if (scheduleElement instanceof Lesson) {
+                        this.disableHighlight = controller.highlightLessonsCells(scheduleElement.uniqueId, clickedCellCoords);
+                    } else if (scheduleElement instanceof Classroom) {
+                        const  {
+                            app_id,
+                            item_id
+                        } = scheduleElement;
+                        const classroomId = [app_id, item_id].join('.');
+                        this.disableHighlight = controller.highlightClassroomsCells(classroomId, clickedCellCoords);
+                    }
                 }
             };
 
             rd.event.droppedBefore = (targetCell) => {
-                return handleBeforeDrop(targetCell);
             };
 
+            rd.event.dropped = () => {
+            }
+
             rd.event.deleted = (clonedAndDirectlyMovedToTrasg) => {
-                return handleDeleted(clonedAndDirectlyMovedToTrasg);
             };
 
             rd.event.finish = () => {
-                handleFinish();
+                if (this.disableHighlight) {
+                    this.disableHighlight();
+                    this.disableHighlight = null;
+                }
             };
 
             rd.event.clonedDropped = () => {
-                const clonedElement = REDIPS.drag.obj;
-                handleCloneDropped(clonedElement);
             };
 
             return rd;
         }
 
+        const checkForDisabledDivs = () => {
+            const dragListContainer = document.getElementById('lesson-table-container');
+            const lessons = dragListContainer.getElementsByTagName('schedule-lesson');
+            
+            for (const lesson of  lessons) {
+                const dragDiv = lesson.parentElement;
+                if (dragDiv.classList.contains(dragDisabledClass.replace('.', ''))) {
+                    this.rd.enableDrag(false, dragDiv);
+                }
+            }
+        }
+
         setTimeout(() => {
             this.rd = redips.init();
-            this.checkAllLessonsForHourLimit();
+            ScopeSingleton.getInstance().setRD(this.rd);
+            checkForDisabledDivs();
         }, 0);
     }
 
+    initScopeSingleton = () => {
+        const data = {
+            lessons: this.lessons,
+            classes: this.classes,
+            classrooms: this.classrooms,
+        };
+        ScopeSingleton.getInstance(this.scope, this.controller, data);
+    };
+
+
     setCorrespondingHTMLElements() {
         const htmlElements = document.querySelectorAll(lessonCellClass);
-
         this.controller.setHTMLElements(htmlElements);
     }
 
-    // schedule table RedipsDnD handlers
-    handleDragElement(clickedCell) {
-        this.clickedCell = clickedCell;
-    
-        const row = clickedCell.getAttribute(cellRowAttribute);
-        const col = clickedCell.getAttribute(cellColAttribute);
-        const clickedCellCoords = {row, col};
-
-        this.draggedElementType = this.rd.obj.getAttribute(lessonIdAttribute) ? elementTypes.lesson : elementTypes.classroom;
-
-        switch (this.draggedElementType) {
-            case elementTypes.lesson: {
-                const lessonId = this.clickedCell.children[0].getAttribute(lessonIdAttribute);
-                this.disableHighlight = this.controller.highlightLessonsCells(lessonId, clickedCellCoords);
-                break;
-            }
-            case elementTypes.classroom: {
-                const classroomId = clickedCell.children[0].getAttribute(classroomIdAttribute);
-                this.disableHighlight = this.controller.highlightClassroomsCells(classroomId, clickedCellCoords);
-                break;
-            }
-            default: {
-                break;
-            }
-        }
+    handleEnableHighlight() {
+        this.disableHighlight = this.controller.highlightClassroomsCells()
     }
-
-    handleBeforeDropElement(targetCell) {
-        if (this.isClickedCloseIcon) return;
-
-        const row = targetCell.getAttribute(cellRowAttribute);
-        const col = targetCell.getAttribute(cellColAttribute);
-
-        if (targetCell === this.clickedCell) return false;
-
-        switch (this.draggedElementType) {
-            case elementTypes.lesson: {
-                const lessonId = this.clickedCell.children[0].getAttribute(lessonIdAttribute);
-
-                const resultStorageCell = this.controller.setLesson(row, col, lessonId);
-
-                if (Boolean(resultStorageCell)) {
-                    const clickedCellRow = this.clickedCell.getAttribute(cellRowAttribute);
-                    const clickedCellCol = this.clickedCell.getAttribute(cellColAttribute);
-
-                    const removedLessonId = this.controller.removeLesson(clickedCellRow, clickedCellCol);
-                }
-
-                return Boolean(resultStorageCell);
-            }
-            case elementTypes.classroom: {
-                const classroomId = this.clickedCell.children[0].getAttribute(classroomIdAttribute);
-                const resultStorageCell = this.controller.setClassroom(row, col, classroomId);
-                if (Boolean(resultStorageCell)) {
-                    const clickedCellRow = this.clickedCell.getAttribute(cellRowAttribute);
-                    const clickedCellCol = this.clickedCell.getAttribute(cellColAttribute);
-
-                    const removedClassroomId = this.controller.removeClassroom(clickedCellRow, clickedCellCol);
-
-                    return Boolean(resultStorageCell);
-                }
-                break;
-            }
-            default: {
-                break;
-            }
-        }
-    }
-
-    handleDeleted(clonedAndDirectlyMovedToTrasg) {
-        if (clonedAndDirectlyMovedToTrasg) return;
-
-        const clickedCellRow = this.clickedCell.getAttribute(cellRowAttribute);
-        const clickedCellCol = this.clickedCell.getAttribute(cellColAttribute);
-
-        switch (this.draggedElementType) {
-            case elementTypes.lesson: {
-                const removedLessonId = this.controller.removeLesson(clickedCellRow, clickedCellCol);
-                this.rerenderLessonsCounters();
-                this.checkLessonForHourLimit(removedLessonId);
-                break;
-            }
-            case elementTypes.classroom: {
-                const removedClassroomId = this.controller.removeClassroom(clickedCellRow, clickedCellCol);
-                break;
-            }
-            default: {
-                break;
-            }
-        }
-    }
-
-    handleFinishEvent() {
-        if (this.disableHighlight) {
-            this.disableHighlight();
-        }
-    }
-
-    handleCloneDropped(clonedElement) {
-
-        switch (this.draggedElementType) {
-            case elementTypes.lesson: {
-                const lessonId = clonedElement.getAttribute(lessonIdAttribute);
-                const lessonContentContainer = clonedElement.querySelector(lessonContentContainerClass);
-                lessonContentContainer.classList.add(removableClass.replace('.', ''));
-        
-                const closeIcon = clonedElement.querySelector(closeIconClass);
-                closeIcon.addEventListener('mousedown', () => this.handleClickCloseIcon());
-                this.rerenderLessonsCounters();
-        
-                this.checkLessonForHourLimit(lessonId);
-                break;
-            }
-            case elementTypes.classroom: {
-                const classroomId = clonedElement.getAttribute(classroomIdAttribute);
-                const classroomContentContainer = clonedElement.querySelector(classroomContentContainerClass);
-                classroomContentContainer.classList.add(removableClass.replace('.', ''));
-        
-                const closeIcon = clonedElement.querySelector(closeIconClass);
-                closeIcon.addEventListener('mousedown', () => this.handleClickCloseIcon());
-                break;
-            }
-            default: {
-                break;
-            }
-        }
-    }
-
-    handleClickCloseIcon(event) {
-        this.setIsClickedCloseIcon(true);
-    }
-
-    checkLessonForHourLimit(lessonId) {
-        const lessonsList = document.getElementById(lessonsListId);
-        const cellElement = lessonsList.querySelector(`tr[${lessonIdAttribute}="${lessonId}"]`);
-        const remainsCounter = cellElement.querySelector(`.${hoursRemainsClass}`);
-        const dragElement = cellElement.querySelector('.redips-clone');
-
-        const isDragElementEnabled = remainsCounter.textContent != 0;
-
-        this.rd.enableDrag(isDragElementEnabled, dragElement);
-
-        if (isDragElementEnabled) {
-            dragElement.classList.remove(lessonCloneDisabledClass);
-        } else {
-            dragElement.classList.add(lessonCloneDisabledClass);
-        }
-    }
-
-    checkAllLessonsForHourLimit() {
-        const lessonsIdsArr = this.lessons.map(({uniqueId}) => uniqueId);
-
-        for (const id of lessonsIdsArr) {
-            this.checkLessonForHourLimit(id);
-        }
-    }
-
-    //lessons tabs handlers
-    handleSelectTab(selectedElement) {
-        //separated functions
-        const setNewSelectedAndRemovePrevSelectedTab = () => {
-            const tabListElement = selectedElement.parentElement;
-            [...tabListElement.children].forEach((el) => el.classList.remove(this.selectedTabClass.replace('.', '')));
-            selectedElement.classList.add(this.selectedTabClass.replace('.', ''));
-        };
-
-        // handler code start
-        const selectedClassTabId = selectedElement.getAttribute(this.classIdAttribute);
-        
-        if (selectedClassTabId === this.selectedClassTabId) return;
-        if (selectedClassTabId === this.classroomTabId) {
-            
-        }
-
-        this.selectedClassTabId = selectedClassTabId;
-        
-        setNewSelectedAndRemovePrevSelectedTab();
-
-        this.rerenderLessonsListTitle();
-        this.rerenderLessonsList();
-    }
-
-    // disconnectedCallback() is called after the component is destroyed
-    disconnectedCallback() {
-    };
 }
+
 // Register web component only if it is not registered yet
 
 if(!customElements.get('gh-study-schedule')){
     customElements.define('gh-study-schedule', GhStudySchedule);
+}
+if(!customElements.get('schedule-lesson')){
+    customElements.define('schedule-lesson', Lesson);
+}
+if(!customElements.get('schedule-classroom')){
+    customElements.define('schedule-classroom', Classroom);
+}
+if(!customElements.get('schedule-lesson-drag-list')){
+    customElements.define('schedule-lesson-drag-list', LessonDragList);
 }
