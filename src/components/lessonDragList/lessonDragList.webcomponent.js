@@ -123,8 +123,10 @@ export default class LessonDragList extends HTMLElement {
         const selectedClassId = this.selectedClassId;
         const listElement = this.separatedContainer.querySelector('tbody');
         const rows = listElement.children;
+        const lessonRows = listElement.querySelectorAll(`[${lessonUniqueIdAttribute}]`);
+        const classroomRows = listElement.querySelectorAll(`[${tabIdAttribute}="${classroomsTab.id}"]`);
 
-        const allElementsDisplay = (elements, isDisplayed) => {
+        const enableDisplay = (elements, isDisplayed) => {
             for (const el of elements) {
                 el.style.display = isDisplayed ? '' : 'none';
             }
@@ -132,7 +134,7 @@ export default class LessonDragList extends HTMLElement {
 
         switch (selectedClassId) {
             case allTab.id: {
-                allElementsDisplay(rows, true);
+                enableDisplay(lessonRows, true);
                 break;
             }
             default: {
