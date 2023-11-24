@@ -1,8 +1,9 @@
 import { getKeyFromCell } from './ScheduleModel.js';
-import localStorage from './utils/localStorage.js';
+import documentStorage from './utils/documentStorage.js';
 
 export default class ScheduleController {
-    constructor(model, lessons, classrooms) {
+    constructor(scope, model, lessons, classrooms) {
+        this.scope = scope;
         this.model = model;
         this.lessons = lessons;
         this.classrooms = classrooms;
@@ -10,7 +11,7 @@ export default class ScheduleController {
         this.academicHoursCallbackObject = {};
     }
 
-    setLesson(uniqueId, cell) {
+    async setLesson(uniqueId, cell, saveToStorage = true) {
         const { row, col } = getCoordsFromCell(cell);
         if (!this.checkRowCol(row, col)) return undefined;
         if (!uniqueId) return undefined;
@@ -21,12 +22,12 @@ export default class ScheduleController {
         const resultCell = this.model.setLesson(row, col, foundLesson);
 
         this.addAcademicHour(uniqueId);
-        this.addCellToLocalStorage(resultCell);
+        if (saveToStorage) await this.addCellToLocalStorage(resultCell);
 
         return resultCell;
     }
 
-    removeLesson(cell) {
+    async removeLesson(cell) {
         if (!cell) return undefined;
         const { row, col } = getCoordsFromCell(cell);
         if (!this.checkRowCol(row, col)) return undefined;
@@ -35,12 +36,12 @@ export default class ScheduleController {
         const cellToRemove = this.model.getCell(row, col);
 
         this.subtractAcademicHour(removedLessonId);
-        this.removeLessonFromLocalStorageCell(cellToRemove);
+        await this.removeLessonFromLocalStorageCell(cellToRemove);
 
         return removedLessonId;
     }
 
-    setClassroom(classroomId, cell) {
+    async setClassroom(classroomId, cell, saveToStorage = true) {
         const { row, col } = getCoordsFromCell(cell);
         if (!this.checkRowCol(row, col)) return undefined;
         if (!classroomId) return undefined;
@@ -50,19 +51,19 @@ export default class ScheduleController {
 
         const cellToSave = this.model.setClassroom(row, col, foundClassroom);
 
-        this.addCellToLocalStorage(cellToSave);
+        if (saveToStorage) await this.addCellToLocalStorage(cellToSave);
 
         return cellToSave;
     }
 
-    removeClassroom(cell) {
+    async removeClassroom(cell) {
         if (!cell) return undefined;
         const { row, col } = getCoordsFromCell(cell);
         if (!this.checkRowCol(row, col)) return undefined;
         const removedClassroomId = this.model.removeClassroom(row, col);
         
         const cellToRemove = this.model.getCell(row, col);
-        this.removeClassroomFromLocalStorageCell(cellToRemove);
+        await this.removeClassroomFromLocalStorageCell(cellToRemove);
 
         return removedClassroomId;
     }
@@ -101,7 +102,7 @@ export default class ScheduleController {
         return this.classrooms.find((classroom) => classroom.id == classroomId);
     }
 
-    addCellToLocalStorage(cell) {
+    async addCellToLocalStorage(cell) {
         const { dayOfWeek, clas, lessonNumber, lesson, classroom } = cell;
         const cellToSave = {
             dayOfWeek,
@@ -111,10 +112,10 @@ export default class ScheduleController {
             classroom
         };
 
-        localStorage.addCell(cellToSave);
+        await documentStorage.addCell(cellToSave);
     }
 
-    removeLessonFromLocalStorageCell(cell) {
+    async removeLessonFromLocalStorageCell(cell) {
         const { dayOfWeek, clas, lessonNumber } = cell;
         const cellToRemove = {
             dayOfWeek,
@@ -122,10 +123,10 @@ export default class ScheduleController {
             lessonNumber,
         };
 
-        localStorage.removeLessonFromCell(cellToRemove);
+        await documentStorage.removeLessonFromCell(cellToRemove);
     }
 
-    removeClassroomFromLocalStorageCell(cell) {
+    async removeClassroomFromLocalStorageCell(cell) {
         const { dayOfWeek, clas, lessonNumber } = cell;
         const cellToRemove = {
             dayOfWeek,
@@ -133,7 +134,7 @@ export default class ScheduleController {
             lessonNumber,
         };
 
-        localStorage.removeClassroomFromCell(cellToRemove);
+        await documentStorage.removeClassroomFromCell(cellToRemove);
     }
 
     addAcademicHour(uniqueId) {
@@ -166,8 +167,9 @@ export default class ScheduleController {
         }
     }
 
-    loadLocalStorageCellsToStorage() {
-        const localStorageCells = localStorage.getCells();
+    async loadLocalStorageCellsToStorage() {
+        documentStorage.initDocumentAddress(this.scope);
+        const localStorageCells = await documentStorage.getCells();
 
         const localStorageCellsObj = {};
 
@@ -207,11 +209,11 @@ export default class ScheduleController {
 
                     if (foundLocalCell.lesson) {
                         const {uniqueId} = foundLocalCell.lesson;
-                        this.setLesson(uniqueId, cellCoords);
+                        await this.setLesson(uniqueId, cellCoords, false);
                     }
                     if (foundLocalCell.classroom) {
                         const {id} = foundLocalCell.classroom;
-                        this.setClassroom(id, cellCoords);
+                        await this.setClassroom(id, cellCoords, false);
                     }
                 }
             }

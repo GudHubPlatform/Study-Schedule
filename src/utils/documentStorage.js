@@ -1,8 +1,24 @@
-const dataKey = 'scheduleCells';
+const documentAddress = {};
 
-function addCell(cell) {
+function initDocumentAddress(scope) {
+    const {
+        appId,
+        fieldId,
+        itemId
+    } = scope;
+
+    documentAddress.app_id = appId;
+    documentAddress.element_id = fieldId;
+    documentAddress.item_id = itemId;
+};
+
+function getDocumentObject(cells) {
+    return { ...documentAddress, data: {cells}};
+};
+
+async function addCell(cell) {
     try {
-        const existingCells = getCells();
+        const existingCells = await getCells();
 
         const existingCellIndex = existingCells.findIndex(existingCell => (
             existingCell.clas.id === cell.clas.id &&
@@ -16,15 +32,15 @@ function addCell(cell) {
             existingCells.push(cell);
         }
 
-        saveCells(existingCells);
+        await saveCells(existingCells);
     } catch (error) {
-        console.error('Error adding cell to localStorage:', error);
+        console.error('Error adding cell to document:', error);
     }
 }
 
-function removeLessonFromCell(cell) {
+async function removeLessonFromCell(cell) {
     try {
-        const existingCells = getCells();
+        const existingCells = await getCells();
 
         const cellIndex = existingCells.findIndex(existingCell => (
             existingCell.clas.id === cell.clas.id &&
@@ -39,16 +55,16 @@ function removeLessonFromCell(cell) {
                 existingCells.splice(cellIndex, 1);
             }
 
-            saveCells(existingCells);
+            await saveCells(existingCells);
         }
     } catch (error) {
-        console.error('Error removing lesson from cell in localStorage:', error);
+        console.error('Error removing lesson from cell in document:', error);
     }
 }
 
-function removeClassroomFromCell(cell) {
+async function removeClassroomFromCell(cell) {
     try {
-        const existingCells = getCells();
+        const existingCells = await getCells();
 
         const cellIndex = existingCells.findIndex(existingCell => (
             existingCell.clas.id === cell.clas.id &&
@@ -63,48 +79,31 @@ function removeClassroomFromCell(cell) {
                 existingCells.splice(cellIndex, 1);
             }
 
-            saveCells(existingCells);
+            await saveCells(existingCells);
         }
     } catch (error) {
-        console.error('Error removing classroom from cell in localStorage:', error);
+        console.error('Error removing classroom from cell in document:', error);
     }
 }
 
-function removeCell(cell) {
+async function getCells() {
     try {
-        const existingCells = getCells();
-
-        const cellIndex = existingCells.findIndex(existingCell => (
-            existingCell.clas.id  == cell.clas.id &&
-            existingCell.dayOfWeek == cell.dayOfWeek &&
-            existingCell.lessonNumber == cell.lessonNumber
-        ));
-
-        if (cellIndex !== -1) {
-            existingCells.splice(cellIndex, 1);
-
-            saveCells(existingCells);
-        }
+        const document = await gudhub.getDocument(documentAddress);
+        if (!document || !document.data || !document.data.cells) return [];
+        const storedCells = document.data.cells;
+        return storedCells ? storedCells : [];
     } catch (error) {
-        console.error('Error removing cell from localStorage:', error);
-    }
-}
-
-function getCells() {
-    try {
-        const storedCells = localStorage.getItem(dataKey);
-        return storedCells ? JSON.parse(storedCells) : [];
-    } catch (error) {
-        console.error('Error getting cells from localStorage:', error);
+        console.error('Error getting cells from document:', error);
         return [];
     }
 }
 
-function saveCells(cells) {
+async function saveCells(cells) {
     try {
-        localStorage.setItem(dataKey, JSON.stringify(cells));
+        const documentObject = getDocumentObject(cells);
+        await gudhub.createDocument(documentObject);
     } catch (error) {
-        console.error('Error saving cells to localStorage:', error);
+        console.error('Error saving cells to document:', error);
     }
 }
 
@@ -112,5 +111,6 @@ export default {
     addCell,
     removeClassroomFromCell,
     removeLessonFromCell,
-    getCells
+    getCells,
+    initDocumentAddress,
 }

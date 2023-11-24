@@ -1,5 +1,6 @@
 import GhHtmlElement from "@gudhub/gh-html-element";
 import html from "./studyschedule.html";
+import loader from "./loader.html";
 import './style.scss';
 
 import Lesson, { dragDisabledClass } from './components/lesson/lesson.webcomponent.js';
@@ -64,17 +65,19 @@ class GhStudySchedule extends GhHtmlElement {
     // onInit() is called after parent gh-element scope is ready
 
     async onInit() {
+        super.render(loader);
         await this.loadData.all();
         this.lessonsPerDay = this.scope.field_model.data_model.lessons_per_day;
         this.lessons = createLessonsForClasses(this.rawLessons, this.classes);
         this.model = new ScheduleModel(this.classes, this.daysOfWeek, this.lessonsPerDay);
-        this.controller = new ScheduleController(this.model, this.lessons, this.classrooms);
-        this.controller.loadLocalStorageCellsToStorage();
+        this.controller = new ScheduleController(this.scope, this.model, this.lessons, this.classrooms);
+        await this.controller.loadLocalStorageCellsToStorage();
         this.storage = this.controller.getStorage();
 
         this.initScopeSingleton();
 
         super.render(html);
+
         this.setCorrespondingHTMLElements();
 
         this.dndInit();
