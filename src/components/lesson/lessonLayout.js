@@ -14,10 +14,9 @@ export default function getHtml() {
 
     return /*html*/`
         <div class="container">
-            <input
-                type="checkbox"
+            <div
                 class="${closeIconClass.replace('.', '')}"
-            />
+            ></div>
             <div class="${contentContainerClass.replace('.', '')}">
                 <span class="${titleClass.replace('.', '')}">${shortText(title)}</span>
                 <span
