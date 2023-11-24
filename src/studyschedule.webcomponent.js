@@ -21,6 +21,8 @@ export const lessonClass = '.lesson';
 export const classroomClass = '.classroom';
 export const lessonCellClass = '.lesson-cell';
 export const classRoomCellClass = '.classroom-cell';
+export const lessonAllowedClass = '.lesson-allowed';
+export const classroomAllowedClass = '.classroom-allowed';
 const cellRowAttribute = 'row';
 const cellColAttribute = 'col';
 
@@ -37,6 +39,8 @@ class GhStudySchedule extends GhHtmlElement {
         //table classes
         this.lessonCellClass = lessonCellClass;
         this.classRoomCellClass = classRoomCellClass;
+        this.lessonAllowedClass = lessonAllowedClass;
+        this.classroomAllowedClass = classroomAllowedClass;
 
         //table attributes
         this.cellRowAttribute = cellRowAttribute;
@@ -197,8 +201,8 @@ class GhStudySchedule extends GhHtmlElement {
             rd.hover.colorTd = '#9BB3DA';
             rd.scroll.bound = 30;
 
-            rd.mark.exceptionClass[classroomClass.replace('.','')] = 'classroom-allowed';
-            rd.mark.exceptionClass[lessonClass.replace('.','')] = 'lesson-allowed';
+            rd.mark.exceptionClass[classroomClass.replace('.','')] = classroomAllowedClass.replace('.', '');
+            rd.mark.exceptionClass[lessonClass.replace('.','')] = lessonAllowedClass.replace('.', '');
 
             rd.event.clicked = (clickedCell) => {
                 const dndDiv = clickedCell.getElementsByClassName('redips-drag')[0];

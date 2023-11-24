@@ -8,6 +8,8 @@ import {
     classRoomFieldIdAttributes,
  } from "../../utils/componentsRenderer.js";
 
+ import { classroomAllowedClass } from '../../studyschedule.webcomponent.js';
+
 export default class Classroom extends HTMLElement {
     constructor() {
         super();
@@ -23,6 +25,7 @@ export default class Classroom extends HTMLElement {
         
         this.oldParentCell;
         this.parentCell;
+        this.isAttachedCloseIcon = false;
 
         this.onInit();
     }
@@ -31,7 +34,9 @@ export default class Classroom extends HTMLElement {
         await this.determineProperties();
         this.render();
 
-        if (!this.parentElement.classList.contains('redips-clone')) this.attachCloseIconListeners();
+        if (this.parentCell && this.parentCell.classList.contains(classroomAllowedClass.replace('.', ''))) {
+            this.attachCloseIconListeners();
+        }
 
         this.itemUpdateSubscribe();
     }
@@ -56,6 +61,7 @@ export default class Classroom extends HTMLElement {
 
     connectedCallback() {
         this.itemUpdateSubscribe();
+
         const parentCell = this.parentElement.parentElement;
         if (parentCell && checkForNodeNameTd(parentCell)) {
             this.setParentCell(parentCell);
@@ -136,16 +142,26 @@ export default class Classroom extends HTMLElement {
         if (this.parentCell !== cell) {
             this.oldParentCell = this.parentCell;
             this.parentCell = cell;
+
+            if (!this.isAttachedCloseIcon) {
+                if (this.parentCell.classList.contains(classroomAllowedClass.replace('.', ''))) {
+                    this.attachCloseIconListeners();
+                }
+            }
         }
     }
 
     attachCloseIconListeners() {
         const contentContainer = this.shadowRoot.querySelector(contentContainerClass);
+        if (!contentContainer) return;
+
         contentContainer.classList.add(removableClass.replace('.', ''));
 
         const closeIconElement = this.shadowRoot.querySelector(closeIconClass);
         closeIconElement.onmousedown = () => this.handleBeforeClickCloseIcon();
         closeIconElement.onclick = () => this.handleClickCloseIcon();
+        
+        this.isAttachedCloseIcon = true;
     }
 
     handleDropToTrash() {

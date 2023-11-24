@@ -1,5 +1,6 @@
 import { getKeyFromCell } from './ScheduleModel.js';
 import documentStorage from './utils/documentStorage.js';
+import { lessonAllowedClass, classroomAllowedClass } from './studyschedule.webcomponent.js';
 
 export default class ScheduleController {
     constructor(scope, model, lessons, classrooms) {
@@ -266,7 +267,7 @@ export default class ScheduleController {
 
         for (const td of notAllowedCellElements) {
             td.classList.add('disabled');
-            td.classList.remove('lesson-allowed');
+            td.classList.remove(lessonAllowedClass.replace('.', ''));
 
             const nextTd = td.nextSibling.nextElementSibling;
             nextTd.classList.add('disabled');
@@ -275,7 +276,7 @@ export default class ScheduleController {
         const highlightOff = () => {
             for (const td of notAllowedCellElements) {
                 td.classList.remove('disabled');
-                td.classList.add('lesson-allowed');
+                td.classList.add(lessonAllowedClass.replace('.', ''));
     
                 const nextTd = td.nextSibling.nextElementSibling;
                 nextTd.classList.remove('disabled');
@@ -311,7 +312,7 @@ export default class ScheduleController {
             td.classList.add('disabled');
 
             const nextTd = td.nextSibling.nextElementSibling;
-            nextTd.classList.remove('classroom-allowed');
+            nextTd.classList.remove(classroomAllowedClass.replace('.', ''));
             nextTd.classList.add('disabled');
         }
 
@@ -320,7 +321,7 @@ export default class ScheduleController {
                 td.classList.remove('disabled');
 
                 const nextTd = td.nextSibling.nextElementSibling;
-                nextTd.classList.add('classroom-allowed');
+                nextTd.classList.add(classroomAllowedClass.replace('.', ''));
                 nextTd.classList.remove('disabled');
             }
         };
