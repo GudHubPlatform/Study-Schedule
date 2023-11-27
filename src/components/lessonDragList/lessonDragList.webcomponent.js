@@ -97,7 +97,9 @@ export default class LessonDragList extends HTMLElement {
 
         const selectedTitle = this.classes.find((clas) => clas.id === this.selectedClassId).title;
 
-        if (defaultTabs.some(({title}) => title === selectedTitle)) {
+        if (this.selectedClassId === allTab.id) {
+            titleElement.textContent = defaultTitle;
+        } else if (defaultTabs.some(({title}) => title === selectedTitle)) {
             titleElement.textContent = selectedTitle;
         } else {
             titleElement.textContent = `${defaultTitle} ${selectedTitle}`;
