@@ -73,12 +73,14 @@ class GhStudySchedule extends GhHtmlElement {
         await this.loadData.all();
         this.lessonsPerDay = this.scope.field_model.data_model.lessons_per_day;
         this.lessons = createLessonsForClasses(this.rawLessons, this.classes);
+
         this.model = new ScheduleModel(this.classes, this.daysOfWeek, this.lessonsPerDay);
         this.controller = new ScheduleController(this.scope, this.model, this.lessons, this.classrooms);
-        await this.controller.loadLocalStorageCellsToStorage();
-        this.storage = this.controller.getStorage();
 
         this.initScopeSingleton();
+ 
+        await this.controller.loadLocalStorageCellsToStorage();
+        this.storage = this.controller.getStorage();
 
         super.render(html);
 
@@ -97,9 +99,9 @@ class GhStudySchedule extends GhHtmlElement {
 
     // disconnectedCallback() is called after the component is destroyed
     disconnectedCallback() {
-        this.onDisconnectCallbacks.forEach((callback) => 
-            callback()
-        );
+        this.onDisconnectCallbacks.forEach((callback) => callback());
+
+        ScopeSingleton.reset();
     };
 
     loadData = {
@@ -273,6 +275,7 @@ class GhStudySchedule extends GhHtmlElement {
             lessons: this.lessons,
             classes: this.classes,
             classrooms: this.classrooms,
+            onDisconnectCallbacks: this.onDisconnectCallbacks,
         };
         ScopeSingleton.getInstance(this.scope, this.controller, data);
     };

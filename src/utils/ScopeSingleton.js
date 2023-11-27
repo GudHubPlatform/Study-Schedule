@@ -24,6 +24,14 @@ export default class ScopeSingleton {
       return ScopeSingleton.#instance;
     }
 
+    static reset() {
+      ScopeSingleton.#instance = null;
+      ScopeSingleton.#scope = null;
+      ScopeSingleton.#controller = null;
+      ScopeSingleton.#rd = null;
+      ScopeSingleton.#data = null;
+    };
+
     setRD(rd) {
       if (!this.rd) {
         this.rd = rd;
