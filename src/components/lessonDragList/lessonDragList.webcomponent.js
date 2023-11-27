@@ -168,6 +168,15 @@ export default class LessonDragList extends HTMLElement {
         const controller = ScopeSingleton.getInstance().getController();
         const scope = ScopeSingleton.getInstance().getScope();
         const tbody = this.separatedContainer.getElementsByTagName('tbody')[0];
+
+        const getWeeksInSemesterCount = async () => {
+            const { appId, itemId } = scope;
+            const { academic_weeks_in_semester_field_id } = scope.field_model.data_model;
+            const fieldValue = await gudhub.getFieldValue(appId, itemId, academic_weeks_in_semester_field_id);
+            return fieldValue;
+        };
+
+        const weeksInSemesterCount = await getWeeksInSemesterCount();
         
         for (const tr of tbody.children) {
             const uniqueId = tr.getAttribute(lessonUniqueIdAttribute);
@@ -193,7 +202,7 @@ export default class LessonDragList extends HTMLElement {
             const getTotalHours = () => gudhub.getInterpretationById(...lesson.itemRefId.split('.'), lessons_app_academic_hours_field_id, 'value');
 
             const hoursObject = {
-                totalHours: await getTotalHours(),
+                totalHours: await getTotalHours() / weeksInSemesterCount,
             };
 
             const totalHoursHtml = /*html*/`
