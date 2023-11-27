@@ -88,6 +88,14 @@ async function removeClassroomFromCell(cell) {
 
 async function getCells() {
     try {
+        if (Object.values(documentAddress).some((value) => !value)) {
+            const errorProperties = [];
+            for (const [key, value] of Object.entries(documentAddress)) {
+                errorProperties.push(`Property ${key}, value: ${value}`);
+            }
+            throw new Error(`Bad values in object "documentAdress":\n${errorProperties.join('\n')}`);
+        }
+
         const document = await gudhub.getDocument(documentAddress);
         if (!document || !document.data || !document.data.cells) return [];
         const storedCells = document.data.cells;
