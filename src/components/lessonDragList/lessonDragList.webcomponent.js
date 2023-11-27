@@ -137,6 +137,7 @@ export default class LessonDragList extends HTMLElement {
         switch (selectedClassId) {
             case allTab.id: {
                 enableDisplay(lessonRows, true);
+                enableDisplay(classroomRows, false);
                 break;
             }
             default: {
