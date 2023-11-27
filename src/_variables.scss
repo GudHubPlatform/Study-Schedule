@@ -6,9 +6,6 @@ $table-schedule-and-lessons-height: 840px;
 $drag-element-background-color: white;
 $drag-element-hover-background-color: rgb(225, 240, 255);
 
-//table-lessons
-$table-lessons-width: 170px;
-
 //lesson
 $drag-lesson-element-height: 30px;
 $drag-lesson-element-width: 85px;
@@ -24,6 +21,11 @@ $cell-lesson-min-width: $drag-lesson-element-width + $cell-paddings * 2 + 2px;
 $cell-lesson-min-height: $drag-lesson-element-height + $cell-paddings * 2 + 2px;
 $background-color-disabled-cell: rgb(197, 197, 197);
 
+//table-lessons
+$table-lessons-width: $cell-lesson-min-width + $cell-classroom-min-width;
+
+//scrollbar
+$scrollbar-width: 6px;
 
 //close icon
 $close-icon-color: red;
@@ -35,8 +37,8 @@ $close-icon-color: red;
     }
 
     &::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
+        width: $scrollbar-width;
+        height: $scrollbar-width;
         background-color: #F5F5F5;
     }
 

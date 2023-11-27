@@ -54,35 +54,18 @@ gh-study-schedule {
         }
     }
 
-    #lesson-table-container {
-        margin-right: 5px;
-    }
-
     table {
         background-color: #ebebeb;
         border: solid 1px #000;
     }
 
-    .table-scroll {
+    .table-scroll-schedule {
         overflow: auto;
         position: relative;
-        min-width: $table-lessons-width;
+        max-width: $table-schedule-width;
         max-height: $table-schedule-and-lessons-height;
 
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-end;
-
         @include scroll();
-
-        &-schedule {
-            overflow: auto;
-            position: relative;
-            max-width: $table-schedule-width;
-            max-height: $table-schedule-and-lessons-height;
-
-            @include scroll();
-        }
     }
 
     th, td {
