@@ -8,7 +8,7 @@ import ScopeSingleton from '../../utils/ScopeSingleton.js';
 const hoursRemainsClass = '.hours-remains';
 const hoursTotalAmountClass = '.hours-total-amount';
 
-const defaultTitle = 'Предмети';
+export const defaultTitle = 'Предмети';
 export const allTab = {
     id: 'all',
     title: 'Всі',

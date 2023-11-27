@@ -1,4 +1,4 @@
-import { allTab, classroomsTab } from "./lessonDragList.webcomponent.js";
+import { defaultTitle, classroomsTab } from "./lessonDragList.webcomponent.js";
 import { columnWidth, lessonCellClass, classRoomCellClass } from '../../studyschedule.webcomponent.js';
 
 export const selectedTabClass = '.selected';
@@ -12,7 +12,6 @@ export const lessonUniqueIdAttribute = 'lesson-unique-id'
 const lessonsHeaderColspan = 2;
 
 export default function getHtml() {
-    const defaultTab = allTab;
     const lessons = this.lessons;
     const classrooms = this.classrooms;
 
@@ -30,7 +29,7 @@ export default function getHtml() {
                         <th class="header-hours-counter redips-mark freeze-header"></th>
                         <th class="${lessonsListTitleClass.replace('.', '')} redips-mark freeze-header haeder-lesson-clone-cell"
                         colspan=${lessonsHeaderColspan}
-                        >${defaultTab.title}</th>
+                        >${defaultTitle}</th>
                     </tr>
                 </thead>
                 <tbody>
