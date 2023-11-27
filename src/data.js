@@ -81,8 +81,25 @@ export default class GhStudyScheduleData {
                             return {
                                 field_name: "Academic weeks in semester",
                                 name_space: "academic_weeks_in_semester",
-                                data_type: "number",
+                                data_type: "field",
                             };
+                        },
+                        data_model: function (fieldModel) {
+                            return {
+                                data_type: 'field',
+                                field_name: 'Class Course',
+                                name_space: 'class_course',
+                                data_model: {
+                                    app_id: fieldModel.app_id
+                                }
+                            }
+                        },
+                        onInit: function(settingScope, fieldModel) {
+                            settingScope.$watch(function() {
+                                return fieldModel.app_id;
+                            }, function(newValue) {
+                                settingScope.field_model.app_id = newValue;
+                            });
                         },
                     }
                 ],
