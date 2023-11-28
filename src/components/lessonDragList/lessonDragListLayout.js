@@ -8,7 +8,8 @@ export const lessonsListTitleClass = '.lessons-list-title';
 export const classroomRowClass = '.classroom-row';
 
 export const tabIdAttribute = 'tab-id';
-export const lessonUniqueIdAttribute = 'lesson-unique-id'
+export const lessonUniqueIdAttribute = 'lesson-unique-id';
+export const classroomIdAttribute = 'classroom-id';
 const lessonsHeaderColspan = 2;
 
 export default function getHtml() {
@@ -67,6 +68,7 @@ export default function getHtml() {
                             ${row.reduce((rowAcc, classroom) => rowAcc +`
                             <td
                                 class="redips-trash ${classRoomCellClass.replace('.', '')}"
+                                ${classroomIdAttribute}=${classroom.id}
                             >
                                 ${this.renderer.classroom(classroom.id, 1)}
                             </td>

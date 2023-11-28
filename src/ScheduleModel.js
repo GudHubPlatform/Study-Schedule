@@ -16,6 +16,9 @@ export default class ScheduleModel {
 
     setLesson(row, col, lesson) {
         const foundCell = this.scheduleStorage[row][col];
+
+        if (foundCell.lesson) return;
+
         foundCell.lesson = lesson;
         return foundCell;
     }
@@ -32,6 +35,9 @@ export default class ScheduleModel {
 
     setClassroom(row, col, classroom) {
         const foundCell = this.scheduleStorage[row][col];
+
+        if (foundCell.classroom) return;
+
         foundCell.classroom = classroom;
         return foundCell;
     }
@@ -52,9 +58,14 @@ export default class ScheduleModel {
         return foundCell;
     }
     
-    getHTMLElement(row, col) {
+    getLessonCellHTMLElement(row, col) {
         const foundCell = this.scheduleStorage[row][col];
         return foundCell.htmlElement;
+    }
+
+    getClassroomCellHTMLElement(row, col) {
+        const foundCell = this.scheduleStorage[row][col];
+        return foundCell.htmlElement.nextElementSibling;
     }
 
     getClassNumber(row, col) {

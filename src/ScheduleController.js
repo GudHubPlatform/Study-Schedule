@@ -2,12 +2,8 @@ import { getKeyFromCell } from './ScheduleModel.js';
 import documentStorage from './utils/documentStorage.js';
 import { lessonAllowedClass, classroomAllowedClass } from './studyschedule.webcomponent.js';
 import ScopeSingleton from './utils/ScopeSingleton.js';
-
-const removeRdObject = (cell) => {
-    const rd = ScopeSingleton.getInstance().getRD();
-    const rdObj = cell.querySelector('.redips-drag');
-    if (rdObj) rd.deleteObject(rdObj);
-};
+import renderer from './utils/componentsRenderer.js';
+import { classroomIdAttribute, lessonUniqueIdAttribute } from './components/lessonDragList/lessonDragListLayout.js';
 
 export default class ScheduleController {
     constructor(scope, model, lessons, classrooms) {
@@ -19,62 +15,70 @@ export default class ScheduleController {
         this.academicHoursCallbackObject = {};
     }
 
-    async setLesson(uniqueId, cell, saveToStorage = true) {
+    setLesson(uniqueId, cell, saveToStorage = true) {
         const { row, col } = getCoordsFromCell(cell);
-        if (!this.checkRowCol(row, col)) return undefined;
-        if (!uniqueId) return undefined;
+        if (!this.checkRowCol(row, col)) return;
+        if (!uniqueId) return;
 ;
         const foundLesson = this.findLessonById(uniqueId);
-        if (!foundLesson) return undefined;
+        if (!foundLesson) return;
 
-        const resultCell = this.model.setLesson(row, col, foundLesson);
+        const cellToSave = this.model.setLesson(row, col, foundLesson);
 
-        this.addAcademicHour(uniqueId);
-        if (saveToStorage) this.addCellToLocalStorage(resultCell);
+        if (cellToSave) {
+            this.addAcademicHour(uniqueId);
+            if (saveToStorage) this.addCellToLocalStorage(cellToSave, foundLesson);
+        }
 
-        return resultCell;
+        return cellToSave;
     }
 
-    async removeLesson(cell, saveToStorage = true) {
-        if (!cell) return undefined;
+    removeLesson(cell, saveToStorage = true) {
+        if (!cell) return;
         const { row, col } = getCoordsFromCell(cell);
-        if (!this.checkRowCol(row, col)) return undefined;
+        if (!this.checkRowCol(row, col)) return;
         const removedLessonId = this.model.removeLesson(row, col);
 
         const cellToRemove = this.model.getCell(row, col);
 
         this.subtractAcademicHour(removedLessonId);
-        removeRdObject(cell);
-        if (saveToStorage) this.removeLessonFromLocalStorageCell(cellToRemove);
+
+        const lessonCellElement = this.model.getLessonCellHTMLElement(row, col);
+        removeRdObject(lessonCellElement);
+        if (saveToStorage) this.removeLessonFromLocalStorageCell(cellToRemove, removedLessonId);
 
         return removedLessonId;
     }
 
-    async setClassroom(classroomId, cell, saveToStorage = true) {
+    setClassroom(classroomId, cell, saveToStorage = true) {
         const { row, col } = getCoordsFromCell(cell);
-        if (!this.checkRowCol(row, col)) return undefined;
-        if (!classroomId) return undefined;
+        if (!this.checkRowCol(row, col)) return;
+        if (!classroomId) return;
 
         const foundClassroom = this.findClassroomById(classroomId);
-        if (!foundClassroom) return undefined;
+        if (!foundClassroom) return;
 
         const cellToSave = this.model.setClassroom(row, col, foundClassroom);
 
-        if (saveToStorage) this.addCellToLocalStorage(cellToSave);
+        if (cellToSave) {
+            if (saveToStorage) this.addCellToLocalStorage(cellToSave, foundClassroom);
+        }
 
         return cellToSave;
     }
 
-    async removeClassroom(cell, saveToStorage = true) {
-        if (!cell) return undefined;
+    removeClassroom(cell, saveToStorage = true) {
+        if (!cell) return;
         const { row, col } = getCoordsFromCell(cell);
-        if (!this.checkRowCol(row, col)) return undefined;
+        if (!this.checkRowCol(row, col)) return;
         const removedClassroomId = this.model.removeClassroom(row, col);
         
         const cellToRemove = this.model.getCell(row, col);
-        removeRdObject(cell);
 
-        if (saveToStorage) this.removeClassroomFromLocalStorageCell(cellToRemove);
+        const classroomCellElement = this.model.getClassroomCellHTMLElement(row, col);
+        removeRdObject(classroomCellElement);
+
+        if (saveToStorage) this.removeClassroomFromLocalStorageCell(cellToRemove, removedClassroomId);
 
         return removedClassroomId;
     }
@@ -95,8 +99,6 @@ export default class ScheduleController {
         }
     }
 
-    getHTMLElement() {}
-
     checkRowCol(row, col) {
         if (isNaN(row) || isNaN(col)) return false;
         if (!(0 <= row & row <= this.model.getRowCount() - 1)) return false;
@@ -113,7 +115,7 @@ export default class ScheduleController {
         return this.classrooms.find((classroom) => classroom.id == classroomId);
     }
 
-    async addCellToLocalStorage(cell) {
+    async addCellToLocalStorage(cell, addedObject) {
         const { dayOfWeek, clas, lessonNumber, lesson, classroom } = cell;
         const cellToSave = {
             dayOfWeek,
@@ -123,21 +125,23 @@ export default class ScheduleController {
             classroom
         };
 
-        await documentStorage.addCell(cellToSave);
+        const { uniqueId, id} = addedObject;
+
+        const idObject = uniqueId ? {lessonUniqueId: uniqueId} : {classroomId: id};
+        await documentStorage.addCell(cellToSave, idObject);
     }
 
-    async removeLessonFromLocalStorageCell(cell) {
+    async removeLessonFromLocalStorageCell(cell, lessonUniqueId) {
         const { dayOfWeek, clas, lessonNumber } = cell;
         const cellToRemove = {
             dayOfWeek,
             clas,
             lessonNumber,
         };
-        console.log(cellToRemove);
-        await documentStorage.removeLessonFromCell(cellToRemove);
+        await documentStorage.removeLessonFromCell(cellToRemove, lessonUniqueId);
     }
 
-    async removeClassroomFromLocalStorageCell(cell) {
+    async removeClassroomFromLocalStorageCell(cell, classroomId) {
         const { dayOfWeek, clas, lessonNumber } = cell;
         const cellToRemove = {
             dayOfWeek,
@@ -145,7 +149,77 @@ export default class ScheduleController {
             lessonNumber,
         };
 
-        await documentStorage.removeClassroomFromCell(cellToRemove);
+        await documentStorage.removeClassroomFromCell(cellToRemove, classroomId);
+    }
+
+    getCellCoords(cell) {
+        const { daysOfWeek, lessonsPerDay } = this.model;
+        const row = daysOfWeek.findIndex((day) => day === cell.dayOfWeek) * lessonsPerDay + cell.lessonNumber - 1;
+        const col = this.model.classes.findIndex(({id}) => id == cell.clas.id);
+        const cellCoords = {
+            row,
+            col,
+        };
+
+        return cellCoords;
+    }
+
+    addLessonFromLocalStorage(cell, lessonUniqueId) {
+        const cellCoords = this.getCellCoords(cell);
+        const resultCell = this.setLesson(lessonUniqueId, cellCoords, false);
+
+        if (resultCell) {
+            const lessonsDragListTable = document.getElementById('lesson-table-container');
+            const lessonRow = lessonsDragListTable.querySelector(`[${lessonUniqueIdAttribute}="${lessonUniqueId}"]`);
+            const lessonDragElement = lessonRow.getElementsByClassName('redips-drag')[0];
+            const targetCell = this.model.getLessonCellHTMLElement(cellCoords.row, cellCoords.col);
+            const rd = ScopeSingleton.getInstance().getRD();
+            const [ cloned, original ] = rd.moveObject({
+                obj: lessonDragElement,
+                clone: true,
+                target: targetCell,
+            });
+
+            rd.enableDrag(true, cloned);
+        }
+    }
+
+    addClassroomFromLocalStorage(cell, classroomId) {
+        const cellCoords = this.getCellCoords(cell);
+        const resultCell = this.setClassroom(classroomId, cellCoords, false);
+
+        if (resultCell) {
+            const lessonsDragListTable = document.getElementById('lesson-table-container');
+            const classroomCellElement = lessonsDragListTable.querySelector(`[${classroomIdAttribute}="${classroomId}"]`);
+            const classroomDragElement = classroomCellElement.getElementsByClassName('redips-drag')[0];
+            const targetCell = this.model.getClassroomCellHTMLElement(cellCoords.row, cellCoords.col);
+            const rd = ScopeSingleton.getInstance().getRD();
+            rd.moveObject({
+                obj: classroomDragElement,
+                clone: true,
+                target: targetCell,
+            });
+        }
+    }
+
+    removeLessonFromLocalStorage(cell, lessonUniqueId) {
+        const cellCoords = this.getCellCoords(cell);
+        const cells = this.getStorage();
+        const cellOfModel = cells[cellCoords.row][cellCoords.col];
+
+        if (cellOfModel.lesson && cellOfModel.lesson.uniqueId === lessonUniqueId) {
+            this.removeLesson(cellCoords, false);
+        }
+    }
+
+    removeClassroomFromLocalStorage(cell, classroomId) {
+        const cellCoords = this.getCellCoords(cell);
+        const cells = this.getStorage();
+        const cellOfModel = cells[cellCoords.row][cellCoords.col];
+
+        if (cellOfModel.classroom && cellOfModel.classroom.id === classroomId) {
+            this.removeClassroom(cellCoords, false);
+        }
     }
 
     addAcademicHour(uniqueId) {
@@ -180,13 +254,13 @@ export default class ScheduleController {
 
     async loadLocalStorageCellsToStorage() {
         documentStorage.initDocumentAddress(this.scope);
-        const localStorageCells = await documentStorage.getCells();
+        const storageCells = await documentStorage.getCells();
 
-        const localStorageCellsObj = {};
+        const storageCellsObj = {};
 
-        for (const cell of localStorageCells) {
+        for (const cell of storageCells) {
             const key = getKeyFromCell(cell);
-            localStorageCellsObj[key] = cell;
+            storageCellsObj[key] = cell;
         }
 
         for (let i = 0; i < this.model.rowCount; i++) {
@@ -208,22 +282,22 @@ export default class ScheduleController {
 
                 const key = `${cell.clas.id}:${cell.dayOfWeek}:${cell.lessonNumber}`;
 
-                const foundLocalCell = localStorageCellsObj[key];
+                const foundStorageCell = storageCellsObj[key];
 
-                if (foundLocalCell) {
+                if (foundStorageCell) {
                     const row = daysOfWeek.findIndex((day) => day === cell.dayOfWeek) * lessonsPerDay + cell.lessonNumber - 1;
-                    const col = this.model.classes.findIndex(({id}) => id == foundLocalCell.clas.id);
+                    const col = this.model.classes.findIndex(({id}) => id == foundStorageCell.clas.id);
                     const cellCoords = {
                         row,
                         col,
                     };
 
-                    if (foundLocalCell.lesson) {
-                        const {uniqueId} = foundLocalCell.lesson;
+                    if (foundStorageCell.lesson) {
+                        const {uniqueId} = foundStorageCell.lesson;
                         await this.setLesson(uniqueId, cellCoords, false);
                     }
-                    if (foundLocalCell.classroom) {
-                        const {id} = foundLocalCell.classroom;
+                    if (foundStorageCell.classroom) {
+                        const {id} = foundStorageCell.classroom;
                         await this.setClassroom(id, cellCoords, false);
                     }
                 }
@@ -279,7 +353,7 @@ export default class ScheduleController {
             td.classList.add('disabled');
             td.classList.remove(lessonAllowedClass.replace('.', ''));
 
-            const nextTd = td.nextSibling.nextElementSibling;
+            const nextTd = td.nextElementSibling;
             nextTd.classList.add('disabled');
         }
 
@@ -288,7 +362,7 @@ export default class ScheduleController {
                 td.classList.remove('disabled');
                 td.classList.add(lessonAllowedClass.replace('.', ''));
     
-                const nextTd = td.nextSibling.nextElementSibling;
+                const nextTd = td.nextElementSibling;
                 nextTd.classList.remove('disabled');
             }
         };
@@ -321,7 +395,7 @@ export default class ScheduleController {
         for (const td of notAllowedCellElements) {
             td.classList.add('disabled');
 
-            const nextTd = td.nextSibling.nextElementSibling;
+            const nextTd = td.nextElementSibling;
             nextTd.classList.remove(classroomAllowedClass.replace('.', ''));
             nextTd.classList.add('disabled');
         }
@@ -330,7 +404,7 @@ export default class ScheduleController {
             for (const td of notAllowedCellElements) {
                 td.classList.remove('disabled');
 
-                const nextTd = td.nextSibling.nextElementSibling;
+                const nextTd = td.nextElementSibling;
                 nextTd.classList.add(classroomAllowedClass.replace('.', ''));
                 nextTd.classList.remove('disabled');
             }
@@ -394,3 +468,9 @@ const checkForOneTeacherPerLessonRule = (draggedLesson, cellRows) => {
 
 const checkForOneClassroomInRow = (classroomId, cellRow) => cellRow
     .some(cell => cell.classroom && cell.classroom.id == classroomId);
+
+const removeRdObject = (cell) => {
+    const rd = ScopeSingleton.getInstance().getRD();
+    const rdObj = cell.querySelector('.redips-drag');
+    if (rdObj) rd.deleteObject(rdObj);
+};
