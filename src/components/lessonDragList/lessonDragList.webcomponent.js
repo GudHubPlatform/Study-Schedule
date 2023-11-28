@@ -177,7 +177,8 @@ export default class LessonDragList extends HTMLElement {
             return fieldValue;
         };
 
-        const weeksInSemesterCount = await getWeeksInSemesterCount();
+        const weeksInSemesterCountFromField = await getWeeksInSemesterCount();
+        const weeksInSemester = weeksInSemesterCountFromField ? weeksInSemesterCountFromField : 1;
         
         for (const tr of tbody.children) {
             const uniqueId = tr.getAttribute(lessonUniqueIdAttribute);
@@ -189,11 +190,11 @@ export default class LessonDragList extends HTMLElement {
             const cell = tr.querySelector('.hours-counter-cell');
 
             //hours counter container
-            const hoursCounterConteinerHtml = /*html*/`
+            const hoursCounterContainerHtml = /*html*/`
                 <div class=hours-counter-container redips-trash>
                 </div>
             `;
-            cell.insertAdjacentHTML('afterbegin', hoursCounterConteinerHtml);
+            cell.insertAdjacentHTML('afterbegin', hoursCounterContainerHtml);
             const hoursCounterContainer = cell.children[0];
 
             //total hours
@@ -203,7 +204,7 @@ export default class LessonDragList extends HTMLElement {
             const getTotalHours = () => gudhub.getInterpretationById(...lesson.itemRefId.split('.'), lessons_app_academic_hours_field_id, 'value');
 
             const hoursObject = {
-                totalHours: await getTotalHours() / weeksInSemesterCount,
+                totalHours: await getTotalHours() / weeksInSemester,
             };
 
             const totalHoursHtml = /*html*/`
