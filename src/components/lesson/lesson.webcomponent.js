@@ -40,6 +40,9 @@ export default class Lesson extends HTMLElement {
         this.isDragEnabled = true;
         this.isAttachedCloseIcon = false;
 
+        this.isCloseIconClicked;
+        this.isRemoved = false;
+
         this.onInit();
     }
 
@@ -91,7 +94,6 @@ export default class Lesson extends HTMLElement {
 
     disconnectedCallback() {
         this.destroySubscribe();
-
         this.handleDrop();
     };
 
@@ -184,7 +186,7 @@ export default class Lesson extends HTMLElement {
 
         const closeIconElement = this.shadowRoot.querySelector(closeIconClass);
         closeIconElement.onmousedown = () => this.handleBeforeClickCloseIcon();
-        closeIconElement.onclick = () => this.handleClickCloseIcon();
+        closeIconElement.onclick = () => this.handleRemove();
 
         this.isAttachedCloseIcon = true;
     }
@@ -195,17 +197,15 @@ export default class Lesson extends HTMLElement {
             this.controller = ScopeSingleton.getInstance().getController();
         }
         this.controller.removeLesson(this.oldParentCell);
+        this.isRemoved = true;
     }
 
     handleBeforeClickCloseIcon() {
         this.isCloseIconClicked = true;
     }
 
-    handleClickCloseIcon() {
+    handleDropToTrash() {
         this.handleRemove();
-
-        const rd = ScopeSingleton.getInstance().getRD();
-        rd.deleteObject(rd.obj);
     }
 
     handleDrop() {
@@ -219,10 +219,6 @@ export default class Lesson extends HTMLElement {
         } else if (cell === null) {
             this.handleDropToTrash();
         }
-    }
-
-    handleDropToTrash() {
-        this.handleRemove();
     }
 
     handleDropToCell(cell) {

@@ -27,6 +27,9 @@ export default class Classroom extends HTMLElement {
         this.parentCell;
         this.isAttachedCloseIcon = false;
 
+        this.isCloseIconClicked;
+        this.isRemoved;
+
         this.onInit();
     }
 
@@ -111,6 +114,7 @@ export default class Classroom extends HTMLElement {
             this.controller = ScopeSingleton.getInstance().getController();
         }
         this.controller.removeClassroom(this.oldParentCell);
+        this.isRemoved = true;
     }
 
     handleBeforeClickCloseIcon() {
@@ -119,10 +123,6 @@ export default class Classroom extends HTMLElement {
 
     handleClickCloseIcon() {
         this.handleRemove();
-        this.isCloseIconClicked = true;
-
-        const rd = ScopeSingleton.getInstance().getRD();
-        rd.deleteObject(rd.obj);
     }
 
     handleDrop() {

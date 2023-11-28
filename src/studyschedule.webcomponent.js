@@ -206,26 +206,26 @@ class GhStudySchedule extends GhHtmlElement {
             rd.mark.exceptionClass[classroomClass.replace('.','')] = classroomAllowedClass.replace('.', '');
             rd.mark.exceptionClass[lessonClass.replace('.','')] = lessonAllowedClass.replace('.', '');
 
-            rd.event.clicked = (clickedCell) => {
+            rd.event.clicked = async (clickedCell) => {
                 const dndDiv = clickedCell.getElementsByClassName('redips-drag')[0];
                 const scheduleElement = dndDiv.children[0];
                 if (scheduleElement && scheduleElement.isCloseIconClicked) {
-                    console.log('rd click prevented');
-                } else {
-                    const clickedCellCoords = {
-                        row: clickedCell.getAttribute(cellRowAttribute),
-                        col: clickedCell.getAttribute(cellColAttribute),
-                    };
-                    if (scheduleElement instanceof Lesson) {
-                        this.disableHighlight = controller.highlightLessonsCells(scheduleElement.uniqueId, clickedCellCoords);
-                    } else if (scheduleElement instanceof Classroom) {
-                        const  {
-                            app_id,
-                            item_id
-                        } = scheduleElement;
-                        const classroomId = [app_id, item_id].join('.');
-                        this.disableHighlight = controller.highlightClassroomsCells(classroomId, clickedCellCoords);
-                    }
+                    await new Promise((resolve) => setTimeout(resolve, 100));
+                    if (scheduleElement.isRemoved) return;
+                }
+                const clickedCellCoords = {
+                    row: clickedCell.getAttribute(cellRowAttribute),
+                    col: clickedCell.getAttribute(cellColAttribute),
+                };
+                if (scheduleElement instanceof Lesson) {
+                    this.disableHighlight = controller.highlightLessonsCells(scheduleElement.uniqueId, clickedCellCoords);
+                } else if (scheduleElement instanceof Classroom) {
+                    const  {
+                        app_id,
+                        item_id
+                    } = scheduleElement;
+                    const classroomId = [app_id, item_id].join('.');
+                    this.disableHighlight = controller.highlightClassroomsCells(classroomId, clickedCellCoords);
                 }
             };
 
