@@ -11,11 +11,11 @@ import renderer from './utils/componentsRenderer.js';
 import ScopeSingleton from './utils/ScopeSingleton.js';
 
 import {REDIPS} from './redips-drag-min.js';
-import { getClassesScheme, getClassroomsScheme, getLessonsScheme } from "./jsonSchemes.js";
+import { getClassesScheme, getClassroomsScheme, getSubjectsScheme } from "./jsonSchemes.js";
 import ScheduleController from "./ScheduleController.js";
 import ScheduleModel from "./ScheduleModel.js";
 
-import { createLessonsForClasses } from "./utils/dataFunctions.js";
+import { createLessons } from "./utils/dataFunctions.js";
 
 export const lessonClass = '.lesson';
 export const classroomClass = '.classroom';
@@ -51,7 +51,7 @@ class GhStudySchedule extends GhHtmlElement {
         this.daysOfWeek = ["понеділок","вівторок","середа","четвер","п'ятниця"];
         this.lessonsPerDay;
         this.classes;
-        this.rawLessons;
+        this.subjects;
         this.lessons;
         this.classrooms;
 
@@ -72,7 +72,7 @@ class GhStudySchedule extends GhHtmlElement {
         super.render(loader);
         await this.loadData.all();
         this.lessonsPerDay = this.scope.field_model.data_model.lessons_per_day;
-        this.lessons = createLessonsForClasses(this.rawLessons, this.classes);
+        this.lessons = createLessons(this.subjects, this.classes);
 
         this.model = new ScheduleModel(this.classes, this.daysOfWeek, this.lessonsPerDay);
         this.controller = new ScheduleController(this.scope, this.model, this.lessons, this.classrooms);
@@ -88,7 +88,7 @@ class GhStudySchedule extends GhHtmlElement {
 
         this.dndInit();
 
-        const destroyLessonsSubscribe = this.subscribeOnItemsUpdate.lessons();
+        const destroyLessonsSubscribe = this.subscribeOnItemsUpdate.subjects();
         const destroyClassroomsSubscribe = this.subscribeOnItemsUpdate.classrooms();
 
         this.onDisconnectCallbacks.push(
@@ -105,24 +105,24 @@ class GhStudySchedule extends GhHtmlElement {
     };
 
     loadData = {
-        lessons: () => {
+        subjects: () => {
             const {
-                lessons_app_id,
-                lessons_app_title_field_id,
-                lessons_app_teacher_field_id,
-                lessons_app_course_field_id,
-                lessons_app_academic_hours_field_id,
-                lessons_filters_list = [],
+                subjects_app_id,
+                subjects_app_title_field_id,
+                subjects_app_teacher_field_id,
+                subjects_app_course_field_id,
+                subjects_app_academic_hours_field_id,
+                subjects_filters_list = [],
             } = this.scope.field_model.data_model;
-            const lessonsScheme = getLessonsScheme({
-                lessons_app_id,
-                lessons_app_title_field_id,
-                lessons_app_teacher_field_id,
-                lessons_app_course_field_id,
-                lessons_app_academic_hours_field_id,
-                lessons_filters_list,
+            const subjectsScheme = getSubjectsScheme({
+                subjects_app_id,
+                subjects_app_title_field_id,
+                subjects_app_teacher_field_id,
+                subjects_app_course_field_id,
+                subjects_app_academic_hours_field_id,
+                subjects_filters_list,
             });
-            return gudhub.jsonConstructor(lessonsScheme).then((data) => {this.rawLessons = data.lessons});
+            return gudhub.jsonConstructor(subjectsScheme).then((data) => {this.subjects = data.lessons});
         },
         classes: () => {
             const { 
@@ -154,7 +154,7 @@ class GhStudySchedule extends GhHtmlElement {
     
         },
         all: () => {
-            const classesPromise = this.loadData.lessons();
+            const classesPromise = this.loadData.subjects();
             const lessonsPromise = this.loadData.classes();
             const classroomsPromise = this.loadData.classrooms();
             return Promise.all([
@@ -166,17 +166,17 @@ class GhStudySchedule extends GhHtmlElement {
     }
 
     subscribeOnItemsUpdate = {
-        lessons: () => {
-            const { lessons_app_id } = this.scope.field_model.data_model;
+        subjects: () => {
+            const { subjects_app_id } = this.scope.field_model.data_model;
     
             const onLessonsItemsUpdate = async () => {
-                await this.loadData.lessons();
-                this.lessons = createLessonsForClasses(this.rawLessons, this.classes);
+                await this.loadData.subjects();
+                this.lessons = createLessons(this.subjects, this.classes);
             };
     
-            gudhub.on('gh_items_update', {lessons_app_id}, onLessonsItemsUpdate);
+            gudhub.on('gh_items_update', {subjects_app_id}, onLessonsItemsUpdate);
     
-            return () => gudhub.destroy('gh_items_update', {lessons_app_id}, onLessonsItemsUpdate);
+            return () => gudhub.destroy('gh_items_update', {subjects_app_id}, onLessonsItemsUpdate);
         },
         classrooms: () => {
             const { cabinets_app_id } = this.scope.field_model.data_model;

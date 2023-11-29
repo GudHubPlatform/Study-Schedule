@@ -1,4 +1,4 @@
-export function createLessonsForClasses(lessons, classes) {
+export function createLessons(lessons, classes) {
     const createdLessons = [];
 
     for (const lesson of lessons) {

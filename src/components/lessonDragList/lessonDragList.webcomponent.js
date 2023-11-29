@@ -8,7 +8,7 @@ import ScopeSingleton from '../../utils/ScopeSingleton.js';
 const hoursRemainsClass = '.hours-remains';
 const hoursTotalAmountClass = '.hours-total-amount';
 
-export const defaultTitle = 'Предмети';
+export const defaultTitle = 'Уроки';
 export const allTab = {
     id: 'all',
     title: 'Всі',
@@ -199,9 +199,9 @@ export default class LessonDragList extends HTMLElement {
 
             //total hours
             const {
-                lessons_app_academic_hours_field_id
+                subjects_app_academic_hours_field_id
             } = scope.field_model.data_model;
-            const getTotalHours = () => gudhub.getInterpretationById(...lesson.itemRefId.split('.'), lessons_app_academic_hours_field_id, 'value');
+            const getTotalHours = () => gudhub.getInterpretationById(...lesson.itemRefId.split('.'), subjects_app_academic_hours_field_id, 'value');
 
             const hoursObject = {
                 totalHours: await getTotalHours() / weeksInSemester,
@@ -261,7 +261,7 @@ export default class LessonDragList extends HTMLElement {
                 const address = {
                     app_id,
                     item_id,
-                    field_id: lessons_app_academic_hours_field_id,
+                    field_id: subjects_app_academic_hours_field_id,
                 };
                 gudhub.on('gh_value_update', address, onAcademicHoursUpdate);
 

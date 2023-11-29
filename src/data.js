@@ -21,13 +21,13 @@ export default class GhStudyScheduleData {
                     classes_app_course_field_id: null,
                     classes_filters_list: [],
                     classes_sorting_type: 0,
-                    lessons_app_id: null,
-                    lessons_app_title_field_id: null,
-                    lessons_app_teacher_field_id: null,
-                    lessons_app_course_field_id: null,
-                    lessons_app_academic_hours_field_id: null,
+                    subjects_app_id: null,
+                    subjects_app_title_field_id: null,
+                    subjects_app_teacher_field_id: null,
+                    subjects_app_course_field_id: null,
+                    subjects_app_academic_hours_field_id: null,
                     lessons_per_day: null,
-                    lessons_filters_list: [],
+                    subjects_filters_list: [],
                     cabinets_app_id: null,
                     cabinets_app_number_field_id: null,
                     interpretation: [{
@@ -216,17 +216,17 @@ export default class GhStudyScheduleData {
                 ],
                 [
                     {
-                      title: 'Lessons Settings',
+                      title: 'Subjects Settings',
                       type: 'header'
                     },
                     {
                         type: 'ghElement',
-                        property: 'data_model.lessons_app_id',
+                        property: 'data_model.subjects_app_id',
                         data_model: function () {
                             return {
                                 data_type: 'app',
-                                field_name: 'Lessons App',
-                                name_space: 'lessons_app',
+                                field_name: 'Subjects App',
+                                name_space: 'subjects_app',
                                 data_model: {
                                     current_app: false,
                                     interpretation: [{
@@ -244,20 +244,20 @@ export default class GhStudyScheduleData {
                     },
                     {
                         type: 'ghElement',
-                        property: 'data_model.lessons_app_title_field_id',
+                        property: 'data_model.subjects_app_title_field_id',
                         data_model: function (fieldModel) {
                             return {
                                 data_type: 'field',
-                                field_name: 'Lesson Title',
-                                name_space: 'lesson_title',
+                                field_name: 'Subject Title',
+                                name_space: 'subject_title',
                                 data_model: {
-                                    app_id: fieldModel.data_model.lessons_app_id
+                                    app_id: fieldModel.data_model.subjects_app_id
                                 }
                             }
                         },
                         onInit: function(settingScope, fieldModel) {
                             settingScope.$watch(function() {
-                                return fieldModel.data_model.lessons_app_id;
+                                return fieldModel.data_model.subjects_app_id;
                             }, function(newValue) {
                                 settingScope.field_model.data_model.app_id = newValue;
                             });
@@ -265,20 +265,20 @@ export default class GhStudyScheduleData {
                     },
                     {
                         type: 'ghElement',
-                        property: 'data_model.lessons_app_teacher_field_id',
+                        property: 'data_model.subjects_app_teacher_field_id',
                         data_model: function (fieldModel) {
                             return {
                                 data_type: 'field',
-                                field_name: 'Lesson teacher',
-                                name_space: 'lesson_teacher',
+                                field_name: 'Subject teacher',
+                                name_space: 'subject_teacher',
                                 data_model: {
-                                    app_id: fieldModel.data_model.lessons_app_id
+                                    app_id: fieldModel.data_model.subjects_app_id
                                 }
                             }
                         },
                         onInit: function(settingScope, fieldModel) {
                             settingScope.$watch(function() {
-                                return fieldModel.data_model.lessons_app_id;
+                                return fieldModel.data_model.subjects_app_id;
                             }, function(newValue) {
                                 settingScope.field_model.data_model.app_id = newValue;
                             });
@@ -286,20 +286,20 @@ export default class GhStudyScheduleData {
                     },
                     {
                         type: 'ghElement',
-                        property: 'data_model.lessons_app_course_field_id',
+                        property: 'data_model.subjects_app_course_field_id',
                         data_model: function (fieldModel) {
                             return {
                                 data_type: 'field',
-                                field_name: 'Lesson course',
-                                name_space: 'lesson_course',
+                                field_name: 'Subject course',
+                                name_space: 'subject_course',
                                 data_model: {
-                                    app_id: fieldModel.data_model.lessons_app_id
+                                    app_id: fieldModel.data_model.subjects_app_id
                                 }
                             }
                         },
                         onInit: function(settingScope, fieldModel) {
                             settingScope.$watch(function() {
-                                return fieldModel.data_model.lessons_app_id;
+                                return fieldModel.data_model.subjects_app_id;
                             }, function(newValue) {
                                 settingScope.field_model.data_model.app_id = newValue;
                             });
@@ -307,20 +307,20 @@ export default class GhStudyScheduleData {
                     },
                     {
                         type: 'ghElement',
-                        property: 'data_model.lessons_app_academic_hours_field_id',
+                        property: 'data_model.subjects_app_academic_hours_field_id',
                         data_model: function (fieldModel) {
                             return {
                                 data_type: 'field',
-                                field_name: 'Lesson academic hours',
-                                name_space: 'lesson_academic_hours',
+                                field_name: 'Subject academic hours',
+                                name_space: 'subject_academic_hours',
                                 data_model: {
-                                    app_id: fieldModel.data_model.lessons_app_id
+                                    app_id: fieldModel.data_model.subjects_app_id
                                 }
                             }
                         },
                         onInit: function(settingScope, fieldModel) {
                             settingScope.$watch(function() {
-                                return fieldModel.data_model.lessons_app_id;
+                                return fieldModel.data_model.subjects_app_id;
                             }, function(newValue) {
                                 settingScope.field_model.data_model.app_id = newValue;
                             });
@@ -338,14 +338,14 @@ export default class GhStudyScheduleData {
                         },
                     },
                     {
-                      title: 'Lessons Filter',
+                      title: 'Subjects Filter',
                       type: 'header'
                     },{
                       type: "html",
                       onInit: function (settingScope) {
                         settingScope.$watch(
                           function () {
-                            return settingScope.fieldModel.data_model.lessons_app_id;
+                            return settingScope.fieldModel.data_model.subjects_app_id;
                           },
                           function (newValue) {
                             settingScope.field_model.data_model.app_id = newValue;
@@ -355,12 +355,12 @@ export default class GhStudyScheduleData {
                       data_model: function (fieldModel) {
                         return {
                           recipient: {
-                            app_id: fieldModel.data_model.lessons_app_id,
+                            app_id: fieldModel.data_model.subjects_app_id,
                           },
                         };
                       },
                       control:
-                        '<gh-filter gh-filter-data-model="field_model" filter-list="fieldModel.data_model.lessons_filters_list" gh-mode="variable"></gh-filter>',
+                        '<gh-filter gh-filter-data-model="field_model" filter-list="fieldModel.data_model.subjects_filters_list" gh-mode="variable"></gh-filter>',
                     },
                 ],
                 [{
@@ -396,8 +396,8 @@ export default class GhStudyScheduleData {
                       data_model: function (fieldModel) {
                           return {
                               data_type: 'field',
-                              field_name: 'Lesson Number',
-                              name_space: 'lesson_number',
+                              field_name: 'Cabinet Number',
+                              name_space: 'cabinet_number',
                               data_model: {
                                   app_id: fieldModel.data_model.cabinets_app_id
                               }

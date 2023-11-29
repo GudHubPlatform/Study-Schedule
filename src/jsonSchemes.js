@@ -45,16 +45,16 @@ export const getClassesScheme = (settings) => {
   }
 };
 
-export const getLessonsScheme = (settings) => {
+export const getSubjectsScheme = (settings) => {
 
   const {
-    lessons_app_id,
-    lessons_app_course_field_id,
-    lessons_filters_list,
-    lessons_app_teacher_field_id,
+    subjects_app_id,
+    subjects_app_course_field_id,
+    subjects_filters_list,
+    subjects_app_teacher_field_id,
   } = settings;
 
-  if (!lessons_app_id || !lessons_app_course_field_id || !lessons_app_teacher_field_id) return;
+  if (!subjects_app_id || !subjects_app_course_field_id || !subjects_app_teacher_field_id) return;
 
   return {
     "type": "array",
@@ -72,19 +72,19 @@ export const getLessonsScheme = (settings) => {
         "id": 6,
         "property_name": "course",
         "property_type": "field_value",
-        "field_id": lessons_app_course_field_id
+        "field_id": subjects_app_course_field_id
       },
       {
         "type": "property",
         "id": 7,
         "property_name": "teacherRefId",
         "property_type": "field_value",
-        "field_id": lessons_app_teacher_field_id
+        "field_id": subjects_app_teacher_field_id
       },
     ],
     "property_name": "lessons",
-    "app_id": lessons_app_id,
-    "filter": lessons_filters_list,
+    "app_id": subjects_app_id,
+    "filter": subjects_filters_list,
     "use_variables_for_limit_and_offset": 0
   }
 };
