@@ -136,17 +136,17 @@ function subscribeOnDocumentChange() {
     switch (type) {
       case actionTypesObject.add: {
         if (lessonUniqueId) {
-          controller.addLessonFromLocalStorage(cell, lessonUniqueId);
+          controller.addLessonByDocumentStorage(cell, lessonUniqueId);
         } else if (classroomId) {
-          controller.addClassroomFromLocalStorage(cell, classroomId);
+          controller.addClassroomByDocumentStorage(cell, classroomId);
         }
         break;
       }
       case actionTypesObject.remove: {
         if (lessonUniqueId) {
-          controller.removeLessonFromLocalStorage(cell, lessonUniqueId);
+          controller.removeLessonByDocumentStorage(cell, lessonUniqueId);
         } else if (classroomId) {
-          controller.removeClassroomFromLocalStorage(cell, classroomId);
+          controller.removeClassroomByDocumentStorage(cell, classroomId);
         }
         break;
       }
