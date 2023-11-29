@@ -79,7 +79,7 @@ class GhStudySchedule extends GhHtmlElement {
 
         this.initScopeSingleton();
  
-        await this.controller.loadLocalStorageCellsToStorage();
+        await this.controller.loadCellsFromDocumentStorage();
         this.storage = this.controller.getStorage();
 
         super.render(html);

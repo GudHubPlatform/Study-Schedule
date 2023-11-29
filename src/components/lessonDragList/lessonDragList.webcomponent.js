@@ -269,7 +269,7 @@ export default class LessonDragList extends HTMLElement {
             };
             
             toggleLessonDrag(remainHours);
-            controller.addHoursCallback(uniqueId, updateRemainsCounter);
+            controller.addHoursUpdateCallback(uniqueId, updateRemainsCounter);
             this.onDisconnectCallbacks.push(
                 subscribeOnLessonTotalAcademicHours()
             );
