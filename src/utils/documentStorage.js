@@ -1,202 +1,185 @@
 import ScopeSingleton from "./ScopeSingleton.js";
 
-const documentAddress = {};
+let documentAddress;
+
 const settings = {
-    isSubscribed: false,
+  isSubscribed: false,
 };
 
-function initDocumentAddress(scope) {
-    const {
-        appId,
-        fieldId,
-        itemId
-    } = scope;
 
-    documentAddress.app_id = appId;
-    documentAddress.item_id = itemId;
-    documentAddress.element_id = fieldId;
-};
-
-function getDocumentObject() {
-    return {
-        ...documentAddress,
-        data,
-    };
+const data = {
+  cells: [],
+  action: {},
 };
 
 const actionTypesObject = {
-    add: 'add',
-    remove: 'remove'
-}; 
-
-const data = {
-    cells: [],
-    action: {},
+  add: 'add',
+  remove: 'remove'
 };
 
-const setAction = (cell, idObject, actionType) => {
-    data.action = {};
-    
-    data.action.cell = cell;
-    data.action.type = actionType;
+function initDocumentAddress({ appId, fieldId, itemId }) {
+    documentAddress = {
+      app_id: appId,
+      item_id: itemId,
+      element_id: fieldId,
+    };
+  }
 
-    for (const [key, value] of Object.entries(idObject)) {
-        data.action[key] = value;
-    }
+function setAction(cell, idObject, type) {
+    data.action = {
+        cell,
+        ...idObject,
+        type,
+    };
 };
 
 async function addCell(cell, idObject) {
-    try {
-        const existingCells = data.cells;
+  try {
+    const existingCells = data.cells;
 
-        const existingCellIndex = existingCells.findIndex(existingCell => (
-            existingCell.clas.id === cell.clas.id &&
-            existingCell.dayOfWeek === cell.dayOfWeek &&
-            existingCell.lessonNumber === cell.lessonNumber
-        ));
+    const existingCellIndex = findCellIndex(existingCells, cell);
 
-        if (existingCellIndex !== -1) {
-            existingCells[existingCellIndex] = { ...existingCells[existingCellIndex], ...cell };
-        } else {
-            existingCells.push(cell);
-        }
-
-        setAction(cell, idObject, actionTypesObject.add);
-        await saveCells();
-    } catch (error) {
-        console.error('Error adding cell to document:', error);
+    if (existingCellIndex !== -1) {
+      existingCells[existingCellIndex] = { ...existingCells[existingCellIndex], ...cell };
+    } else {
+      existingCells.push(cell);
     }
+
+    setAction(cell, idObject, actionTypesObject.add);
+    await saveCells();
+  } catch (error) {
+    console.error('Error adding cell to document:', error);
+  }
 }
 
 async function removeLessonFromCell(cell, lessonUniqueId) {
-    try {
-        const existingCells = data.cells;
+  try {
+    const existingCells = data.cells;
+    const cellIndex = findCellIndex(existingCells, cell);
 
-        const cellIndex = existingCells.findIndex(existingCell => (
-            existingCell.clas.id === cell.clas.id &&
-            existingCell.dayOfWeek === cell.dayOfWeek &&
-            existingCell.lessonNumber === cell.lessonNumber
-        ));
+    if (cellIndex !== -1) {
+      delete existingCells[cellIndex].lesson;
 
-        if (cellIndex !== -1) {
-            delete existingCells[cellIndex].lesson;
+      if (!existingCells[cellIndex].classroom) {
+        existingCells.splice(cellIndex, 1);
+      }
 
-            if (!existingCells[cellIndex].classroom) {
-                existingCells.splice(cellIndex, 1);
-            }
-
-            setAction(cell, {lessonUniqueId: lessonUniqueId}, actionTypesObject.remove);
-            await saveCells();
-        }
-    } catch (error) {
-        console.error('Error removing lesson from cell in document:', error);
+      setAction(cell, { lessonUniqueId }, actionTypesObject.remove);
+      await saveCells();
     }
+  } catch (error) {
+    console.error('Error removing lesson from cell in document:', error);
+  }
 }
 
 async function removeClassroomFromCell(cell, classroomId) {
-    try {
-        const existingCells = data.cells;
+  try {
+    const existingCells = data.cells;
+    const cellIndex = findCellIndex(existingCells, cell);
 
-        const cellIndex = existingCells.findIndex(existingCell => (
-            existingCell.clas.id === cell.clas.id &&
-            existingCell.dayOfWeek === cell.dayOfWeek &&
-            existingCell.lessonNumber === cell.lessonNumber
-        ));
+    if (cellIndex !== -1) {
+      delete existingCells[cellIndex].classroom;
 
-        if (cellIndex !== -1) {
-            delete existingCells[cellIndex].classroom;
+      if (!existingCells[cellIndex].lesson) {
+        existingCells.splice(cellIndex, 1);
+      }
 
-            if (!existingCells[cellIndex].lesson) {
-                existingCells.splice(cellIndex, 1);
-            }
-
-            setAction(cell, {classroomId: classroomId}, actionTypesObject.remove);
-            await saveCells();
-        }
-    } catch (error) {
-        console.error('Error removing classroom from cell in document:', error);
+      setAction(cell, { classroomId }, actionTypesObject.remove);
+      await saveCells();
     }
+  } catch (error) {
+    console.error('Error removing classroom from cell in document:', error);
+  }
 }
 
 async function getCells() {
-    try {
-        if (settings.isSubscribed) {
-            return data.cells;
-        }
+  try {
+    if (!settings.isSubscribed) {
+      if (Object.values(documentAddress).some((value) => !value)) {
+        const errorProperties = Object.entries(documentAddress)
+          .map(([key, value]) => `Property ${key}, value: ${value}`);
+        throw new Error(`Bad values in object "documentAdress":\n${errorProperties.join('\n')}`);
+      }
 
-        if (Object.values(documentAddress).some((value) => !value)) {
-            const errorProperties = [];
-            for (const [key, value] of Object.entries(documentAddress)) {
-                errorProperties.push(`Property ${key}, value: ${value}`);
-            }
-            throw new Error(`Bad values in object "documentAdress":\n${errorProperties.join('\n')}`);
-        }
-
-        if (!settings.isSubscribed) {
-            const destroySubscribe = subscribeOnDocumentChange();
-            ScopeSingleton.getInstance().getData().onDisconnectCallbacks.push(destroySubscribe);
-            settings.isSubscribed = true;
-        }
-
-        const documentCells = await getDocumentCells();
-        data.cells = documentCells ? documentCells : [];
-
-        return data.cells;
-    } catch (error) {
-        console.error('Error getting cells from document:', error);
-        return [];
+      const destroySubscribe = subscribeOnDocumentChange();
+      ScopeSingleton.getInstance().getData().onDisconnectCallbacks.push(destroySubscribe);
+      settings.isSubscribed = true;
     }
+
+    const documentCells = await getDocumentCells();
+    data.cells = documentCells ? documentCells : [];
+
+    return data.cells;
+  } catch (error) {
+    console.error('Error getting cells from document:', error);
+    return [];
+  }
 }
 
 async function getDocumentCells() {
-    const document = await gudhub.getDocument(documentAddress);
-        if (!document || !document.data || !document.data.cells) return [];
-    return document.data.cells;
-};
+  const document = await gudhub.getDocument(documentAddress);
+  if (!document || !document.data || !document.data.cells) {
+    return [];
+  }
+  return document.data.cells;
+}
 
 function subscribeOnDocumentChange() {
-    gudhub.on('gh_document_insert_one', documentAddress, onDocumentChange); 
-
-    return () => {
-        gudhub.destroy('gh_document_insert_one', documentAddress, onDocumentChange);
-    };
-}
-
-async function saveCells() {
-    try {
-        const documentObject = getDocumentObject();
-        await gudhub.createDocument(documentObject);
-    } catch (error) {
-        console.error('Error saving cells to document:', error);
-    }
-}
-
-function onDocumentChange(event, data) {
+  const event = 'gh_document_insert_one';
+  const onDocumentChange = (event, data) => {
     const { cells, action } = data;
     data.cells = cells;
 
-    const {type, cell, lessonUniqueId, classroomId} = action;
+    const { type, cell, lessonUniqueId, classroomId } = action;
     const controller = ScopeSingleton.getInstance().getController();
+
     switch (type) {
-        case actionTypesObject.add: {
-            if (lessonUniqueId) {
-                controller.addLessonFromLocalStorage(cell, lessonUniqueId);
-            } else if (classroomId) {
-                controller.addClassroomFromLocalStorage(cell, classroomId);
-            }
-            break;
+      case actionTypesObject.add: {
+        if (lessonUniqueId) {
+          controller.addLessonFromLocalStorage(cell, lessonUniqueId);
+        } else if (classroomId) {
+          controller.addClassroomFromLocalStorage(cell, classroomId);
         }
-        case actionTypesObject.remove: {
-            if (lessonUniqueId) {
-                controller.removeLessonFromLocalStorage(cell, lessonUniqueId);
-            } else if (classroomId) {
-                controller.removeClassroomFromLocalStorage(cell, classroomId);
-            }
-            break;
+        break;
+      }
+      case actionTypesObject.remove: {
+        if (lessonUniqueId) {
+          controller.removeLessonFromLocalStorage(cell, lessonUniqueId);
+        } else if (classroomId) {
+          controller.removeClassroomFromLocalStorage(cell, classroomId);
         }
-        default:
-            break;
+        break;
+      }
+      default:
+        break;
     }
+  };
+
+  gudhub.on(event, documentAddress, onDocumentChange);
+
+  return () => {
+    gudhub.destroy(event, documentAddress, onDocumentChange);
+  };
+}
+
+async function saveCells() {
+  try {
+    const documentObject = {
+        ...documentAddress,
+        data
+    };
+    await gudhub.createDocument(documentObject);
+  } catch (error) {
+    console.error('Error saving cells to document:', error);
+  }
+}
+
+function findCellIndex(cells, cell) {
+  return cells.findIndex(existingCell => (
+    existingCell.clas.id === cell.clas.id &&
+    existingCell.dayOfWeek === cell.dayOfWeek &&
+    existingCell.lessonNumber === cell.lessonNumber
+  ));
 }
 
 export default {
