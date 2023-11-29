@@ -306,6 +306,27 @@ export default class GhStudyScheduleData {
                         },
                     },
                     {
+                        type: 'ghElement',
+                        property: 'data_model.lessons_app_academic_hours_field_id',
+                        data_model: function (fieldModel) {
+                            return {
+                                data_type: 'field',
+                                field_name: 'Lesson academic hours',
+                                name_space: 'lesson_academic_hours',
+                                data_model: {
+                                    app_id: fieldModel.data_model.lessons_app_id
+                                }
+                            }
+                        },
+                        onInit: function(settingScope, fieldModel) {
+                            settingScope.$watch(function() {
+                                return fieldModel.data_model.lessons_app_id;
+                            }, function(newValue) {
+                                settingScope.field_model.data_model.app_id = newValue;
+                            });
+                        },
+                    },
+                    {
                         type: "ghElement",
                         property: "data_model.lessons_per_day",
                         data_model: function () {
