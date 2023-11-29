@@ -126,7 +126,7 @@ async function getDocumentCells() {
 
 function subscribeOnDocumentChange() {
   const event = 'gh_document_insert_one';
-  const onDocumentChange = (event, data) => {
+  const onDocumentChange = async (event, data) => {
     const { cells, action } = data;
     data.cells = cells;
 
@@ -136,17 +136,17 @@ function subscribeOnDocumentChange() {
     switch (type) {
       case actionTypesObject.add: {
         if (lessonUniqueId) {
-          controller.addLessonByDocumentStorage(cell, lessonUniqueId);
+          await controller.addLessonByDocumentStorage(cell, lessonUniqueId);
         } else if (classroomId) {
-          controller.addClassroomByDocumentStorage(cell, classroomId);
+          await controller.addClassroomByDocumentStorage(cell, classroomId);
         }
         break;
       }
       case actionTypesObject.remove: {
         if (lessonUniqueId) {
-          controller.removeLessonByDocumentStorage(cell, lessonUniqueId);
+          await controller.removeLessonByDocumentStorage(cell, lessonUniqueId);
         } else if (classroomId) {
-          controller.removeClassroomByDocumentStorage(cell, classroomId);
+          await controller.removeClassroomByDocumentStorage(cell, classroomId);
         }
         break;
       }

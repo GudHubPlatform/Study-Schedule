@@ -14,7 +14,7 @@ export default class ScheduleController {
         this.academicHoursCallbackObject = {};
     }
 
-    setLesson(uniqueId, cell, saveToStorage = true) {
+    async setLesson(uniqueId, cell, saveToStorage = true) {
         const { row, col } = getCoordsFromCell(cell);
         if (!this.checkRowCol(row, col)) return;
         if (!uniqueId) return;
@@ -26,13 +26,13 @@ export default class ScheduleController {
 
         if (cellToSave) {
             this.addAcademicHour(uniqueId);
-            if (saveToStorage) this.addCellToDocumentStorage(cellToSave, foundLesson);
+            if (saveToStorage) await this.addCellToDocumentStorage(cellToSave, foundLesson);
         }
 
         return cellToSave;
     }
 
-    removeLesson(cell, saveToStorage = true) {
+    async removeLesson(cell, saveToStorage = true) {
         if (!cell) return;
         const { row, col } = getCoordsFromCell(cell);
         if (!this.checkRowCol(row, col)) return;
@@ -44,12 +44,26 @@ export default class ScheduleController {
 
         const lessonCellElement = this.model.getLessonCellHTMLElement(row, col);
         removeRdObject(lessonCellElement);
-        if (saveToStorage) this.removeLessonInDocumentStorageCell(cellToRemove, removedLessonId);
+        if (saveToStorage) await this.removeLessonInDocumentStorageCell(cellToRemove, removedLessonId);
 
         return removedLessonId;
     }
 
-    setClassroom(classroomId, cell, saveToStorage = true) {
+    async moveLesson(uniqueId, fromCell, targetCell, saveToStorage = true) {
+        if (!fromCell || !targetCell) return;
+        const { row: fromRow, col: fromCol } = getCoordsFromCell(fromCell);
+        const { row: targetRow, col: targetCol } = getCoordsFromCell(targetCell);
+        if (!this.checkRowCol(fromRow, fromCol) || !this.checkRowCol(targetRow, targetCol)) return;
+        
+        await this.removeLesson(fromCell);
+        await this.setLesson(uniqueId, targetCell);
+
+        if (saveToStorage) await this.moveLessonInDocumentStorageCell();
+
+        return removedLessonId;
+    }
+
+    async setClassroom(classroomId, cell, saveToStorage = true) {
         const { row, col } = getCoordsFromCell(cell);
         if (!this.checkRowCol(row, col)) return;
         if (!classroomId) return;
@@ -60,13 +74,13 @@ export default class ScheduleController {
         const cellToSave = this.model.setClassroom(row, col, foundClassroom);
 
         if (cellToSave) {
-            if (saveToStorage) this.addCellToDocumentStorage(cellToSave, foundClassroom);
+            if (saveToStorage) await this.addCellToDocumentStorage(cellToSave, foundClassroom);
         }
 
         return cellToSave;
     }
 
-    removeClassroom(cell, saveToStorage = true) {
+    async removeClassroom(cell, saveToStorage = true) {
         if (!cell) return;
         const { row, col } = getCoordsFromCell(cell);
         if (!this.checkRowCol(row, col)) return;
@@ -77,7 +91,7 @@ export default class ScheduleController {
         const classroomCellElement = this.model.getClassroomCellHTMLElement(row, col);
         removeRdObject(classroomCellElement);
 
-        if (saveToStorage) this.removeClassroomInDocumentStorage(cellToRemove, removedClassroomId);
+        if (saveToStorage) await this.removeClassroomInDocumentStorage(cellToRemove, removedClassroomId);
 
         return removedClassroomId;
     }
@@ -163,9 +177,10 @@ export default class ScheduleController {
         return cellCoords;
     }
 
-    addLessonByDocumentStorage(cell, lessonUniqueId) {
+    async addLessonByDocumentStorage(cell, lessonUniqueId) {
+        console.log('add lesson');
         const cellCoords = this.getCellCoords(cell);
-        const resultCell = this.setLesson(lessonUniqueId, cellCoords, false);
+        const resultCell = await this.setLesson(lessonUniqueId, cellCoords, false);
 
         if (resultCell) {
             const lessonsDragListTable = document.getElementById('lesson-table-container');
@@ -183,9 +198,10 @@ export default class ScheduleController {
         }
     }
 
-    addClassroomByDocumentStorage(cell, classroomId) {
+    async addClassroomByDocumentStorage(cell, classroomId) {
+        console.log('add classroom');
         const cellCoords = this.getCellCoords(cell);
-        const resultCell = this.setClassroom(classroomId, cellCoords, false);
+        const resultCell = await this.setClassroom(classroomId, cellCoords, false);
 
         if (resultCell) {
             const lessonsDragListTable = document.getElementById('lesson-table-container');
@@ -201,23 +217,25 @@ export default class ScheduleController {
         }
     }
 
-    removeLessonByDocumentStorage(cell, lessonUniqueId) {
+    async removeLessonByDocumentStorage(cell, lessonUniqueId) {
+        console.log('remove lesson');
         const cellCoords = this.getCellCoords(cell);
         const cells = this.getStorage();
         const cellOfModel = cells[cellCoords.row][cellCoords.col];
 
         if (cellOfModel.lesson && cellOfModel.lesson.uniqueId === lessonUniqueId) {
-            this.removeLesson(cellCoords, false);
+            await this.removeLesson(cellCoords, false);
         }
     }
     
-    removeClassroomByDocumentStorage(cell, classroomId) {
+    async removeClassroomByDocumentStorage(cell, classroomId) {
+        console.log('remove classroom');
         const cellCoords = this.getCellCoords(cell);
         const cells = this.getStorage();
         const cellOfModel = cells[cellCoords.row][cellCoords.col];
         
         if (cellOfModel.classroom && cellOfModel.classroom.id === classroomId) {
-            this.removeClassroom(cellCoords, false);
+            await this.removeClassroom(cellCoords, false);
         }
     }
 
