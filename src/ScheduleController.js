@@ -49,20 +49,6 @@ export default class ScheduleController {
         return removedLessonId;
     }
 
-    async moveLesson(uniqueId, fromCell, targetCell, saveToStorage = true) {
-        if (!fromCell || !targetCell) return;
-        const { row: fromRow, col: fromCol } = getCoordsFromCell(fromCell);
-        const { row: targetRow, col: targetCol } = getCoordsFromCell(targetCell);
-        if (!this.checkRowCol(fromRow, fromCol) || !this.checkRowCol(targetRow, targetCol)) return;
-        
-        await this.removeLesson(fromCell);
-        await this.setLesson(uniqueId, targetCell);
-
-        if (saveToStorage) await this.moveLessonInDocumentStorageCell();
-
-        return removedLessonId;
-    }
-
     async setClassroom(classroomId, cell, saveToStorage = true) {
         const { row, col } = getCoordsFromCell(cell);
         if (!this.checkRowCol(row, col)) return;
@@ -178,7 +164,6 @@ export default class ScheduleController {
     }
 
     async addLessonByDocumentStorage(cell, lessonUniqueId) {
-        console.log('add lesson');
         const cellCoords = this.getCellCoords(cell);
         const resultCell = await this.setLesson(lessonUniqueId, cellCoords, false);
 
@@ -199,7 +184,6 @@ export default class ScheduleController {
     }
 
     async addClassroomByDocumentStorage(cell, classroomId) {
-        console.log('add classroom');
         const cellCoords = this.getCellCoords(cell);
         const resultCell = await this.setClassroom(classroomId, cellCoords, false);
 
@@ -218,7 +202,6 @@ export default class ScheduleController {
     }
 
     async removeLessonByDocumentStorage(cell, lessonUniqueId) {
-        console.log('remove lesson');
         const cellCoords = this.getCellCoords(cell);
         const cells = this.getStorage();
         const cellOfModel = cells[cellCoords.row][cellCoords.col];
@@ -229,7 +212,6 @@ export default class ScheduleController {
     }
     
     async removeClassroomByDocumentStorage(cell, classroomId) {
-        console.log('remove classroom');
         const cellCoords = this.getCellCoords(cell);
         const cells = this.getStorage();
         const cellOfModel = cells[cellCoords.row][cellCoords.col];
