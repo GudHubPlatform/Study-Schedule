@@ -109,7 +109,7 @@ export const getSubjectsScheme = (settings) => {
         },
       ],
       "property_name": "classrooms",
-      "app_id": "33956",
+      "app_id": cabinets_app_id,
       "filter": [],
       "isSortable": 1,
       "field_id_to_sort": "807581",
