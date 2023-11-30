@@ -30,6 +30,11 @@ export default class GhStudyScheduleData {
                     subjects_filters_list: [],
                     cabinets_app_id: null,
                     cabinets_app_number_field_id: null,
+                    lessons_app_id: null,
+                    lessons_app_subject_field_id: null,
+                    lessons_app_teacher_field_id: null,
+                    lessons_app_class_field_id: null,
+                    lessons_app_date_field_id: null,
                     interpretation: [{
                         src: 'form',
                         id: 'default',
@@ -411,6 +416,118 @@ export default class GhStudyScheduleData {
                           });
                       },
                   },
+                ],
+                [{
+                    title: 'Lesson Generation',
+                    type: 'header'
+                  },
+                  {
+                      type: 'ghElement',
+                      property: 'data_model.lessons_app_id',
+                      data_model: function () {
+                          return {
+                              data_type: 'app',
+                              field_name: 'Lessons App',
+                              name_space: 'lessons_app',
+                              data_model: {
+                                  current_app: false,
+                                  interpretation: [{
+                                      src: 'form',
+                                      id: 'with_text',
+                                      settings: {
+                                          editable: 1,
+                                          show_field_name: 1,
+                                          show_field: 1
+                                      },
+                                  }]
+                              }
+                          }
+                      }
+                  },
+                  {
+                    type: 'ghElement',
+                    property: 'data_model.lessons_app_subject_field_id',
+                    data_model: function (fieldModel) {
+                        return {
+                            data_type: 'field',
+                            field_name: 'Lesson subject',
+                            name_space: 'lesson_subject',
+                            data_model: {
+                                app_id: fieldModel.data_model.lessons_app_id
+                            }
+                        }
+                    },
+                    onInit: function(settingScope, fieldModel) {
+                        settingScope.$watch(function() {
+                            return fieldModel.data_model.lessons_app_id;
+                        }, function(newValue) {
+                            settingScope.field_model.data_model.app_id = newValue;
+                        });
+                        },
+                    },
+                    {
+                      type: 'ghElement',
+                      property: 'data_model.lessons_app_teacher_field_id',
+                      data_model: function (fieldModel) {
+                          return {
+                              data_type: 'field',
+                              field_name: 'Lesson teacher',
+                              name_space: 'lesson_teacher',
+                              data_model: {
+                                  app_id: fieldModel.data_model.lessons_app_id
+                              }
+                          }
+                      },
+                      onInit: function(settingScope, fieldModel) {
+                          settingScope.$watch(function() {
+                              return fieldModel.data_model.lessons_app_id;
+                          }, function(newValue) {
+                              settingScope.field_model.data_model.app_id = newValue;
+                          });
+                          },
+                      },
+                      {
+                        type: 'ghElement',
+                        property: 'data_model.lessons_app_class_field_id',
+                        data_model: function (fieldModel) {
+                            return {
+                                data_type: 'field',
+                                field_name: 'Lesson class',
+                                name_space: 'lesson_class',
+                                data_model: {
+                                    app_id: fieldModel.data_model.lessons_app_id
+                                }
+                            }
+                        },
+                        onInit: function(settingScope, fieldModel) {
+                            settingScope.$watch(function() {
+                                return fieldModel.data_model.lessons_app_id;
+                            }, function(newValue) {
+                                settingScope.field_model.data_model.app_id = newValue;
+                            });
+                            },
+                        },
+                        {
+                          type: 'ghElement',
+                          property: 'data_model.lessons_app_date_field_id',
+                          data_model: function (fieldModel) {
+                              return {
+                                  data_type: 'field',
+                                  field_name: 'Lesson date',
+                                  name_space: 'lesson_date',
+                                  data_model: {
+                                      app_id: fieldModel.data_model.lessons_app_id
+                                  }
+                              }
+                          },
+                          onInit: function(settingScope, fieldModel) {
+                              settingScope.$watch(function() {
+                                  return fieldModel.data_model.lessons_app_id;
+                              }, function(newValue) {
+                                  settingScope.field_model.data_model.app_id = newValue;
+                              });
+                              },
+                          },
                 ]
             ]
         }];
