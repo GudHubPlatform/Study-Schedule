@@ -35,6 +35,7 @@ export default class GhStudyScheduleData {
                     lessons_app_teacher_field_id: null,
                     lessons_app_class_field_id: null,
                     lessons_app_date_field_id: null,
+                    lessons_app_schedule_id_field_id: null,
                     interpretation: [{
                         src: 'form',
                         id: 'default',
@@ -528,6 +529,27 @@ export default class GhStudyScheduleData {
                               });
                               },
                           },
+                          {
+                            type: 'ghElement',
+                            property: 'data_model.lessons_app_schedule_id_field_id',
+                            data_model: function (fieldModel) {
+                                return {
+                                    data_type: 'field',
+                                    field_name: 'Lesson schedule id',
+                                    name_space: 'lesson_schedule_id',
+                                    data_model: {
+                                        app_id: fieldModel.data_model.lessons_app_id
+                                    }
+                                }
+                            },
+                            onInit: function(settingScope, fieldModel) {
+                                settingScope.$watch(function() {
+                                    return fieldModel.data_model.lessons_app_id;
+                                }, function(newValue) {
+                                    settingScope.field_model.data_model.app_id = newValue;
+                                });
+                                },
+                            },
                 ]
             ]
         }];
