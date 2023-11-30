@@ -201,7 +201,7 @@ export default class LessonDragList extends HTMLElement {
             const {
                 subjects_app_academic_hours_field_id
             } = scope.field_model.data_model;
-            const getTotalHours = () => gudhub.getInterpretationById(...lesson.itemRefId.split('.'), subjects_app_academic_hours_field_id, 'value');
+            const getTotalHours = () => gudhub.getInterpretationById(...lesson.subjectRefId.split('.'), subjects_app_academic_hours_field_id, 'value');
 
             const hoursObject = {
                 totalHours: await getTotalHours() / weeksInSemester,
@@ -257,7 +257,7 @@ export default class LessonDragList extends HTMLElement {
                     updateTotalCounter(updatedTotalHours);
                 };
 
-                const [app_id, item_id] = lesson.itemRefId.split('.');
+                const [app_id, item_id] = lesson.subjectRefId.split('.');
                 const address = {
                     app_id,
                     item_id,

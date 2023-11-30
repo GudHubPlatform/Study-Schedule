@@ -43,7 +43,7 @@ export default function getHtml() {
                         <td class="redips-trash hours-counter-cell">
                         </td>
                         <td class="redips-trash ${lessonCellClass.replace('.', '')}" colspan=${columnWidth}>
-                            ${this.renderer.lesson(lesson.itemRefId, lesson.clasId, 1)}
+                            ${this.renderer.lesson(lesson.subjectRefId, lesson.clasId, 1)}
                         </td>
                     </tr>
                 `, '')}

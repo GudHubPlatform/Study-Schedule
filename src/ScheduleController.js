@@ -115,9 +115,9 @@ export default class ScheduleController {
     }
 
     async addCellToDocumentStorage(cell, addedObject) {
-        const { dayOfWeek, clas, lessonNumber, lesson, classroom } = cell;
+        const { dayOfWeekIndex, clas, lessonNumber, lesson, classroom } = cell;
         const cellToSave = {
-            dayOfWeek,
+            dayOfWeekIndex,
             clas,
             lessonNumber,
             lesson,
@@ -131,9 +131,9 @@ export default class ScheduleController {
     }
 
     async removeLessonInDocumentStorageCell(cell, lessonUniqueId) {
-        const { dayOfWeek, clas, lessonNumber } = cell;
+        const { dayOfWeekIndex, clas, lessonNumber } = cell;
         const cellToRemove = {
-            dayOfWeek,
+            dayOfWeekIndex,
             clas,
             lessonNumber,
         };
@@ -141,9 +141,9 @@ export default class ScheduleController {
     }
 
     async removeClassroomInDocumentStorage(cell, classroomId) {
-        const { dayOfWeek, clas, lessonNumber } = cell;
+        const { dayOfWeekIndex, clas, lessonNumber } = cell;
         const cellToRemove = {
-            dayOfWeek,
+            dayOfWeekIndex,
             clas,
             lessonNumber,
         };
@@ -152,8 +152,8 @@ export default class ScheduleController {
     }
 
     getCellCoords(cell) {
-        const { daysOfWeek, lessonsPerDay } = this.model;
-        const row = daysOfWeek.findIndex((day) => day === cell.dayOfWeek) * lessonsPerDay + cell.lessonNumber - 1;
+        const { lessonsPerDay } = this.model;
+        const row = cell.dayOfWeekIndex * lessonsPerDay + cell.lessonNumber - 1;
         const col = this.model.classes.findIndex(({id}) => id == cell.clas.id);
         const cellCoords = {
             row,
@@ -277,7 +277,7 @@ export default class ScheduleController {
             const { daysOfWeek, lessonsPerDay } = this.model;
             for (const clas of this.model.classes) {
                 let cell = {
-                    dayOfWeek: daysOfWeek[Math.floor(i / lessonsPerDay)],
+                    dayOfWeekIndex: Math.floor(i / lessonsPerDay),
                     clas: clas,
                     lessonNumber: i % lessonsPerDay + 1,
                     lesson: null,
@@ -287,12 +287,12 @@ export default class ScheduleController {
 
                 this.model.scheduleStorage[i].push(cell);
 
-                const key = `${cell.clas.id}:${cell.dayOfWeek}:${cell.lessonNumber}`;
+                const key = `${cell.clas.id}:${cell.dayOfWeekIndex}:${cell.lessonNumber}`;
 
                 const foundStorageCell = storageCellsObj[key];
 
                 if (foundStorageCell) {
-                    const row = daysOfWeek.findIndex((day) => day === cell.dayOfWeek) * lessonsPerDay + cell.lessonNumber - 1;
+                    const row = cell.dayOfWeekIndex * lessonsPerDay + cell.lessonNumber - 1;
                     const col = this.model.classes.findIndex(({id}) => id == foundStorageCell.clas.id);
                     const cellCoords = {
                         row,
@@ -330,10 +330,10 @@ export default class ScheduleController {
         //change real cell on copied cell without lesson to not to highlight clicked cell
         const {row, col} = clickedCellCoords;
         if (row && col) {
-            const { dayOfWeek, clas, htmlElement, classroom } = cells[row][col];
+            const { dayOfWeekIndex, clas, htmlElement, classroom } = cells[row][col];
 
             const cellCopyWithoutLesson = {
-                dayOfWeek,
+                dayOfWeekIndex,
                 clas,
                 htmlElement,
                 lesson: null,
@@ -383,10 +383,10 @@ export default class ScheduleController {
         const { row, col } = clickedCellCoords;
 
         if (row && col) {
-            const { dayOfWeek, clas, htmlElement, lesson } = cells[row][col];
+            const { dayOfWeekIndex, clas, htmlElement, lesson } = cells[row][col];
 
             const cellCopyWithoutClassroom = {
-                dayOfWeek,
+                dayOfWeekIndex,
                 clas,
                 htmlElement,
                 lesson,

@@ -17,6 +17,8 @@ import ScheduleModel from "./ScheduleModel.js";
 
 import { createLessons } from "./utils/dataFunctions.js";
 
+import lessonItemsWorker from './utils/lessonItemsWorker.js';
+
 export const lessonClass = '.lesson';
 export const classroomClass = '.classroom';
 export const lessonCellClass = '.lesson-cell';

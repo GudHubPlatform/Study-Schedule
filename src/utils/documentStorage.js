@@ -177,7 +177,7 @@ async function saveCells() {
 function findCellIndex(cells, cell) {
   return cells.findIndex(existingCell => (
     existingCell.clas.id === cell.clas.id &&
-    existingCell.dayOfWeek === cell.dayOfWeek &&
+    existingCell.dayOfWeekIndex === cell.dayOfWeekIndex &&
     existingCell.lessonNumber === cell.lessonNumber
   ));
 }

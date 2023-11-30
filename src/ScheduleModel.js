@@ -119,6 +119,6 @@ export default class ScheduleModel {
 }
 
 export function getKeyFromCell(cell) {
-    const key = `${cell.clas.id}:${cell.dayOfWeek}:${cell.lessonNumber}`;
+    const key = `${cell.clas.id}:${cell.dayOfWeekIndex}:${cell.lessonNumber}`;
     return key;
 }
