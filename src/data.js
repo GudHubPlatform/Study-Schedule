@@ -30,6 +30,7 @@ export default class GhStudyScheduleData {
                     subjects_filters_list: [],
                     cabinets_app_id: null,
                     cabinets_app_number_field_id: null,
+                    lessonsTime: null,
                     lessons_app_id: null,
                     lessons_app_subject_field_id: null,
                     lessons_app_teacher_field_id: null,
@@ -417,6 +418,30 @@ export default class GhStudyScheduleData {
                           });
                       },
                   },
+                    {
+                        title: "Lesson Schedule",
+                        type: "header",
+                      },
+                      {
+                        type: "html",
+                        data_model: function (fieldModel) {
+                          return {
+                            patterns: [
+                              {
+                                property: "time",
+                                type: "duration",
+                                prop_name: "Time",
+                                data_model: function (option) {
+                                  return {};
+                                },
+                                display: true,
+                              },
+                            ],
+                          };
+                        },
+                        control:
+                          '<gh-option-table items="fieldModel.data_model.lessonsTime" pattern="field_model.patterns"></gh-option-table>',
+                    },
                 ],
                 [{
                     title: 'Lesson Generation',
