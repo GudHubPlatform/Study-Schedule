@@ -27,7 +27,6 @@ export default class GhStudyScheduleData {
                     subjects_app_teacher_field_id: null,
                     subjects_app_course_field_id: null,
                     subjects_app_academic_hours_field_id: null,
-                    lessons_per_day: null,
                     subjects_filters_list: [],
                     cabinets_app_id: null,
                     cabinets_app_number_field_id: null,
@@ -353,17 +352,6 @@ export default class GhStudyScheduleData {
                             }, function(newValue) {
                                 settingScope.field_model.data_model.app_id = newValue;
                             });
-                        },
-                    },
-                    {
-                        type: "ghElement",
-                        property: "data_model.lessons_per_day",
-                        data_model: function () {
-                            return {
-                                field_name: "Lessons per day",
-                                name_space: "lessons_per_day",
-                                data_type: "number",
-                            };
                         },
                     },
                     {
