@@ -16,6 +16,7 @@ export default class GhStudyScheduleData {
                 data_type: 'study_schedule',
                 data_model: {
                     academic_weeks_in_semester_field_id: null,
+                    semester_start_date_field_id: null,
                     classes_app_id: null,
                     classes_app_title_field_id: null,
                     classes_app_course_field_id: null,
@@ -88,6 +89,27 @@ export default class GhStudyScheduleData {
                             return {
                                 field_name: "Academic weeks in semester field",
                                 name_space: "academic_weeks_in_semester_field",
+                                data_type: "field",
+                                data_model: {
+                                    app_id: fieldModel.app_id
+                                }
+                            }
+                        },
+                        onInit: function(settingScope, fieldModel) {
+                            settingScope.$watch(function() {
+                                return fieldModel.app_id;
+                            }, function(newValue) {
+                                settingScope.field_model.app_id = newValue;
+                            });
+                        },
+                    },
+                    {
+                        type: "ghElement",
+                        property: "data_model.semester_start_date_field_id",
+                        data_model: function (fieldModel) {
+                            return {
+                                field_name: "Semester start date field",
+                                name_space: "semester_start_date_field",
                                 data_type: "field",
                                 data_model: {
                                     app_id: fieldModel.app_id
