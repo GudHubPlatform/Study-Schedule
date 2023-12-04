@@ -28,8 +28,8 @@ export default class GhStudyScheduleData {
                     subjects_app_course_field_id: null,
                     subjects_app_academic_hours_field_id: null,
                     subjects_filters_list: [],
-                    cabinets_app_id: null,
-                    cabinets_app_number_field_id: null,
+                    rooms_app_id: null,
+                    rooms_app_number_field_id: null,
                     lessonsTime: null,
                     lessons_app_id: null,
                     lessons_app_subject_field_id: null,
@@ -381,17 +381,17 @@ export default class GhStudyScheduleData {
                     },
                 ],
                 [{
-                    title: 'Cabinets Settings',
+                    title: 'Rooms Settings',
                     type: 'header'
                   },
                   {
                       type: 'ghElement',
-                      property: 'data_model.cabinets_app_id',
+                      property: 'data_model.rooms_app_id',
                       data_model: function () {
                           return {
                               data_type: 'app',
-                              field_name: 'Cabinets App',
-                              name_space: 'cabinets_app',
+                              field_name: 'Rooms App',
+                              name_space: 'rooms_app',
                               data_model: {
                                   current_app: false,
                                   interpretation: [{
@@ -409,20 +409,20 @@ export default class GhStudyScheduleData {
                   },
                   {
                       type: 'ghElement',
-                      property: 'data_model.cabinets_app_number_field_id',
+                      property: 'data_model.rooms_app_number_field_id',
                       data_model: function (fieldModel) {
                           return {
                               data_type: 'field',
-                              field_name: 'Cabinet Number',
-                              name_space: 'cabinet_number',
+                              field_name: 'Room Number',
+                              name_space: 'room_number',
                               data_model: {
-                                  app_id: fieldModel.data_model.cabinets_app_id
+                                  app_id: fieldModel.data_model.rooms_app_id
                               }
                           }
                       },
                       onInit: function(settingScope, fieldModel) {
                           settingScope.$watch(function() {
-                              return fieldModel.data_model.cabinets_app_id;
+                              return fieldModel.data_model.rooms_app_id;
                           }, function(newValue) {
                               settingScope.field_model.data_model.app_id = newValue;
                           });
