@@ -76,18 +76,19 @@ th, td {
         &:not(.selected):hover {
             min-width: 35px;
         }
+
+
+        .tab-lesson {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 100%;
+            height: 100%;
+
+            border-radius: inherit;
+        }
     }
-}
-
-.tab-lesson {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    width: 100%;
-    height: 100%;
-
-    border-radius: inherit;
 }
 
 .table-lessons {
