@@ -14,14 +14,14 @@ export const allTab = {
     title: 'Всі',
 };
 
-export const classroomsTab = {
-    id: 'classrooms',
+export const roomsTab = {
+    id: 'rooms',
     title: 'Кабінети'
 };
 
 const defaultTabs = [
     allTab,
-    classroomsTab
+    roomsTab
 ];
 
 export default class LessonDragList extends HTMLElement {
@@ -29,13 +29,13 @@ export default class LessonDragList extends HTMLElement {
         super();
         //component
         this.attachShadow({ mode: 'open' });
-        this.classroomsInRow = 3;
+        this.roomsInRow = 3;
         this.scope;
         this.app_id;
         this.renderer = renderer;
         this.lessons;
         this.classes;
-        this.classrooms;
+        this.rooms;
         this.selectedClassId = defaultTabs[0];
 
         this.onDisconnectCallbacks = [];        
@@ -76,12 +76,12 @@ export default class LessonDragList extends HTMLElement {
         const { 
             lessons,
             classes,
-            classrooms
+            rooms
          } = ScopeSingleton.getInstance().getData();
 
          this.lessons = lessons;
          this.classes = [ ...defaultTabs, ...classes];
-         this.classrooms = classrooms;
+         this.rooms = rooms;
     };
 
     attachOnClicks() {
@@ -126,7 +126,7 @@ export default class LessonDragList extends HTMLElement {
         const listElement = this.separatedContainer.querySelector('tbody');
         const rows = listElement.children;
         const lessonRows = listElement.querySelectorAll(`[${lessonUniqueIdAttribute}]`);
-        const classroomRows = listElement.querySelectorAll(`[${tabIdAttribute}="${classroomsTab.id}"]`);
+        const roomRows = listElement.querySelectorAll(`[${tabIdAttribute}="${roomsTab.id}"]`);
 
         const enableDisplay = (elements, isDisplayed) => {
             for (const el of elements) {
@@ -137,7 +137,7 @@ export default class LessonDragList extends HTMLElement {
         switch (selectedClassId) {
             case allTab.id: {
                 enableDisplay(lessonRows, true);
-                enableDisplay(classroomRows, false);
+                enableDisplay(roomRows, false);
                 break;
             }
             default: {

@@ -93,8 +93,8 @@ gh-study-schedule {
             }
         }
 
-        td.classroom-cell {
-            min-width: $cell-classroom-min-width;
+        td.room-cell {
+            min-width: $cell-room-min-width;
 
             &.disabled {
                 background-color: $background-color-disabled-cell;
@@ -203,26 +203,26 @@ gh-study-schedule {
     
     div.redips-drag {
 
-        &.classroom {
+        &.room {
             position: relative;
 
             display: flex;
             justify-content: flex-start;
             align-items: center;
 
-            height: $drag-classroom-element-height;
-            width: $drag-classroom-element-width;
+            height: $drag-room-element-height;
+            width: $drag-room-element-width;
 
             overflow: hidden;
 
             &:hover {
-                .classroom-content-container.removable {
+                .room-content-container.removable {
                     width: 70%;
                     background-color: $drag-element-hover-background-color;
                 }
             }
     
-            .classroom-content-container {
+            .room-content-container {
                 display: flex;
                 flex-direction: column;
                 justify-content: center;

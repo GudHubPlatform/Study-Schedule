@@ -1,16 +1,16 @@
 
-export const classroomClass = '.classroom';
+export const roomClass = '.room';
 export const contentContainerClass = '.content-container';
 export const titleClass = '.title';
 export const closeIconClass = '.close-icon';
 export const removableClass = '.removable';
 
 export default function getHtml() {
-    const { title } = this.classroom;
+    const { title } = this.room;
 
     return /*html*/`
         <div
-            class="${classroomClass.replace('.', '')}"
+            class="${roomClass.replace('.', '')}"
         >
             <div
                 class="${closeIconClass.replace('.', '')}"

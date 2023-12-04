@@ -10,19 +10,19 @@ $drag-element-hover-background-color: rgb(225, 240, 255);
 $drag-lesson-element-height: 30px;
 $drag-lesson-element-width: 85px;
 
-//classroom
-$drag-classroom-element-height: 30px;
-$drag-classroom-element-width: 30px;
+//rooms
+$drag-room-element-height: 30px;
+$drag-room-element-width: 30px;
 
 //table cell 
 $cell-paddings: 1px;
-$cell-classroom-min-width: $drag-classroom-element-width + 5px;
+$cell-room-min-width: $drag-room-element-width + 5px;
 $cell-lesson-min-width: $drag-lesson-element-width + $cell-paddings * 2 + 2px;
 $cell-lesson-min-height: $drag-lesson-element-height + $cell-paddings * 2 + 2px;
 $background-color-disabled-cell: rgb(197, 197, 197);
 
 //table-lessons
-$table-lessons-width: $cell-lesson-min-width + $cell-classroom-min-width;
+$table-lessons-width: $cell-lesson-min-width + $cell-room-min-width;
 
 //scrollbar
 $scrollbar-width: 6px;

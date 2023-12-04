@@ -1,18 +1,18 @@
-$drag-classroom-element-height: 30px;
-$drag-classroom-element-width: 30px;
+$drag-room-element-height: 30px;
+$drag-room-element-width: 30px;
 $close-icon-color: red;
 $drag-element-background-color: white;
 $drag-element-hover-background-color: rgb(225, 240, 255);
 
-.classroom {
+.room {
     position: relative;
 
     display: flex;
     justify-content: flex-start;
     align-items: center;
 
-    height: $drag-classroom-element-height;
-    width: $drag-classroom-element-width;
+    height: $drag-room-element-height;
+    width: $drag-room-element-width;
 
     overflow: hidden;
 

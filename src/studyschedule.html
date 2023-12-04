@@ -21,12 +21,12 @@
                                 : ''
                             }
                             <td class="column-cell-freeze redips-mark">${rowIndex % lessonsPerDay + 1}</td>
-                            ${row.reduce((accRow, {lesson, classroom}, colIndex) => accRow + `
+                            ${row.reduce((accRow, {lesson, room}, colIndex) => accRow + `
                                 <td class="${lessonCellClass.replace('.','')} redips-single redips-mark ${lessonAllowedClass.replace('.', '')}" ${cellRowAttribute}="${rowIndex}" ${cellColAttribute}="${colIndex}">
                                     ${lesson ? renderer.lesson(lesson.subjectRefId, lesson.clasId, false) : ''}
                                 </td>
-                                <td class="redips-mark redips-single ${classRoomCellClass.replace('.', '')} ${classroomAllowedClass.replace('.', '')}" ${cellRowAttribute}="${rowIndex}" ${cellColAttribute}="${colIndex}">
-                                    ${classroom ? renderer.classroom(classroom.id, false) : ''}
+                                <td class="redips-mark redips-single ${classRoomCellClass.replace('.', '')} ${roomAllowedClass.replace('.', '')}" ${cellRowAttribute}="${rowIndex}" ${cellColAttribute}="${colIndex}">
+                                    ${room ? renderer.room(room.id, false) : ''}
                                 </td>
                             `, '')}
                         </tr>

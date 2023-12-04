@@ -1,5 +1,5 @@
-import getHtml, { closeIconClass, removableClass, contentContainerClass } from "./classroomLayout.js";
-import styles from './classroom.styles.scss';
+import getHtml, { closeIconClass, removableClass, contentContainerClass } from "./roomLayout.js";
+import styles from './room.styles.scss';
 import { checkForNodeNameTd } from "../lesson/lesson.webcomponent.js";
 import ScopeSingleton from "../../utils/ScopeSingleton.js";
 
@@ -8,7 +8,7 @@ import {
     classRoomFieldIdAttributes,
  } from "../../utils/componentsRenderer.js";
 
- import { classroomAllowedClass } from '../../studyschedule.webcomponent.js';
+ import { roomAllowedClass } from '../../studyschedule.webcomponent.js';
 
 export default class Classroom extends HTMLElement {
     constructor() {
@@ -18,7 +18,7 @@ export default class Classroom extends HTMLElement {
 
         this.app_id;
         this.item_id;
-        this.classroom;
+        this.room;
         this.isSubscribedOnItemUpdate = false;
 
         this.controller;
@@ -37,7 +37,7 @@ export default class Classroom extends HTMLElement {
         await this.determineProperties();
         this.render();
 
-        if (this.parentCell && this.parentCell.classList.contains(classroomAllowedClass.replace('.', ''))) {
+        if (this.parentCell && this.parentCell.classList.contains(roomAllowedClass.replace('.', ''))) {
             this.attachCloseIconListeners();
         }
 
@@ -87,7 +87,7 @@ export default class Classroom extends HTMLElement {
         const [app_id, item_id] = this.getAttribute(itemRefIdAttribute).split('.');
         this.app_id = app_id
         this.item_id = item_id;
-        this.classroom = await this.getInterpretatedClassroom();
+        this.room = await this.getInterpretatedClassroom();
     };
 
     async getInterpretatedClassroom() {
@@ -144,7 +144,7 @@ export default class Classroom extends HTMLElement {
             this.parentCell = cell;
 
             if (!this.isAttachedCloseIcon && this.parentCell) {
-                if (this.parentCell.classList.contains(classroomAllowedClass.replace('.', ''))) {
+                if (this.parentCell.classList.contains(roomAllowedClass.replace('.', ''))) {
                     this.attachCloseIconListeners();
                 }
             }

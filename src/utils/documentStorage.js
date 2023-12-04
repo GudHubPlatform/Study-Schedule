@@ -60,7 +60,7 @@ async function removeLessonFromCell(cell, lessonUniqueId) {
     if (cellIndex !== -1) {
       delete existingCells[cellIndex].lesson;
 
-      if (!existingCells[cellIndex].classroom) {
+      if (!existingCells[cellIndex].room) {
         existingCells.splice(cellIndex, 1);
       }
 
@@ -72,23 +72,23 @@ async function removeLessonFromCell(cell, lessonUniqueId) {
   }
 }
 
-async function removeClassroomFromCell(cell, classroomId) {
+async function removeClassroomFromCell(cell, roomId) {
   try {
     const existingCells = data.cells;
     const cellIndex = findCellIndex(existingCells, cell);
 
     if (cellIndex !== -1) {
-      delete existingCells[cellIndex].classroom;
+      delete existingCells[cellIndex].room;
 
       if (!existingCells[cellIndex].lesson) {
         existingCells.splice(cellIndex, 1);
       }
 
-      setAction(cell, { classroomId }, actionTypesObject.remove);
+      setAction(cell, { roomId }, actionTypesObject.remove);
       await saveCells();
     }
   } catch (error) {
-    console.error('Error removing classroom from cell in document:', error);
+    console.error('Error removing room from cell in document:', error);
   }
 }
 
@@ -130,23 +130,23 @@ function subscribeOnDocumentChange() {
     const { cells, action } = data;
     data.cells = cells;
 
-    const { type, cell, lessonUniqueId, classroomId } = action;
+    const { type, cell, lessonUniqueId, roomId } = action;
     const controller = ScopeSingleton.getInstance().getController();
 
     switch (type) {
       case actionTypesObject.add: {
         if (lessonUniqueId) {
           await controller.addLessonByDocumentStorage(cell, lessonUniqueId);
-        } else if (classroomId) {
-          await controller.addClassroomByDocumentStorage(cell, classroomId);
+        } else if (roomId) {
+          await controller.addClassroomByDocumentStorage(cell, roomId);
         }
         break;
       }
       case actionTypesObject.remove: {
         if (lessonUniqueId) {
           await controller.removeLessonByDocumentStorage(cell, lessonUniqueId);
-        } else if (classroomId) {
-          await controller.removeClassroomByDocumentStorage(cell, classroomId);
+        } else if (roomId) {
+          await controller.removeClassroomByDocumentStorage(cell, roomId);
         }
         break;
       }

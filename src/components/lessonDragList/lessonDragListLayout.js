@@ -1,20 +1,20 @@
-import { defaultTitle, classroomsTab } from "./lessonDragList.webcomponent.js";
+import { defaultTitle, roomsTab } from "./lessonDragList.webcomponent.js";
 import { columnWidth, lessonCellClass, classRoomCellClass } from '../../studyschedule.webcomponent.js';
 
 export const selectedTabClass = '.selected';
 
 export const lessonsListTitleClass = '.lessons-list-title';
 
-export const classroomRowClass = '.classroom-row';
+export const roomRowClass = '.room-row';
 
 export const tabIdAttribute = 'tab-id';
 export const lessonUniqueIdAttribute = 'lesson-unique-id';
-export const classroomIdAttribute = 'classroom-id';
+export const roomIdAttribute = 'room-id';
 const lessonsHeaderColspan = 2;
 
 export default function getHtml() {
     const lessons = this.lessons;
-    const classrooms = this.classrooms;
+    const rooms = this.rooms;
 
     return /*html*/`
     <div class="table-lessons-and-tabs-container">
@@ -48,29 +48,29 @@ export default function getHtml() {
                     </tr>
                 `, '')}
                 ${(() => {
-                    const rowCount = Math.ceil(classrooms.length / this.classroomsInRow);
-                    const classroomsRows = [];
+                    const rowCount = Math.ceil(rooms.length / this.roomsInRow);
+                    const roomsRows = [];
 
                     for (let i = 0; i < rowCount; i++) {
-                        const startSliceIndex = i * this.classroomsInRow;
-                        const row = classrooms.slice(startSliceIndex, startSliceIndex + this.classroomsInRow);
-                        classroomsRows.push(row);
+                        const startSliceIndex = i * this.roomsInRow;
+                        const row = rooms.slice(startSliceIndex, startSliceIndex + this.roomsInRow);
+                        roomsRows.push(row);
                     }
 
-                    return classroomsRows.reduce((acc, row) => acc + 
+                    return roomsRows.reduce((acc, row) => acc + 
                     /*html*/`
                         <tr 
-                            ${tabIdAttribute}=${classroomsTab.id}
-                            class="${classroomRowClass.replace('.','')}"
-                            colspan=${this.classroomsInRow}
+                            ${tabIdAttribute}=${roomsTab.id}
+                            class="${roomRowClass.replace('.','')}"
+                            colspan=${this.roomsInRow}
                             style="display: none"
                         >
-                            ${row.reduce((rowAcc, classroom) => rowAcc +`
+                            ${row.reduce((rowAcc, room) => rowAcc +`
                             <td
                                 class="redips-trash ${classRoomCellClass.replace('.', '')}"
-                                ${classroomIdAttribute}=${classroom.id}
+                                ${roomIdAttribute}=${room.id}
                             >
-                                ${this.renderer.classroom(classroom.id, 1)}
+                                ${this.renderer.room(room.id, 1)}
                             </td>
                             `, '')}
                         </tr>

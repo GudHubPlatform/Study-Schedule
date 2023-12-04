@@ -4,7 +4,7 @@ import loader from "./loader.html";
 import './style.scss';
 
 import Lesson, { dragDisabledClass } from './components/lesson/lesson.webcomponent.js';
-import Classroom from './components/classroom/classroom.webcomponent.js';
+import Classroom from './components/room/room.webcomponent.js';
 import LessonDragList from "./components/lessonDragList/lessonDragList.webcomponent.js";
 
 import renderer from './utils/componentsRenderer.js';
@@ -20,11 +20,11 @@ import { createLessons } from "./utils/dataFunctions.js";
 import lessonItemsWorker from './utils/lessonItemsWorker.js';
 
 export const lessonClass = '.lesson';
-export const classroomClass = '.classroom';
+export const roomClass = '.room';
 export const lessonCellClass = '.lesson-cell';
-export const classRoomCellClass = '.classroom-cell';
+export const classRoomCellClass = '.room-cell';
 export const lessonAllowedClass = '.lesson-allowed';
-export const classroomAllowedClass = '.classroom-allowed';
+export const roomAllowedClass = '.room-allowed';
 const cellRowAttribute = 'row';
 const cellColAttribute = 'col';
 
@@ -42,7 +42,7 @@ class GhStudySchedule extends GhHtmlElement {
         this.lessonCellClass = lessonCellClass;
         this.classRoomCellClass = classRoomCellClass;
         this.lessonAllowedClass = lessonAllowedClass;
-        this.classroomAllowedClass = classroomAllowedClass;
+        this.roomAllowedClass = roomAllowedClass;
 
         //table attributes
         this.cellRowAttribute = cellRowAttribute;
@@ -55,7 +55,7 @@ class GhStudySchedule extends GhHtmlElement {
         this.classes;
         this.subjects;
         this.lessons;
-        this.classrooms;
+        this.rooms;
 
         // mvc
         this.model;
@@ -77,7 +77,7 @@ class GhStudySchedule extends GhHtmlElement {
         this.lessons = createLessons(this.subjects, this.classes);
 
         this.model = new ScheduleModel(this.classes, this.daysOfWeek, this.lessonsPerDay);
-        this.controller = new ScheduleController(this.scope, this.model, this.lessons, this.classrooms);
+        this.controller = new ScheduleController(this.scope, this.model, this.lessons, this.rooms);
 
         this.initScopeSingleton();
  
@@ -91,7 +91,7 @@ class GhStudySchedule extends GhHtmlElement {
         this.dndInit();
 
         const destroyLessonsSubscribe = this.subscribeOnItemsUpdate.subjects();
-        const destroyClassroomsSubscribe = this.subscribeOnItemsUpdate.classrooms();
+        const destroyClassroomsSubscribe = this.subscribeOnItemsUpdate.rooms();
 
         this.onDisconnectCallbacks.push(
             destroyLessonsSubscribe,
@@ -148,26 +148,26 @@ class GhStudySchedule extends GhHtmlElement {
             });
             return gudhub.jsonConstructor(classesScheme).then((data) => {this.classes = data.classes});
         },
-        classrooms: () => {
+        rooms: () => {
             const { 
                 cabinets_app_id,
                 cabinets_app_number_field_id,
             } = this.scope.field_model.data_model;
-            const classroomsScheme = getClassroomsScheme({
+            const roomsScheme = getClassroomsScheme({
                 cabinets_app_id,
                 cabinets_app_number_field_id,
             });
-            return gudhub.jsonConstructor(classroomsScheme).then((data) => {this.classrooms = data.classrooms});
+            return gudhub.jsonConstructor(roomsScheme).then((data) => {this.rooms = data.rooms});
     
         },
         all: () => {
             const classesPromise = this.loadData.subjects();
             const lessonsPromise = this.loadData.classes();
-            const classroomsPromise = this.loadData.classrooms();
+            const roomsPromise = this.loadData.rooms();
             return Promise.all([
                 classesPromise,
                 lessonsPromise,
-                classroomsPromise,
+                roomsPromise,
             ]);
         },
     }
@@ -185,11 +185,11 @@ class GhStudySchedule extends GhHtmlElement {
     
             return () => gudhub.destroy('gh_items_update', {subjects_app_id}, onLessonsItemsUpdate);
         },
-        classrooms: () => {
+        rooms: () => {
             const { cabinets_app_id } = this.scope.field_model.data_model;
     
             const onClassroomsItemsUpdate = async () => {
-                await this.loadData.classrooms();
+                await this.loadData.rooms();
             };
     
             gudhub.on('gh_items_update', {cabinets_app_id}, onClassroomsItemsUpdate);
@@ -210,7 +210,7 @@ class GhStudySchedule extends GhHtmlElement {
             rd.hover.colorTd = '#9BB3DA';
             rd.scroll.bound = 30;
 
-            rd.mark.exceptionClass[classroomClass.replace('.','')] = classroomAllowedClass.replace('.', '');
+            rd.mark.exceptionClass[roomClass.replace('.','')] = roomAllowedClass.replace('.', '');
             rd.mark.exceptionClass[lessonClass.replace('.','')] = lessonAllowedClass.replace('.', '');
 
             rd.event.clicked = async (clickedCell) => {
@@ -231,8 +231,8 @@ class GhStudySchedule extends GhHtmlElement {
                         app_id,
                         item_id
                     } = scheduleElement;
-                    const classroomId = [app_id, item_id].join('.');
-                    this.disableHighlight = controller.highlightClassroomsCells(classroomId, clickedCellCoords);
+                    const roomId = [app_id, item_id].join('.');
+                    this.disableHighlight = controller.highlightClassroomsCells(roomId, clickedCellCoords);
                 }
             };
 
@@ -281,7 +281,7 @@ class GhStudySchedule extends GhHtmlElement {
         const data = {
             lessons: this.lessons,
             classes: this.classes,
-            classrooms: this.classrooms,
+            rooms: this.rooms,
             onDisconnectCallbacks: this.onDisconnectCallbacks,
         };
         ScopeSingleton.getInstance(this.scope, this.controller, data);
@@ -306,8 +306,8 @@ if(!customElements.get('gh-study-schedule')){
 if(!customElements.get('schedule-lesson')){
     customElements.define('schedule-lesson', Lesson);
 }
-if(!customElements.get('schedule-classroom')){
-    customElements.define('schedule-classroom', Classroom);
+if(!customElements.get('schedule-room')){
+    customElements.define('schedule-room', Classroom);
 }
 if(!customElements.get('schedule-lesson-drag-list')){
     customElements.define('schedule-lesson-drag-list', LessonDragList);

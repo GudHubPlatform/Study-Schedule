@@ -1,5 +1,5 @@
 import ScopeSingleton from "../utils/ScopeSingleton.js";
-import { lessonClass, classroomClass } from "../studyschedule.webcomponent.js";
+import { lessonClass, roomClass } from "../studyschedule.webcomponent.js";
 
 export const isCloneAttribute = 'is-clone';
 export const itemRefIdAttribute = 'item-id';
@@ -52,9 +52,9 @@ const lesson = (lessonItemRefId, classRefId, isClone = 0) => {
 }
 
 export const classRoomFieldIdAttributes = {
-    title: 'classroom-title-field-id'
+    title: 'room-title-field-id'
 };
-const classroom = (classRefId, isClone = 0) => {
+const room = (classRefId, isClone = 0) => {
     const scope = getScope();
     const {
         cabinets_app_number_field_id,
@@ -64,18 +64,18 @@ const classroom = (classRefId, isClone = 0) => {
         title,
     } = classRoomFieldIdAttributes;
 
-    return `<div class="${classroomClass.replace('.', '')} redips-drag ${isClone ? 'redips-clone' : ''}">
-                <schedule-classroom
+    return `<div class="${roomClass.replace('.', '')} redips-drag ${isClone ? 'redips-clone' : ''}">
+                <schedule-room
                     ${itemRefIdAttribute}=${classRefId}
                     ${title}=${cabinets_app_number_field_id}
                 >
-                </schedule-classroom>
+                </schedule-room>
             </div>`;
 }
 
 const renderer = {
     lesson,
-    classroom,
+    room,
 };
 
 export default renderer;

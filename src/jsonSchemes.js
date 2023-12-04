@@ -108,7 +108,7 @@ export const getSubjectsScheme = (settings) => {
           "variable_type": "current_item"
         },
       ],
-      "property_name": "classrooms",
+      "property_name": "rooms",
       "app_id": cabinets_app_id,
       "filter": [],
       "isSortable": 1,

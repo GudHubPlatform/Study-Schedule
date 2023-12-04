@@ -33,21 +33,21 @@ export default class ScheduleModel {
         return removedLessonId;
     }
 
-    setClassroom(row, col, classroom) {
+    setClassroom(row, col, room) {
         const foundCell = this.scheduleStorage[row][col];
 
-        if (foundCell.classroom) return;
+        if (foundCell.room) return;
 
-        foundCell.classroom = classroom;
+        foundCell.room = room;
         return foundCell;
     }
 
     removeClassroom(row, col) {
         const foundCell = this.scheduleStorage[row][col];
-        if (!foundCell.classroom) return false;
-        const removedClassroomId = foundCell.classroom.id;
+        if (!foundCell.room) return false;
+        const removedClassroomId = foundCell.room.id;
 
-        foundCell.classroom = null;
+        foundCell.room = null;
 
         return removedClassroomId;
     }
