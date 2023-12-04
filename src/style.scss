@@ -93,16 +93,24 @@ gh-study-schedule {
             }
         }
 
-        td.room-cell {
-            min-width: $cell-room-min-width;
-
-            &.disabled {
+        td {
+            &.room-cell {
+                min-width: $cell-room-min-width;
+    
+                &.disabled {
+                    background-color: $background-color-disabled-cell;
+                }
+            }
+            &.lesson-cell.disabled {
                 background-color: $background-color-disabled-cell;
             }
         }
 
-        td.lesson-cell.disabled {
-            background-color: $background-color-disabled-cell;
+        th {
+            &.classNumber {
+                text-transform: uppercase;
+                font-weight: normal;
+            }
         }
 
         td, th {
@@ -158,13 +166,6 @@ gh-study-schedule {
                         text-transform: uppercase;
                     }
                 }
-            }
-        }
-
-        th {
-            &.classNumber {
-                text-transform: uppercase;
-                font-weight: normal;
             }
         }
     }
@@ -311,35 +312,6 @@ gh-study-schedule {
                     background-color: inherit;
                 }
             }
-        }
-
-        .close-icon {
-            cursor: pointer;
-            position: absolute;
-            top: 56%;
-            right: 2px;
-
-            width: 12px;
-            height: 14px;
-
-            z-index: 0;
-
-            transform: translateY(-50%);
-
-
-            &:before, &:after {content: "";
-                 position: absolute;
-
-                 top: 6px;
-                 left: 1px;
-
-                 width: 10px;
-                 height: 2px;
-                 background: $close-icon-color;
-            }
-
-            &:before {transform: rotate(45deg);}
-            &:after {transform: rotate(-45deg);}
         }
     }
 }
