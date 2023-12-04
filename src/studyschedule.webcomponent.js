@@ -73,7 +73,7 @@ class GhStudySchedule extends GhHtmlElement {
     async onInit() {
         super.render(loader);
         await this.loadData.all();
-        this.lessonsPerDay = this.scope.field_model.data_model.lessons_per_day;
+        this.lessonsPerDay = this.scope.field_model.data_model.lessonsTime.length;
         this.lessons = createLessons(this.subjects, this.classes);
 
         this.model = new ScheduleModel(this.classes, this.daysOfWeek, this.lessonsPerDay);
@@ -97,6 +97,11 @@ class GhStudySchedule extends GhHtmlElement {
             destroyLessonsSubscribe,
             destroyClassroomsSubscribe,
         );
+
+        await lessonItemsWorker.initSettings(this.scope);
+        const cellsToGenerate = this.model.scheduleStorage.reduce((acc, row) => [...acc, ...row], []);
+        const createdItems = await lessonItemsWorker.generateItems(cellsToGenerate);
+        // const deletedItems = await lessonItemsWorker.deleteLessons(cellsToGenerate);
     };
 
     // disconnectedCallback() is called after the component is destroyed
