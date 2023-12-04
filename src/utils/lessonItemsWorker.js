@@ -67,13 +67,13 @@ const lessonItemsWorker = {
         const fieldValue = await gudhub.getFieldValue(appId, itemId, academic_weeks_in_semester_field_id);
         return fieldValue;
     },
-    generateItems: async function(cells) {
+    generateLessons: async function(cells) {
         const filteredCells = cells.filter(cell => cell.lesson);
         const itemsFields = [];
 
         for (const cell of filteredCells) {
             for (let i = 0; i < this.weeksCount; i++) {
-                const itemFields = await this.createItemFields(cell, i);
+                const itemFields = await this.createLessonFields(cell, i);
 
                 if (!itemFields) {
                     continue;
@@ -88,7 +88,7 @@ const lessonItemsWorker = {
 
         return createdItems;
     },
-    createItemFields: async function({clas, dayOfWeekIndex, lessonNumber, lesson}, week) {
+    createLessonFields: async function({clas, dayOfWeekIndex, lessonNumber, lesson}, week) {
         const {
             subjectRefId,
             teacherRefId
@@ -96,11 +96,26 @@ const lessonItemsWorker = {
 
         const clasId = clas.id;
 
-        const id = createId({appId: this.scope.appId, itemId: this.scope.itemId, dayOfWeekIndex, lessonNumber, clasId});
+        const id = createId({itemId: this.scope.itemId, dayOfWeekIndex, lessonNumber, clasId});
 
         const foundItems = await this.findItem(id);
 
         if (foundItems.length > 0) {
+            const fieldsToCompare = [
+                [this.fieldsObject.subject, subjectRefId],
+                [this.fieldsObject.teacher, teacherRefId]
+            ];
+
+            const itemsWithDifferences = foundItems.filter((item) => {
+                for (const [fieldId, fieldValue] of fieldsToCompare) {
+                    const foundField = item.fields.find((field) => field.field_id == fieldId);
+                    if (!foundField || foundField.field_value != fieldValue) return true;
+                }
+
+                return false;
+            })
+
+            const updatedItems = await this.updateLesson({itemId: this.scope.itemId, clas, dayOfWeekIndex, lessonNumber, lesson}, itemsWithDifferences);
             return undefined;
         }
     
@@ -136,7 +151,7 @@ const lessonItemsWorker = {
 
         return itemFields;
     },
-    updateItem: async function({itemId, clas, dayOfWeekIndex, lessonNumber, lesson}) {
+    updateLesson: async function({itemId, clas, dayOfWeekIndex, lessonNumber, lesson}, items) {
         const {
             subjectRefId,
             teacherRefId
@@ -145,37 +160,31 @@ const lessonItemsWorker = {
         const clasId = clas.id;
         const id = createId({itemId, dayOfWeekIndex, lessonNumber, clasId});
 
-        if (!item_id) {}
+        const itemsList = [];
 
-        const updatedFields = {
-            fields: [
-                {
-                    field_id: this.fieldsObject.subject,
-                    field_value: subjectRefId,
-                },
-                {
-                    field_id: this.fieldsObject.teacher,
-                    field_value: teacherRefId,
-                },
-                {
-                    field_id: this.fieldsObject.class,
-                    field_value: clasId,
-                },
-                {
-                    field_id: this.fieldsObject.date,
-                    field_value: new Date().setHours(),
-                },
-                {
-                    field_id: this.fieldsObject.scheduleId,
-                    field_value: id,
-                },
-            ],
-        };
+        for (const item of items) {
+            const updatedFields = {
+                fields: [
+                    {
+                        field_id: this.fieldsObject.subject,
+                        field_value: subjectRefId,
+                    },
+                    {
+                        field_id: this.fieldsObject.teacher,
+                        field_value: teacherRefId,
+                    },
+                ],
+            };
 
-        const itemToUpdate = {
-            item_id: itemId,
-            ...updatedFields
-        };
+            const itemToUpdate = {
+                item_id: item.item_id,
+                ...updatedFields
+            };
+
+            itemsList.push(itemToUpdate);
+        }
+
+        return gudhub.updateItems(this.lessonsAppId, itemsList);
     },
     deleteLessons: async function(cells) {
         const itemsIds = [];
@@ -183,7 +192,7 @@ const lessonItemsWorker = {
         for (const cell of cells) {
             const {clas, dayOfWeekIndex, lessonNumber} = cell;
             const clasId = clas.id;
-            const id = createId({appId: this.scope.appId, itemId: this.scope.itemId, dayOfWeekIndex, lessonNumber, clasId});
+            const id = createId({itemId: this.scope.itemId, dayOfWeekIndex, lessonNumber, clasId});
             const foundItems = await this.findItem(id);
             const foundItemsIds = foundItems.map(({item_id}) => item_id);
 
