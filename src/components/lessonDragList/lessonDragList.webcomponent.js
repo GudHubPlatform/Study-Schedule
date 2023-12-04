@@ -1,9 +1,13 @@
 import styles from './lessonDragList.styles.scss';
-import getHtml, { tabIdAttribute, lessonsListTitleClass, lessonUniqueIdAttribute } from './lessonDragListLayout.js';
+import getHtml, { tabIdAttribute, lessonsListTitleClass, lessonUniqueIdAttribute, headerHoursCounterClass } from './lessonDragListLayout.js';
 
 import renderer from '../../utils/componentsRenderer.js';
 import ScopeSingleton from '../../utils/ScopeSingleton.js';
 
+const columnsCount = {
+    all: 5,
+    lesson: 4,
+};
 
 const hoursRemainsClass = '.hours-remains';
 const hoursTotalAmountClass = '.hours-total-amount';
@@ -28,8 +32,8 @@ export default class LessonDragList extends HTMLElement {
     constructor() {
         super();
         //component
+        this.columnsCount = columnsCount;
         this.attachShadow({ mode: 'open' });
-        this.roomsInRow = 3;
         this.scope;
         this.app_id;
         this.renderer = renderer;
@@ -158,10 +162,20 @@ export default class LessonDragList extends HTMLElement {
         }
     };
 
+    updateListHeaders() {
+        const headerHoursCounterElement = this.separatedContainer.querySelector(headerHoursCounterClass);
+        if (this.selectedClassId === roomsTab.id) {
+            headerHoursCounterElement.style.display = 'none';
+        } else {
+            headerHoursCounterElement.style.display = '';
+        }
+    }
+
     handleSelectTab(id) {
         this.selectedClassId = id;
         this.updateTitle();
         this.filterElements();
+        this.updateListHeaders();
         this.setSelectedTab();
     }
 

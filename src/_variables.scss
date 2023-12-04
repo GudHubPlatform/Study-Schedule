@@ -1,34 +1,47 @@
 //table schedule
 $table-schedule-width: 1625px;
 $table-schedule-and-lessons-height: 820px;
+$table-border-color: rgba(193, 193, 193, 1);
+$table-background-color: #ffffff;
+$table-row-background-color-odd: #F2F2F2;
 
 //drag element
 $drag-element-background-color: white;
+$drag-element-border: solid 1px #CCCCCC;
 $drag-element-hover-background-color: rgb(225, 240, 255);
+$drag-element-hover-border-color: #50B1FF;
 
 //lesson
 $drag-lesson-element-height: 30px;
-$drag-lesson-element-width: 85px;
+$drag-lesson-element-width: 138px;
 
 //rooms
 $drag-room-element-height: 30px;
 $drag-room-element-width: 30px;
 
-//table cell 
-$cell-paddings: 1px;
-$cell-room-min-width: $drag-room-element-width + 5px;
-$cell-lesson-min-width: $drag-lesson-element-width + $cell-paddings * 2 + 2px;
-$cell-lesson-min-height: $drag-lesson-element-height + $cell-paddings * 2 + 2px;
+//table cell
+$cell-room-width: 45px;
+$cell-lesson-width: 150px;
+$cell-lesson-height: 38px;
 $background-color-disabled-cell: rgb(197, 197, 197);
 
 //table-lessons
-$table-lessons-width: $cell-lesson-min-width + $cell-room-min-width;
+$table-lessons-width: $cell-lesson-width + $cell-room-width;
 
 //scrollbar
 $scrollbar-width: 6px;
 
 //close icon
-$close-icon-color: red;
+$close-icon-color: #50B1FF;
+
+//tab-lesson
+$tab-lesson-font: 500 12px inherit;
+$tab-lesson-color: #919191;
+$tab-lesson-border-color: #50B1FF;
+@mixin tab-lesson-font {
+    font-size: 12px;
+    font-weight: 500;
+}
 
 
 @mixin scroll {

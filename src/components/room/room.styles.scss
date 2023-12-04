@@ -1,8 +1,4 @@
-$drag-room-element-height: 30px;
-$drag-room-element-width: 30px;
-$close-icon-color: red;
-$drag-element-background-color: white;
-$drag-element-hover-background-color: rgb(225, 240, 255);
+@use '../../variables' as *;
 
 .room {
     position: relative;
@@ -39,12 +35,16 @@ $drag-element-hover-background-color: rgb(225, 240, 255);
         z-index: 1;
 
         transition: all 0.5s ease;
+
+        .title {
+            text-align: center;
+        }
     }
 
     .close-icon {
         cursor: pointer;
         position: absolute;
-        top: 56%;
+        top: 55%;
         right: 0;
 
         width: 12px;

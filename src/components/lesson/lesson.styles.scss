@@ -20,43 +20,45 @@
     }
 
     .content-container {
-        position: relative;
+        box-sizing: border-box;
 
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: center;
+        position: relative;
 
         height: 100%;
         width: 100%;
 
+        padding: 3px 6px;
+
         border-radius: inherit;
-
         background-color: $drag-element-background-color;
-
         z-index: 1;
 
         transition: all 0.5s ease;
 
+        span {
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
         &.bg-red {
-                background-color: rgb(255, 193, 193);
+            background-color: rgb(255, 193, 193);
         }
 
         .title {
-            white-space: nowrap;
-
+            font-weight: 500;
             &:first-letter {
                 text-transform: uppercase;
             }
         }
 
         .teacher-name {
-            white-space: nowrap;
-
+            font-weight: 300;
             &.no-teacher {
-                width: 45px;
-                height: 1em;
-                background-color: red;
+                text-align: center;
+                color: #FF0606;
+                font-weight: 500;
             }
         }
 
@@ -64,6 +66,7 @@
             position: absolute;
             top: 2px;
             right: 4px;
+            padding-left: 2px;
 
             background-color: inherit;
         }
@@ -75,8 +78,8 @@
 
         cursor: pointer;
         position: absolute;
-        top: 56%;
-        right: 2px;
+        top: 54%;
+        right: 5px;
 
         width: 12px;
         height: 14px;

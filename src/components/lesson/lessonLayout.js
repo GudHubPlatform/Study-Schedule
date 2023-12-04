@@ -18,11 +18,9 @@ export default function getHtml() {
                 class="${closeIconClass.replace('.', '')}"
             ></div>
             <div class="${contentContainerClass.replace('.', '')}">
-                <span class="${titleClass.replace('.', '')}">${shortText(title)}</span>
-                <span
-                    class="${lessonTeacherNameClass.replace('.', '')} ${teacher ? '' : noTeacherClass.replace('.','')}"
-                >
-                    ${shortText(teacher)}
+                <span class="${titleClass.replace('.', '')}">${title}</span>
+                <span class="${lessonTeacherNameClass.replace('.', '')} ${teacher ? '' : noTeacherClass.replace('.','')}">
+                ${teacher ? teacher : '???'}
                 </span>
                 <span class="${classTitle.replace('.', '')}">${this.classTitle}</span>
             </div>
