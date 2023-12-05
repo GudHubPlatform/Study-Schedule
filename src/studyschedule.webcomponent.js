@@ -84,9 +84,12 @@ class GhStudySchedule extends GhHtmlElement {
         await this.controller.loadCellsFromDocumentStorage();
         this.storage = this.controller.getStorage();
 
+        await lessonItemsWorker.initSettings(this.scope);
+
         super.render(html);
 
         this.setCorrespondingHTMLElements();
+        this.assignButtons();
 
         this.dndInit();
 
@@ -97,11 +100,6 @@ class GhStudySchedule extends GhHtmlElement {
             destroyLessonsSubscribe,
             destroyClassroomsSubscribe,
         );
-
-        await lessonItemsWorker.initSettings(this.scope);
-        const cellsToGenerate = this.model.scheduleStorage.reduce((acc, row) => [...acc, ...row], []);
-        const createdItems = await lessonItemsWorker.generateItems(cellsToGenerate);
-        // const deletedItems = await lessonItemsWorker.deleteLessons(cellsToGenerate);
     };
 
     // disconnectedCallback() is called after the component is destroyed
@@ -207,7 +205,7 @@ class GhStudySchedule extends GhHtmlElement {
             const rd = REDIPS.drag;
 
             rd.init('redips-drag');
-            rd.hover.colorTd = '#9BB3DA';
+            rd.hover.colorTd = 'rgba(80, 177, 255, 0.2)';
             rd.scroll.bound = 30;
 
             rd.mark.exceptionClass[roomClass.replace('.','')] = roomAllowedClass.replace('.', '');
@@ -287,6 +285,19 @@ class GhStudySchedule extends GhHtmlElement {
         ScopeSingleton.getInstance(this.scope, this.controller, data);
     };
 
+    assignButtons = () => {
+        const generateButton = this.getElementsByClassName('generate-button')[0];
+        generateButton.addEventListener('click', () => {
+            const cellsToGenerate = this.controller.getStorage().reduce((acc, row) => [...acc, ...row], []);
+            lessonItemsWorker.generateLessons(cellsToGenerate);
+        });
+
+        const deleteButton = this.getElementsByClassName('delete-button')[0];
+        deleteButton.addEventListener('click', () => {
+            const cellsToGenerate = this.controller.getStorage().reduce((acc, row) => [...acc, ...row], []);
+            lessonItemsWorker.deleteLessons(cellsToGenerate);
+        });
+    };
 
     setCorrespondingHTMLElements() {
         const htmlElements = document.querySelectorAll(lessonCellClass);
