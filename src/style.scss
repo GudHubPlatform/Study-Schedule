@@ -90,6 +90,11 @@ gh-study-schedule {
                 td.column-cell-freeze:not(.day-of-week) {
                     background-color: $table-row-background-color-odd;
                 }
+
+                td.disabled::after {
+                    background-image: linear-gradient(135deg, #d8d9d9 16.67%, transparent 16.67%, transparent 50%, #d8d9d9 50%, #d8d9d9 66.67%, transparent 66.67%, transparent 100%);
+                    background-size: 4.24px 4.24px;
+                }
             }
         }
 
@@ -121,7 +126,8 @@ gh-study-schedule {
                 left: 0;
                 height: 100%;
                 width: 100%;
-                background: repeating-linear-gradient(135deg, transparent, transparent 3px, #e1e1e1 3px, #e1e1e1 5px);
+                background-image: linear-gradient(135deg, #e1e1e1 16.67%, transparent 16.67%, transparent 50%, #e1e1e1 50%, #e1e1e1 66.67%, transparent 66.67%, transparent 100%);
+                background-size: 4.24px 4.24px;
             }
         }
 
