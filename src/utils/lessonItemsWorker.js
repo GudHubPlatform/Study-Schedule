@@ -68,6 +68,7 @@ const lessonItemsWorker = {
         return fieldValue;
     },
     generateLessons: async function(cells) {
+        const emptyCells = cells.filter(cell => !cell.lesson);
         const filteredCells = cells.filter(cell => cell.lesson);
         const itemsFields = [];
 
@@ -84,6 +85,27 @@ const lessonItemsWorker = {
 
         const createdItems = await gudhub.addNewItems(this.lessonsAppId, itemsFields);
 
+        const itemsIdObject = {};
+        for (const item of this.items) {
+            const scheduleIdField = item.fields.find(({field_id}) => field_id == this.fieldsObject.scheduleId);
+            if (scheduleIdField) {
+                const scheduleId = scheduleIdField.field_value;
+                itemsIdObject[scheduleId] = item;
+            }
+        }
+
+        const emptyCellsButHaveLesson = emptyCells.filter(cell => {
+            const cellId = createId({
+                itemId: this.scope.itemId,
+                dayOfWeekIndex: cell.dayOfWeekIndex,
+                lessonNumber: cell.lessonNumber,
+                clasId: cell.clas.id
+            });
+
+            return itemsIdObject.hasOwnProperty(cellId);
+        });
+        
+        this.deleteLessons(emptyCellsButHaveLesson);
         this.items.push(...createdItems);
 
         return createdItems;
