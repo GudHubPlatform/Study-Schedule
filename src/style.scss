@@ -85,10 +85,10 @@ gh-study-schedule {
 
         tbody {
             tr:nth-child(even) {
-                background-color: $table-row-background-color-odd;
+                background-color: $table-second-background-color;
 
                 td.column-cell-freeze:not(.day-of-week) {
-                    background-color: $table-row-background-color-odd;
+                    background-color: $table-second-background-color;
                 }
 
                 td.disabled::after {
