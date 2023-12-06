@@ -221,8 +221,8 @@ gh-study-schedule {
 
                 z-index: 2;
 
-                opacity: .3;
-                background-color: rgb(228, 61, 19);
+                opacity: .2;
+                background-color: $drag-lesson-disabled-bg-color;
             }
         }
     }
