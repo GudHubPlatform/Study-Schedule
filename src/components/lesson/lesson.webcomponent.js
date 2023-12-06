@@ -89,6 +89,9 @@ export default class Lesson extends HTMLElement {
         const parentCell = this.parentElement.parentElement;
         if (parentCell && checkForNodeNameTd(parentCell)) {
             this.setParentCell(parentCell);
+            if (this.parentCell.classList.contains(lessonAllowedClass.replace('.', ''))) {
+                this.toggleDrag(true);
+            }
         }
     }
 
@@ -238,7 +241,6 @@ export default class Lesson extends HTMLElement {
         this.isDragEnabled = bool;
 
         const dndWrap = this.parentElement;
-        // const contentContainer = this.shadowRoot.querySelector(contentContainerClass);
         const rd = ScopeSingleton.getInstance().getRD();
         if (rd) rd.enableDrag(this.isDragEnabled, this.parentElement);
 
