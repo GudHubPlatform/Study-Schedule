@@ -65,7 +65,9 @@ export default class ScheduleModel {
 
     getClassroomCellHTMLElement(row, col) {
         const foundCell = this.scheduleStorage[row][col];
-        return foundCell.htmlElement.nextElementSibling;
+        if (foundCell.htmlElement) {
+            return foundCell.htmlElement.nextElementSibling;
+        }
     }
 
     getClassNumber(row, col) {
