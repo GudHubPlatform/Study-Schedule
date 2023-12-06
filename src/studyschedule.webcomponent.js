@@ -81,7 +81,7 @@ class GhStudySchedule extends GhHtmlElement {
 
         this.initScopeSingleton();
  
-        await this.controller.loadCellsFromDocumentStorage();
+        await this.controller.loadInitialDataFromStorage();
         this.storage = this.controller.getStorage();
 
         await lessonItemsWorker.initSettings(this.scope);

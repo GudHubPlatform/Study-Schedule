@@ -3,37 +3,39 @@ import ScopeSingleton from "./ScopeSingleton.js";
 let documentAddress;
 
 const settings = {
+  token: await gudhub.auth.getToken(),
+
   isSubscribed: false,
 };
 
 
 const data = {
   cells: [],
-  action: {},
+  lastUpdate: null,
 };
 
-const actionTypesObject = {
-  add: 'add',
-  remove: 'remove'
-};
+async function initStorage({ appId, fieldId, itemId }) {
+  documentAddress = {
+    app_id: appId,
+    item_id: itemId,
+    element_id: fieldId,
+  };
 
-function initDocumentAddress({ appId, fieldId, itemId }) {
-    documentAddress = {
-      app_id: appId,
-      item_id: itemId,
-      element_id: fieldId,
-    };
+  if (!settings.isSubscribed) {
+    const destroySubscribe = subscribeOnDocumentChange();
+    ScopeSingleton.getInstance().getData().onDisconnectCallbacks.push(destroySubscribe);
+    settings.isSubscribed = true;
   }
 
-function setAction(cell, idObject, type) {
-    data.action = {
-        cell,
-        ...idObject,
-        type,
-    };
-};
+  const document = await gudhub.getDocument(documentAddress);;
 
-async function addCell(cell, idObject) {
+  if (document) {
+    data.cells = document.data.cells;
+    data.lastUpdate = document.data.lastUpdate;
+  }
+}
+
+async function addCell(cell) {
   try {
     const existingCells = data.cells;
 
@@ -44,114 +46,89 @@ async function addCell(cell, idObject) {
     } else {
       existingCells.push(cell);
     }
-
-    setAction(cell, idObject, actionTypesObject.add);
     await saveCells();
   } catch (error) {
-    console.error('Error adding cell to document:', error);
+    console.error('Error adding cell to storage:', error);
   }
 }
 
-async function removeLessonFromCell(cell, lessonUniqueId) {
+async function removeProperty(cell, propertyName, save = true) {
   try {
     const existingCells = data.cells;
     const cellIndex = findCellIndex(existingCells, cell);
 
     if (cellIndex !== -1) {
-      delete existingCells[cellIndex].lesson;
+      delete existingCells[cellIndex][propertyName];
 
-      if (!existingCells[cellIndex].room) {
+      const hasLesson = Boolean(existingCells[cellIndex].lesson);
+      const hasClassroom = Boolean(existingCells[cellIndex].room);
+
+      if (!hasLesson && !hasClassroom) {
         existingCells.splice(cellIndex, 1);
       }
 
-      setAction(cell, { lessonUniqueId }, actionTypesObject.remove);
-      await saveCells();
+      if (save) {
+        await saveCells();
+      }
     }
   } catch (error) {
-    console.error('Error removing lesson from cell in document:', error);
+    console.error(`Error removing ${propertyName} from cell in storage:`, error);
   }
 }
 
-async function removeClassroomFromCell(cell, roomId) {
+async function removeLesson(cell, save = true) {
+  await removeProperty(cell, 'lesson', save);
+}
+
+async function removeClassroom(cell, save = true) {
+  await removeProperty(cell, 'room', save);
+}
+
+async function moveProperty(fromCell, targetCell, propertyName) {
   try {
-    const existingCells = data.cells;
-    const cellIndex = findCellIndex(existingCells, cell);
-
-    if (cellIndex !== -1) {
-      delete existingCells[cellIndex].room;
-
-      if (!existingCells[cellIndex].lesson) {
-        existingCells.splice(cellIndex, 1);
-      }
-
-      setAction(cell, { roomId }, actionTypesObject.remove);
-      await saveCells();
-    }
+    removeProperty(fromCell, propertyName, false);
+    addCell(targetCell);
   } catch (error) {
-    console.error('Error removing room from cell in document:', error);
+    console.error(`Error moving ${propertyName} in storage:`, error);
   }
+}
+
+async function moveLesson(fromCell, targetCell) {
+  moveProperty(fromCell, targetCell, 'lesson');
+}
+
+async function moveClassroom(fromCell, targetCell) {
+  moveProperty(fromCell, targetCell, 'room');
 }
 
 async function getCells() {
   try {
-    if (!settings.isSubscribed) {
-      if (Object.values(documentAddress).some((value) => !value)) {
-        const errorProperties = Object.entries(documentAddress)
-          .map(([key, value]) => `Property ${key}, value: ${value}`);
-        throw new Error(`Bad values in object "documentAdress":\n${errorProperties.join('\n')}`);
-      }
-
-      const destroySubscribe = subscribeOnDocumentChange();
-      ScopeSingleton.getInstance().getData().onDisconnectCallbacks.push(destroySubscribe);
-      settings.isSubscribed = true;
-    }
-
-    const documentCells = await getDocumentCells();
-    data.cells = documentCells ? documentCells : [];
-
     return data.cells;
   } catch (error) {
-    console.error('Error getting cells from document:', error);
+    console.error('Error getting cells from storage:', error);
     return [];
   }
-}
-
-async function getDocumentCells() {
-  const document = await gudhub.getDocument(documentAddress);
-  if (!document || !document.data || !document.data.cells) {
-    return [];
-  }
-  return document.data.cells;
 }
 
 function subscribeOnDocumentChange() {
   const event = 'gh_document_insert_one';
-  const onDocumentChange = async (event, data) => {
-    const { cells, action } = data;
-    data.cells = cells;
 
-    const { type, cell, lessonUniqueId, roomId } = action;
-    const controller = ScopeSingleton.getInstance().getController();
+  const updateClient = async (serverData) => {
+    if (serverData.lastUpdate > data.lastUpdate) {
+      data.cells = serverData.cells;
+      data.lastUpdateToken = await gudhub.auth.getToken();
+      data.lastUpdate = serverData.lastUpdate;
 
-    switch (type) {
-      case actionTypesObject.add: {
-        if (lessonUniqueId) {
-          await controller.addLessonByDocumentStorage(cell, lessonUniqueId);
-        } else if (roomId) {
-          await controller.addClassroomByDocumentStorage(cell, roomId);
-        }
-        break;
-      }
-      case actionTypesObject.remove: {
-        if (lessonUniqueId) {
-          await controller.removeLessonByDocumentStorage(cell, lessonUniqueId);
-        } else if (roomId) {
-          await controller.removeClassroomByDocumentStorage(cell, roomId);
-        }
-        break;
-      }
-      default:
-        break;
+      const controller = ScopeSingleton.getInstance().getController();
+      controller.updateModelFromStorageChanges(data.cells);
+    }
+  };
+
+  const debouncedUpdateClient = gudhub.debounce(updateClient, 1000);
+
+  const onDocumentChange = (event, serverData) => {
+    if (serverData.lastUpdateToken != settings.token) {
+      debouncedUpdateClient(serverData);
     }
   };
 
@@ -162,15 +139,27 @@ function subscribeOnDocumentChange() {
   };
 }
 
-async function saveCells() {
-  try {
+async function updateServer() {
+  const updateTime = new Date().getTime()
     const documentObject = {
         ...documentAddress,
-        data
+        data: {
+          ...data,
+          lastUpdateToken: settings.token,
+          lastUpdate: updateTime,
+        },
     };
-    await gudhub.createDocument(documentObject);
+    data.lastUpdate = updateTime;
+    gudhub.createDocument(documentObject);
+};
+
+const debouncedUpdateServer = gudhub.debounce(updateServer, 1000);
+
+async function saveCells() {
+  try {
+    debouncedUpdateServer();
   } catch (error) {
-    console.error('Error saving cells to document:', error);
+    console.error('Error saving cells to storage:', error);
   }
 }
 
@@ -184,8 +173,10 @@ function findCellIndex(cells, cell) {
 
 export default {
     addCell,
-    removeClassroomFromCell,
-    removeLessonFromCell,
+    removeLesson,
+    removeClassroom,
+    moveLesson,
+    moveClassroom,
     getCells,
-    initDocumentAddress,
+    initStorage,
 }

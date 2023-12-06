@@ -173,7 +173,10 @@ export default class Classroom extends HTMLElement {
             this.controller = ScopeSingleton.getInstance().getController();
         }
 
-        if (this.oldParentCell) this.controller.removeClassroom(this.oldParentCell);
-        this.controller.setClassroom(`${this.app_id}.${this.item_id}`, cell);
+        if (this.oldParentCell && this.parentCell) {
+            this.controller.moveClassroom(this.oldParentCell, this.parentCell);
+        } else if (this.parentCell) {
+            this.controller.setClassroom(`${this.app_id}.${this.item_id}`, cell);
+        }
     }
 }

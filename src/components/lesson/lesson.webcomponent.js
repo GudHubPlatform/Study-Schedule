@@ -226,8 +226,11 @@ export default class Lesson extends HTMLElement {
             this.controller = ScopeSingleton.getInstance().getController();
         }
 
-        if (this.oldParentCell) this.controller.removeLesson(this.oldParentCell);
-        this.controller.setLesson(this.uniqueId, cell);
+        if (this.oldParentCell && this.parentCell) {
+            this.controller.moveLesson(this.oldParentCell, this.parentCell);
+        } else if (this.parentCell) {
+            this.controller.setLesson(this.uniqueId, this.parentCell);
+        }
     }
 
     toggleDrag(bool) {
