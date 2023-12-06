@@ -209,6 +209,7 @@ gh-study-schedule {
 
     div.redips-clone {
         &.drag-disabled {
+            border: $drag-element-border !important; /*important - becouse redips lib set border-style: dotted by js in inline-styles*/
             &::after{
                 content: '';
                 position: absolute;
