@@ -135,6 +135,7 @@ function subscribeOnDocumentChange() {
   gudhub.on(event, documentAddress, onDocumentChange);
 
   return () => {
+    settings.isSubscribed = false;
     gudhub.destroy(event, documentAddress, onDocumentChange);
   };
 }
