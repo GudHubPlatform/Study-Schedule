@@ -182,15 +182,40 @@ export default class LessonDragList extends HTMLElement {
         const scope = ScopeSingleton.getInstance().getScope();
         const tbody = this.separatedContainer.getElementsByTagName('tbody')[0];
 
+        const { academic_weeks_in_semester_field_id } = scope.field_model.data_model;
+
         const getWeeksInSemesterCount = async () => {
             const { appId, itemId } = scope;
-            const { academic_weeks_in_semester_field_id } = scope.field_model.data_model;
             const fieldValue = await gudhub.getFieldValue(appId, itemId, academic_weeks_in_semester_field_id);
             return fieldValue;
         };
 
         const weeksInSemesterCountFromField = await getWeeksInSemesterCount();
-        const weeksInSemester = weeksInSemesterCountFromField ? weeksInSemesterCountFromField : 1;
+        let weeksInSemester = weeksInSemesterCountFromField ? weeksInSemesterCountFromField : 1;
+
+        const onWeeksInSemesterUpdateCallbacks = [];
+
+        const subscribeOnWeeksInSemester = () => {
+            const onWeeksInSemesterUpdate = async (event, weeksCount) => {
+                if (!isNaN(weeksCount)) {
+                    weeksInSemester = weeksCount;
+                }
+
+                onWeeksInSemesterUpdateCallbacks.forEach(callback => callback());
+            };
+
+            const { appId: app_id, itemId: item_id } = scope;
+            const address = {
+                app_id,
+                item_id,
+                field_id: academic_weeks_in_semester_field_id,
+            };
+            gudhub.on('gh_value_update', address, onWeeksInSemesterUpdate);
+
+            return () => gudhub.destroy('gh_value_update', address, onWeeksInSemesterUpdate);
+        };
+
+        this.onDisconnectCallbacks.push(subscribeOnWeeksInSemester());
 
         for (const tr of tbody.children) {
             const uniqueId = tr.getAttribute(lessonUniqueIdAttribute);
@@ -219,11 +244,11 @@ export default class LessonDragList extends HTMLElement {
                 );
 
             const hoursObject = {
-                totalHours: (await getTotalHours()) / weeksInSemester,
+                totalHours: await getTotalHours(),
             };
 
             const totalHoursHtml = /*html*/ `
-                <span class=${hoursTotalAmountClass.replace('.', '')}>${hoursObject.totalHours}</span>
+                <span class=${hoursTotalAmountClass.replace('.', '')}>${hoursObject.totalHours / weeksInSemester}</span>
             `;
             hoursCounterContainer.insertAdjacentHTML('afterbegin', totalHoursHtml);
             const totalHoursElement = hoursCounterContainer.querySelector(hoursTotalAmountClass);
@@ -231,7 +256,9 @@ export default class LessonDragList extends HTMLElement {
             // remains hours
             hoursObject.settedHours = controller.getAcademicHours(uniqueId);
             const remainHours =
-                hoursObject.settedHours > 0 ? hoursObject.totalHours - hoursObject.settedHours : hoursObject.totalHours;
+                hoursObject.settedHours > 0
+                    ? hoursObject.totalHours / weeksInSemester - hoursObject.settedHours
+                    : hoursObject.totalHours / weeksInSemester;
 
             const remainHoursHtml = /*html*/ `
                 <span class="${hoursRemainsClass.replace('.', '')}">${remainHours}</span>
@@ -254,17 +281,21 @@ export default class LessonDragList extends HTMLElement {
 
             const updateRemainsCounter = settedHours => {
                 if (!isNaN(settedHours)) hoursObject.settedHours = settedHours;
-                const remain = hoursObject.totalHours - hoursObject.settedHours;
+                const remain = hoursObject.totalHours / weeksInSemester - hoursObject.settedHours;
                 remainsHoursElement.textContent = remain;
 
                 toggleLessonDrag(remain);
             };
 
             const updateTotalCounter = totalAmount => {
-                hoursObject.totalHours = totalAmount;
-                totalHoursElement.textContent = hoursObject.totalHours;
+                if (totalAmount) {
+                    hoursObject.totalHours = totalAmount;
+                }
+                totalHoursElement.textContent = hoursObject.totalHours / weeksInSemester;
                 updateRemainsCounter();
             };
+
+            onWeeksInSemesterUpdateCallbacks.push(updateTotalCounter);
 
             const subscribeOnLessonTotalAcademicHours = () => {
                 const onAcademicHoursUpdate = async () => {
