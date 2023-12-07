@@ -1,14 +1,11 @@
-import getHtml, { closeIconClass, removableClass, contentContainerClass } from "./roomLayout.js";
+import getHtml, { closeIconClass, removableClass, contentContainerClass } from './roomLayout.js';
 import styles from './room.styles.scss';
-import { checkForNodeNameTd } from "../lesson/lesson.webcomponent.js";
-import ScopeSingleton from "../../utils/ScopeSingleton.js";
+import { checkForNodeNameTd } from '../lesson/lesson.webcomponent.js';
+import ScopeSingleton from '../../utils/ScopeSingleton.js';
 
-import { 
-    itemRefIdAttribute,
-    classRoomFieldIdAttributes,
- } from "../../utils/componentsRenderer.js";
+import { itemRefIdAttribute, classRoomFieldIdAttributes } from '../../utils/componentsRenderer.js';
 
- import { roomAllowedClass } from '../../studyschedule.webcomponent.js';
+import { roomAllowedClass } from '../../studyschedule.webcomponent.js';
 
 export default class Classroom extends HTMLElement {
     constructor() {
@@ -22,7 +19,7 @@ export default class Classroom extends HTMLElement {
         this.isSubscribedOnItemUpdate = false;
 
         this.controller;
-        
+
         this.oldParentCell;
         this.parentCell;
         this.isAttachedCloseIcon = false;
@@ -74,7 +71,7 @@ export default class Classroom extends HTMLElement {
     disconnectedCallback() {
         this.destroySubscribe();
         this.handleDrop();
-    };
+    }
 
     render() {
         const style = document.createElement('style');
@@ -85,22 +82,22 @@ export default class Classroom extends HTMLElement {
 
     async determineProperties() {
         const [app_id, item_id] = this.getAttribute(itemRefIdAttribute).split('.');
-        this.app_id = app_id
+        this.app_id = app_id;
         this.item_id = item_id;
         this.room = await this.getInterpretatedClassroom();
-    };
+    }
 
     async getInterpretatedClassroom() {
-        const {
-            title,
-        } = classRoomFieldIdAttributes;
+        const { title } = classRoomFieldIdAttributes;
         const titleField = this.getAttribute(title);
         const resultClassroom = {
             title,
         };
 
         const promises = [
-            gudhub.getInterpretationById(this.app_id, this.item_id, titleField, 'value').then((value) => {resultClassroom.title = value}),
+            gudhub.getInterpretationById(this.app_id, this.item_id, titleField, 'value').then(value => {
+                resultClassroom.title = value;
+            }),
         ];
 
         await Promise.all(promises);
@@ -132,7 +129,7 @@ export default class Classroom extends HTMLElement {
         this.setParentCell(cell);
 
         if (checkForNodeNameTd(cell) && !cell.classList.contains('redips-trash')) {
-                this.handleDropToCell(cell);
+            this.handleDropToCell(cell);
         } else if (cell === null) {
             this.handleDropToTrash();
         }
@@ -160,7 +157,7 @@ export default class Classroom extends HTMLElement {
         const closeIconElement = this.shadowRoot.querySelector(closeIconClass);
         closeIconElement.onmousedown = () => this.handleBeforeClickCloseIcon();
         closeIconElement.onclick = () => this.handleClickCloseIcon();
-        
+
         this.isAttachedCloseIcon = true;
     }
 

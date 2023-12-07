@@ -1,22 +1,22 @@
-import getHtml, { closeIconClass, contentContainerClass, removableClass } from "./lessonLayout.js";
+import getHtml, { closeIconClass, contentContainerClass, removableClass } from './lessonLayout.js';
 import styles from './lesson.styles.scss';
-import ScopeSingleton from "../../utils/ScopeSingleton.js";
+import ScopeSingleton from '../../utils/ScopeSingleton.js';
 
-import { 
+import {
     classFieldIdAttributes,
     classItemRefIdAttribute,
     itemRefIdAttribute,
     lessonFieldIdAttributes,
- } from '../../utils/componentsRenderer.js';
+} from '../../utils/componentsRenderer.js';
 
- import { lessonAllowedClass } from '../../studyschedule.webcomponent.js';
+import { lessonAllowedClass } from '../../studyschedule.webcomponent.js';
 
-export const dragDisabledClass = '.drag-disabled'; 
+export const dragDisabledClass = '.drag-disabled';
 
-export const checkForNodeNameTd = (element) => {
+export const checkForNodeNameTd = element => {
     if (!element) return;
     return element.nodeName.toLocaleLowerCase() == 'td';
-}
+};
 
 export default class Lesson extends HTMLElement {
     constructor() {
@@ -65,7 +65,14 @@ export default class Lesson extends HTMLElement {
         if (!this.isSubscribedOnItemUpdate) {
             gudhub.on('gh_item_update', { app_id: this.appId, item_id: this.itemId }, this.onItemUpdate);
             if (this.teacherRefId) {
-                gudhub.on('gh_item_update', { app_id: this.teacherRefId.split('.')[0], item_id: this.teacherRefId.split('.')[1] }, this.onItemUpdate);
+                gudhub.on(
+                    'gh_item_update',
+                    {
+                        app_id: this.teacherRefId.split('.')[0],
+                        item_id: this.teacherRefId.split('.')[1],
+                    },
+                    this.onItemUpdate
+                );
             }
 
             this.isSubscribedOnItemUpdate = true;
@@ -75,7 +82,14 @@ export default class Lesson extends HTMLElement {
         if (this.isSubscribedOnItemUpdate) {
             gudhub.destroy('gh_item_update', { app_id: this.appId, item_id: this.itemId }, this.onItemUpdate);
             if (this.teacherRefId) {
-                gudhub.destroy('gh_item_update', { app_id: this.teacherRefId.split('.')[0], item_id: this.teacherRefId.split('.')[1] }, this.onItemUpdate);
+                gudhub.destroy(
+                    'gh_item_update',
+                    {
+                        app_id: this.teacherRefId.split('.')[0],
+                        item_id: this.teacherRefId.split('.')[1],
+                    },
+                    this.onItemUpdate
+                );
             }
             this.isSubscribedOnItemUpdate = false;
         }
@@ -98,7 +112,7 @@ export default class Lesson extends HTMLElement {
     disconnectedCallback() {
         this.destroySubscribe();
         this.handleDrop();
-    };
+    }
 
     render() {
         const style = document.createElement('style');
@@ -124,15 +138,10 @@ export default class Lesson extends HTMLElement {
         this.classTitle = await this.getClassTitle();
 
         this.uniqueId = `${this.appId}.${this.itemId}/${this.classRefId}`;
-    };
+    }
 
     async getInterpretatedLesson() {
-        const {
-            title,
-            teacher,
-            course,
-            academicHours
-        } = lessonFieldIdAttributes;
+        const { title, teacher, course, academicHours } = lessonFieldIdAttributes;
         const titleField = this.getAttribute(title);
         const courseField = this.getAttribute(course);
         const teacherField = this.getAttribute(lessonFieldIdAttributes.teacher);
@@ -141,14 +150,22 @@ export default class Lesson extends HTMLElement {
             title,
             teacher,
             course,
-            academicHours
+            academicHours,
         };
 
         const promises = [
-            gudhub.getInterpretationById(this.appId, this.itemId, titleField, 'value').then((value) => {resultLesson.title = value}),
-            gudhub.getInterpretationById(this.appId, this.itemId, courseField, 'value').then((value) => {resultLesson.course = value}),
-            gudhub.getInterpretationById(this.appId, this.itemId, teacherField, 'value').then((value) => {resultLesson.teacher = value}),
-            gudhub.getInterpretationById(this.appId, this.itemId, academicHoursField, 'value').then((value) => {resultLesson.academicHours = value}),
+            gudhub.getInterpretationById(this.appId, this.itemId, titleField, 'value').then(value => {
+                resultLesson.title = value;
+            }),
+            gudhub.getInterpretationById(this.appId, this.itemId, courseField, 'value').then(value => {
+                resultLesson.course = value;
+            }),
+            gudhub.getInterpretationById(this.appId, this.itemId, teacherField, 'value').then(value => {
+                resultLesson.teacher = value;
+            }),
+            gudhub.getInterpretationById(this.appId, this.itemId, academicHoursField, 'value').then(value => {
+                resultLesson.academicHours = value;
+            }),
         ];
 
         await Promise.all(promises);
@@ -159,7 +176,7 @@ export default class Lesson extends HTMLElement {
     async getTeacherRefId() {
         const lessonItem = await gudhub.getItem(this.appId, this.itemId);
         const teacherField = this.getAttribute(lessonFieldIdAttributes.teacher);
-        return lessonItem.fields.find(({field_id}) => field_id == teacherField).field_value;
+        return lessonItem.fields.find(({ field_id }) => field_id == teacherField).field_value;
     }
 
     async getClassTitle() {
@@ -218,7 +235,7 @@ export default class Lesson extends HTMLElement {
         this.setParentCell(cell);
 
         if (checkForNodeNameTd(cell) && !cell.classList.contains('redips-trash')) {
-                this.handleDropToCell(cell);
+            this.handleDropToCell(cell);
         } else if (cell === null) {
             this.handleDropToTrash();
         }

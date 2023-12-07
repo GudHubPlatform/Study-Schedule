@@ -1,4 +1,4 @@
-import { defaultTitle, roomsTab } from "./lessonDragList.webcomponent.js";
+import { defaultTitle, roomsTab } from './lessonDragList.webcomponent.js';
 import { lessonCellClass, classRoomCellClass } from '../../studyschedule.webcomponent.js';
 
 export const selectedTabClass = '.selected';
@@ -19,26 +19,36 @@ export default function getHtml() {
     const roomsInRow = this.columnsCount.all;
     const lessonColspan = this.columnsCount.lesson;
 
-    return /*html*/`
+    return /*html*/ `
     <div class="table-lessons-and-tabs-container">
         <div class="table-scroll">
             <ul class="tabs-lesson-list">
-                ${this.classes.reduce((acc, clas, index) => acc + `
+                ${this.classes.reduce(
+                    (acc, clas, index) =>
+                        acc +
+                        `
                     <li tab-id="${clas.id}" class="${index === 0 ? 'selected' : ''}"><span>${clas.title}</span></li>
-                `, '')}
+                `,
+                    ''
+                )}
             </ul>
             <table id="lessons-table" class="table-lessons">
                 <thead>
                     <tr>
                         <th class="${headerHoursCounterClass.replace('.', '')} redips-mark freeze-header"></th>
-                        <th class="${lessonsListTitleClass.replace('.', '')} redips-mark freeze-header header-lesson-clone-cell"
+                        <th class="${lessonsListTitleClass.replace(
+                            '.',
+                            ''
+                        )} redips-mark freeze-header header-lesson-clone-cell"
                             colspan=${roomsInRow}
                         >${defaultTitle}</th>
                     </tr>
                 </thead>
                 <tbody>
-                ${lessons.reduce((acc, lesson) => acc + 
-                /*html*/`
+                ${lessons.reduce(
+                    (acc, lesson) =>
+                        acc +
+                        /*html*/ `
                     <tr
                         ${tabIdAttribute}=${lesson.clasId}
                         ${lessonUniqueIdAttribute}=${lesson.uniqueId}
@@ -49,7 +59,9 @@ export default function getHtml() {
                             ${this.renderer.lesson(lesson.subjectRefId, lesson.clasId, 1)}
                         </td>
                     </tr>
-                `, '')}
+                `,
+                    ''
+                )}
                 ${(() => {
                     const rowCount = Math.ceil(rooms.length / roomsInRow);
                     const roomsRows = [];
@@ -60,28 +72,36 @@ export default function getHtml() {
                         roomsRows.push(row);
                     }
 
-                    return roomsRows.reduce((acc, row) => acc + 
-                    /*html*/`
+                    return roomsRows.reduce(
+                        (acc, row) =>
+                            acc +
+                            /*html*/ `
                         <tr 
                             ${tabIdAttribute}=${roomsTab.id}
-                            class="${roomRowClass.replace('.','')}"
+                            class="${roomRowClass.replace('.', '')}"
                             style="display: none"
                         >
-                            ${row.reduce((rowAcc, room) => rowAcc +`
+                            ${row.reduce(
+                                (rowAcc, room) =>
+                                    rowAcc +
+                                    `
                             <td
                                 class="redips-trash ${classRoomCellClass.replace('.', '')}"
                                 ${roomIdAttribute}=${room.id}
                             >
                                 ${this.renderer.room(room.id, 1)}
                             </td>
-                            `, '')}
+                            `,
+                                ''
+                            )}
                         </tr>
-                    `
-                    , '');
+                    `,
+                        ''
+                    );
                 })()}
                 </tbody>
             </table>
         </div>
     </div>
     `;
-};
+}

@@ -3,13 +3,13 @@ $table-schedule-width: 1500px;
 $table-schedule-and-lessons-height: 745px;
 $table-border-color: rgba(193, 193, 193, 1);
 $table-background-color: #ffffff;
-$table-second-background-color: #F2F2F2;
+$table-second-background-color: #f2f2f2;
 
 //drag element
 $drag-element-background-color: white;
-$drag-element-border: solid 1px #CCCCCC;
+$drag-element-border: solid 1px #cccccc;
 $drag-element-hover-background-color: rgb(225, 240, 255);
-$drag-element-hover-border-color: #50B1FF;
+$drag-element-hover-border-color: #50b1ff;
 
 //lesson
 $drag-lesson-element-height: 30px;
@@ -33,17 +33,16 @@ $table-lessons-width: $cell-lesson-width + $cell-room-width;
 $scrollbar-width: 6px;
 
 //close icon
-$close-icon-color: #50B1FF;
+$close-icon-color: #50b1ff;
 
 //tab-lesson
 $tab-lesson-font: 500 12px inherit;
 $tab-lesson-color: #919191;
-$tab-lesson-border-color: #50B1FF;
+$tab-lesson-border-color: #50b1ff;
 @mixin tab-lesson-font {
     font-size: 12px;
     font-weight: 500;
 }
-
 
 @mixin scroll {
     &::-webkit-scrollbar-track {
@@ -53,7 +52,7 @@ $tab-lesson-border-color: #50B1FF;
     &::-webkit-scrollbar {
         width: $scrollbar-width;
         height: $scrollbar-width;
-        background-color: #F5F5F5;
+        background-color: #f5f5f5;
     }
 
     &::-webkit-scrollbar-thumb {
@@ -61,7 +60,7 @@ $tab-lesson-border-color: #50B1FF;
         background: #b9b9b9;
 
         &:hover {
-            background: #0D99FF;
+            background: #0d99ff;
         }
     }
 }

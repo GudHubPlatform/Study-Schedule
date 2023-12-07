@@ -1,4 +1,4 @@
-import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 
 export default {
     experiments: {
@@ -7,7 +7,7 @@ export default {
     performance: {
         hints: false,
         maxEntrypointSize: 512000,
-        maxAssetSize: 512000
+        maxAssetSize: 512000,
     },
     entry: {
         main: './src/data.js',
@@ -15,17 +15,17 @@ export default {
     output: {
         filename: '[name].js',
         library: {
-            type: 'module'
-        }
+            type: 'module',
+        },
     },
     module: {
         rules: [
             {
                 test: /\.html$/i,
-                loader: "html-loader",
+                loader: 'html-loader',
                 options: {
-                    minimize: false
-                }
+                    minimize: false,
+                },
             },
             {
                 test: /\.(sass|scss|css)$/,
@@ -47,22 +47,22 @@ export default {
                 test: /\.styles.scss$/,
                 exclude: /node_modules/,
                 use: [
-                  "sass-to-string",
-                  {
-                    loader: "sass-loader",
-                    options: {
-                      sassOptions: {
-                        outputStyle: "compressed",
-                      },
+                    'sass-to-string',
+                    {
+                        loader: 'sass-loader',
+                        options: {
+                            sassOptions: {
+                                outputStyle: 'compressed',
+                            },
+                        },
                     },
-                  },
                 ],
-              },
-        ]
+            },
+        ],
     },
     plugins: [
         new MiniCssExtractPlugin({
-            filename: 'style.css'
-        })
-    ]
-};
+            filename: 'style.css',
+        }),
+    ],
+}

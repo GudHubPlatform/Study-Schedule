@@ -54,19 +54,24 @@
 
         transform: translateY(-50%);
 
+        &:before,
+        &:after {
+            content: '';
+            position: absolute;
 
-        &:before, &:after {content: "";
-             position: absolute;
+            top: 6px;
+            left: 1px;
 
-             top: 6px;
-             left: 1px;
-
-             width: 8px;
-             height: 2px;
-             background: $close-icon-color;
+            width: 8px;
+            height: 2px;
+            background: $close-icon-color;
         }
 
-        &:before {transform: rotate(45deg);}
-        &:after {transform: rotate(-45deg);}
+        &:before {
+            transform: rotate(45deg);
+        }
+        &:after {
+            transform: rotate(-45deg);
+        }
     }
 }

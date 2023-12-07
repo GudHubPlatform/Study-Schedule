@@ -9,38 +9,44 @@
                 <tr class="row-freeze row-class-title">
                     <th class="redips-mark" colspan="2"></th>
                     ${classes.reduce((acc, clas) => acc + `
-                        <th class="header-class-number redips-mark" colspan=${columnWidth}>${clas.title}</th>
+                    <th class="header-class-number redips-mark" colspan="${columnWidth}">${clas.title}</th>
                     `, '')}
                 </tr>
                 <tr class="row-freeze">
-                    <th class="redips-mark" colspan=${columnWidth}></th>
+                    <th class="redips-mark" colspan="${columnWidth}"></th>
                     ${classes.reduce((acc, clas) => acc + `
-                        <th class="header-teacher redips-mark">Вчитель</th>
-                        <th class="header-room redips-mark">Каб.</th>
+                    <th class="header-teacher redips-mark">Вчитель</th>
+                    <th class="header-room redips-mark">Каб.</th>
                     `, '')}
                 </tr>
             </thead>
             <tbody>
-                ${
-                    storage.reduce((acc, row, rowIndex) => acc + `
-                        <tr>
-                            ${
-                                rowIndex % lessonsPerDay === 0
-                                ? `<td class="day-of-week column-cell-freeze redips-mark" rowspan=${lessonsPerDay}><span>${daysOfWeek[Math.floor(rowIndex / lessonsPerDay) % daysOfWeek.length]}</span></td>`
-                                : ''
-                            }
-                            <td class="column-cell-freeze redips-mark">${rowIndex % lessonsPerDay + 1}</td>
-                            ${row.reduce((accRow, {lesson, room}, colIndex) => accRow + `
-                                <td class="${lessonCellClass.replace('.','')} redips-single redips-mark ${lessonAllowedClass.replace('.', '')}" ${cellRowAttribute}="${rowIndex}" ${cellColAttribute}="${colIndex}">
-                                    ${lesson ? renderer.lesson(lesson.subjectRefId, lesson.clasId, false) : ''}
-                                </td>
-                                <td class="redips-mark redips-single ${classRoomCellClass.replace('.', '')} ${roomAllowedClass.replace('.', '')}" ${cellRowAttribute}="${rowIndex}" ${cellColAttribute}="${colIndex}">
-                                    ${room ? renderer.room(room.id, false) : ''}
-                                </td>
-                            `, '')}
-                        </tr>
-                    `, '')
-                }
+                ${ storage.reduce((acc, row, rowIndex) => acc + `
+                <tr>
+                    ${ rowIndex % lessonsPerDay === 0 ? `
+                    <td class="day-of-week column-cell-freeze redips-mark" rowspan="${lessonsPerDay}">
+                        <span>${daysOfWeek[Math.floor(rowIndex / lessonsPerDay) % daysOfWeek.length]}</span>
+                    </td>
+                    ` : '' }
+                    <td class="column-cell-freeze redips-mark">${rowIndex % lessonsPerDay + 1}</td>
+                    ${row.reduce((accRow, {lesson, room}, colIndex) => accRow + `
+                    <td
+                        class="${lessonCellClass.replace('.','')} redips-single redips-mark ${lessonAllowedClass.replace('.', '')}"
+                        ${cellRowAttribute}="${rowIndex}"
+                        ${cellColAttribute}="${colIndex}"
+                    >
+                        ${lesson ? renderer.lesson(lesson.subjectRefId, lesson.clasId, false) : ''}
+                    </td>
+                    <td
+                        class="redips-mark redips-single ${classRoomCellClass.replace('.', '')} ${roomAllowedClass.replace('.', '')}"
+                        ${cellRowAttribute}="${rowIndex}"
+                        ${cellColAttribute}="${colIndex}"
+                    >
+                        ${room ? renderer.room(room.id, false) : ''}
+                    </td>
+                    `, '')}
+                </tr>
+                `, '') }
             </tbody>
         </table>
     </div>

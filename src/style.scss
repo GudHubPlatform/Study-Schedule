@@ -5,7 +5,7 @@ schedule-lesson {
 }
 
 gh-study-schedule {
-    font-size: .8em;
+    font-size: 0.8em;
 
     .loader-container {
         position: relative;
@@ -13,7 +13,7 @@ gh-study-schedule {
         width: $table-lessons-width + $table-schedule-width;
         height: $table-schedule-and-lessons-height;
 
-        background-color: rgb(250, 253, 253, .7);
+        background-color: rgb(250, 253, 253, 0.7);
 
         z-index: 5;
 
@@ -26,14 +26,18 @@ gh-study-schedule {
             display: block;
             span {
                 @keyframes rotation {
-                    0% { transform: rotate(0deg) }
-                    100% { transform: rotate(360deg) }
-                  }
+                    0% {
+                        transform: rotate(0deg);
+                    }
+                    100% {
+                        transform: rotate(360deg);
+                    }
+                }
 
-                width : 35px;
+                width: 35px;
                 height: 35px;
                 border: 5px solid;
-                border-color: #0D99FF transparent;
+                border-color: #0d99ff transparent;
                 border-radius: 50%;
                 display: inline-block;
                 animation: rotation 1s linear infinite;
@@ -49,7 +53,7 @@ gh-study-schedule {
         user-select: none;
         width: 100% !important;
 
-        >:first-child {
+        > :first-child {
             margin-right: 10px;
         }
     }
@@ -68,7 +72,8 @@ gh-study-schedule {
         @include scroll();
     }
 
-    th, td {
+    th,
+    td {
         box-sizing: border-box;
         position: relative;
         padding: 0;
@@ -79,7 +84,7 @@ gh-study-schedule {
             height: $cell-lesson-height;
         }
     }
-    
+
     .table-schedule {
         border-collapse: collapse;
 
@@ -92,7 +97,16 @@ gh-study-schedule {
                 }
 
                 td.disabled::after {
-                    background-image: linear-gradient(135deg, #d8d9d9 16.67%, transparent 16.67%, transparent 50%, #d8d9d9 50%, #d8d9d9 66.67%, transparent 66.67%, transparent 100%);
+                    background-image: linear-gradient(
+                        135deg,
+                        #d8d9d9 16.67%,
+                        transparent 16.67%,
+                        transparent 50%,
+                        #d8d9d9 50%,
+                        #d8d9d9 66.67%,
+                        transparent 66.67%,
+                        transparent 100%
+                    );
                     background-size: 4.24px 4.24px;
                 }
             }
@@ -126,13 +140,23 @@ gh-study-schedule {
                 left: 0;
                 height: 100%;
                 width: 100%;
-                background-image: linear-gradient(135deg, #e1e1e1 16.67%, transparent 16.67%, transparent 50%, #e1e1e1 50%, #e1e1e1 66.67%, transparent 66.67%, transparent 100%);
+                background-image: linear-gradient(
+                    135deg,
+                    #e1e1e1 16.67%,
+                    transparent 16.67%,
+                    transparent 50%,
+                    #e1e1e1 50%,
+                    #e1e1e1 66.67%,
+                    transparent 66.67%,
+                    transparent 100%
+                );
                 background-size: 4.24px 4.24px;
             }
         }
 
         th {
-            &.header-teacher, &.header-room {
+            &.header-teacher,
+            &.header-room {
                 font-weight: 300;
             }
             &.header-class-number {
@@ -141,7 +165,8 @@ gh-study-schedule {
             }
         }
 
-        td, th {
+        td,
+        th {
             &.column-cell-freeze {
                 position: sticky;
 
@@ -163,8 +188,8 @@ gh-study-schedule {
                     width: 100%;
                     height: 100%;
 
-                    border-right: solid .5px $table-border-color;
-                    border-left: solid .5px $table-border-color;
+                    border-right: solid 0.5px $table-border-color;
+                    border-left: solid 0.5px $table-border-color;
                 }
 
                 &.day-of-week {
@@ -210,7 +235,7 @@ gh-study-schedule {
     div.redips-clone {
         &.drag-disabled {
             border: $drag-element-border !important; /*important - becouse redips lib set border-style: dotted by js in inline-styles*/
-            &::after{
+            &::after {
                 content: '';
                 position: absolute;
 
@@ -222,12 +247,12 @@ gh-study-schedule {
 
                 z-index: 2;
 
-                opacity: .2;
+                opacity: 0.2;
                 background-color: $drag-lesson-disabled-bg-color;
             }
         }
     }
-    
+
     div.redips-drag {
         position: relative;
 
@@ -240,7 +265,7 @@ gh-study-schedule {
         border: $drag-element-border;
         border-radius: 4px;
 
-        transition: border .5s;
+        transition: border 0.5s;
 
         &:hover {
             border-color: $drag-element-hover-border-color;

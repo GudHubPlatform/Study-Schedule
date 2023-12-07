@@ -57,7 +57,7 @@
             font-weight: 300;
             &.no-teacher {
                 text-align: center;
-                color: #FF0606;
+                color: #ff0606;
                 font-weight: 500;
             }
         }
@@ -88,21 +88,26 @@
 
         transform: translateY(-50%);
 
+        &:before,
+        &:after {
+            content: '';
+            position: absolute;
 
-        &:before, &:after {content: "";
-             position: absolute;
+            top: 6px;
+            left: 1px;
 
-             top: 6px;
-             left: 1px;
+            width: 10px;
+            height: 2px;
+            background: $close-icon-color;
 
-             width: 10px;
-             height: 2px;
-             background: $close-icon-color;
-
-             z-index: 1;
+            z-index: 1;
         }
 
-        &:before {transform: rotate(45deg);}
-        &:after {transform: rotate(-45deg);}
+        &:before {
+            transform: rotate(45deg);
+        }
+        &:after {
+            transform: rotate(-45deg);
+        }
     }
 }

@@ -57,7 +57,7 @@ export default class ScheduleModel {
         foundCell.htmlElement = element;
         return foundCell;
     }
-    
+
     getLessonCellHTMLElement(row, col) {
         const foundCell = this.scheduleStorage[row][col];
         return foundCell.htmlElement;
@@ -84,7 +84,7 @@ export default class ScheduleModel {
     }
 
     getStorage() {
-        return [...this.scheduleStorage.map((row) => [...row])];
+        return [...this.scheduleStorage.map(row => [...row])];
     }
 
     getAcademicHours() {

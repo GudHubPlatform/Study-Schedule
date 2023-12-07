@@ -6,12 +6,12 @@ export function createLessons(lessons, classes) {
 
         if (!lessonCourse) continue;
 
-        const filteredClassesByCourse = classes.filter((clas) => clas.course === lesson.course);
+        const filteredClassesByCourse = classes.filter(clas => clas.course === lesson.course);
 
         for (const clas of filteredClassesByCourse) {
             const uniqueId = `${lesson.id}/${clas.id}`;
             const subjectRefId = lesson.id;
-            const clasId = clas.id
+            const clasId = clas.id;
             const teacherRefId = lesson.teacherRefId;
 
             const newLesson = {

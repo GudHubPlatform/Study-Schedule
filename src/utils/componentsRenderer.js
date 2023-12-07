@@ -1,5 +1,5 @@
-import ScopeSingleton from "../utils/ScopeSingleton.js";
-import { lessonClass, roomClass } from "../studyschedule.webcomponent.js";
+import ScopeSingleton from '../utils/ScopeSingleton.js';
+import { lessonClass, roomClass } from '../studyschedule.webcomponent.js';
 
 export const isCloneAttribute = 'is-clone';
 export const itemRefIdAttribute = 'item-id';
@@ -9,10 +9,10 @@ export const classFieldIdAttributes = {
 };
 
 export const lessonFieldIdAttributes = {
-    teacher:'lesson-teacher-field-id',
-    title:'lesson-title-field-id',
-    academicHours:'lesson-academic-hours-field-id',
-    course:'lesson-course-field-id',
+    teacher: 'lesson-teacher-field-id',
+    title: 'lesson-title-field-id',
+    academicHours: 'lesson-academic-hours-field-id',
+    course: 'lesson-course-field-id',
 };
 
 const getScope = () => ScopeSingleton.getInstance().getScope();
@@ -24,15 +24,10 @@ const lesson = (lessonItemRefId, classRefId, isClone = 0) => {
         subjects_app_course_field_id,
         subjects_app_teacher_field_id,
         subjects_app_academic_hours_field_id,
-        classes_app_title_field_id
+        classes_app_title_field_id,
     } = scope.field_model.data_model;
 
-    const {
-        title,
-        teacher,
-        course,
-        academicHours
-    } = lessonFieldIdAttributes;
+    const { title, teacher, course, academicHours } = lessonFieldIdAttributes;
 
     return `<div class="${lessonClass.replace('.', '')} redips-drag ${isClone ? 'redips-clone' : ''}">
                 <schedule-lesson
@@ -49,20 +44,16 @@ const lesson = (lessonItemRefId, classRefId, isClone = 0) => {
                 >
                 </schedule-lesson>
             </div>`;
-}
+};
 
 export const classRoomFieldIdAttributes = {
-    title: 'room-title-field-id'
+    title: 'room-title-field-id',
 };
 const room = (classRefId, isClone = 0) => {
     const scope = getScope();
-    const {
-        cabinets_app_number_field_id,
-    } = scope.field_model.data_model;
+    const { cabinets_app_number_field_id } = scope.field_model.data_model;
 
-    const {
-        title,
-    } = classRoomFieldIdAttributes;
+    const { title } = classRoomFieldIdAttributes;
 
     return `<div class="${roomClass.replace('.', '')} redips-drag ${isClone ? 'redips-clone' : ''}">
                 <schedule-room
@@ -71,7 +62,7 @@ const room = (classRefId, isClone = 0) => {
                 >
                 </schedule-room>
             </div>`;
-}
+};
 
 const renderer = {
     lesson,

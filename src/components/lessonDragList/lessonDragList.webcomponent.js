@@ -1,5 +1,10 @@
 import styles from './lessonDragList.styles.scss';
-import getHtml, { tabIdAttribute, lessonsListTitleClass, lessonUniqueIdAttribute, headerHoursCounterClass } from './lessonDragListLayout.js';
+import getHtml, {
+    tabIdAttribute,
+    lessonsListTitleClass,
+    lessonUniqueIdAttribute,
+    headerHoursCounterClass,
+} from './lessonDragListLayout.js';
 
 import renderer from '../../utils/componentsRenderer.js';
 import ScopeSingleton from '../../utils/ScopeSingleton.js';
@@ -20,13 +25,10 @@ export const allTab = {
 
 export const roomsTab = {
     id: 'rooms',
-    title: 'Кабінети'
+    title: 'Кабінети',
 };
 
-const defaultTabs = [
-    allTab,
-    roomsTab
-];
+const defaultTabs = [allTab, roomsTab];
 
 export default class LessonDragList extends HTMLElement {
     constructor() {
@@ -42,7 +44,7 @@ export default class LessonDragList extends HTMLElement {
         this.rooms;
         this.selectedClassId = defaultTabs[0];
 
-        this.onDisconnectCallbacks = [];        
+        this.onDisconnectCallbacks = [];
 
         this.handleSelectTab = this.handleSelectTab;
 
@@ -60,8 +62,8 @@ export default class LessonDragList extends HTMLElement {
     disconnectedCallback() {
         this.onDisconnectCallbacks.forEach(method => {
             method();
-        })
-    };
+        });
+    }
 
     render() {
         const style = document.createElement('style');
@@ -70,23 +72,19 @@ export default class LessonDragList extends HTMLElement {
         this.shadowRoot.innerHTML += getHtml.call(this);
 
         this.attachOnClicks();
-        
+
         while (this.shadowRoot.firstChild) {
             this.separatedContainer.appendChild(this.shadowRoot.firstChild);
         }
     }
 
     async determineProperties() {
-        const { 
-            lessons,
-            classes,
-            rooms
-         } = ScopeSingleton.getInstance().getData();
+        const { lessons, classes, rooms } = ScopeSingleton.getInstance().getData();
 
-         this.lessons = lessons;
-         this.classes = [ ...defaultTabs, ...classes];
-         this.rooms = rooms;
-    };
+        this.lessons = lessons;
+        this.classes = [...defaultTabs, ...classes];
+        this.rooms = rooms;
+    }
 
     attachOnClicks() {
         const tabElements = this.shadowRoot.querySelector('.tabs-lesson-list').children;
@@ -99,11 +97,11 @@ export default class LessonDragList extends HTMLElement {
     updateTitle() {
         const titleElement = this.separatedContainer.querySelector(lessonsListTitleClass);
 
-        const selectedTitle = this.classes.find((clas) => clas.id === this.selectedClassId).title;
+        const selectedTitle = this.classes.find(clas => clas.id === this.selectedClassId).title;
 
         if (this.selectedClassId === allTab.id) {
             titleElement.textContent = defaultTitle;
-        } else if (defaultTabs.some(({title}) => title === selectedTitle)) {
+        } else if (defaultTabs.some(({ title }) => title === selectedTitle)) {
             titleElement.textContent = selectedTitle;
         } else {
             titleElement.textContent = `${defaultTitle} ${selectedTitle}`;
@@ -112,7 +110,7 @@ export default class LessonDragList extends HTMLElement {
 
     setSelectedTab() {
         const tabListElement = this.separatedContainer.querySelector('.tabs-lesson-list');
-        
+
         const oldSelectedTab = tabListElement.querySelector('.selected');
         if (oldSelectedTab) oldSelectedTab.classList.remove('selected');
 
@@ -147,20 +145,20 @@ export default class LessonDragList extends HTMLElement {
             default: {
                 for (const el of rows) {
                     const classId = el.getAttribute(tabIdAttribute);
-            
+
                     const isDisplayed = classId == selectedClassId;
-            
+
                     if (isDisplayed || !selectedClassId) {
                         el.style.display = '';
                     } else {
                         el.style.display = 'none';
                     }
                 }
-    
+
                 break;
             }
         }
-    };
+    }
 
     updateListHeaders() {
         const headerHoursCounterElement = this.separatedContainer.querySelector(headerHoursCounterClass);
@@ -193,18 +191,18 @@ export default class LessonDragList extends HTMLElement {
 
         const weeksInSemesterCountFromField = await getWeeksInSemesterCount();
         const weeksInSemester = weeksInSemesterCountFromField ? weeksInSemesterCountFromField : 1;
-        
+
         for (const tr of tbody.children) {
             const uniqueId = tr.getAttribute(lessonUniqueIdAttribute);
             if (!uniqueId) continue;
 
             const lesson = controller.findLessonById(uniqueId);
             if (!lesson) continue;
-            
+
             const cell = tr.querySelector('.hours-counter-cell');
 
             //hours counter container
-            const hoursCounterContainerHtml = /*html*/`
+            const hoursCounterContainerHtml = /*html*/ `
                 <div class=hours-counter-container redips-trash>
                 </div>
             `;
@@ -212,27 +210,30 @@ export default class LessonDragList extends HTMLElement {
             const hoursCounterContainer = cell.children[0];
 
             //total hours
-            const {
-                subjects_app_academic_hours_field_id
-            } = scope.field_model.data_model;
-            const getTotalHours = () => gudhub.getInterpretationById(...lesson.subjectRefId.split('.'), subjects_app_academic_hours_field_id, 'value');
+            const { subjects_app_academic_hours_field_id } = scope.field_model.data_model;
+            const getTotalHours = () =>
+                gudhub.getInterpretationById(
+                    ...lesson.subjectRefId.split('.'),
+                    subjects_app_academic_hours_field_id,
+                    'value'
+                );
 
             const hoursObject = {
-                totalHours: await getTotalHours() / weeksInSemester,
+                totalHours: (await getTotalHours()) / weeksInSemester,
             };
 
-            const totalHoursHtml = /*html*/`
+            const totalHoursHtml = /*html*/ `
                 <span class=${hoursTotalAmountClass.replace('.', '')}>${hoursObject.totalHours}</span>
             `;
             hoursCounterContainer.insertAdjacentHTML('afterbegin', totalHoursHtml);
             const totalHoursElement = hoursCounterContainer.querySelector(hoursTotalAmountClass);
 
-
             // remains hours
             hoursObject.settedHours = controller.getAcademicHours(uniqueId);
-            const remainHours = hoursObject.settedHours > 0 ? hoursObject.totalHours - hoursObject.settedHours : hoursObject.totalHours;
-            
-            const remainHoursHtml = /*html*/`
+            const remainHours =
+                hoursObject.settedHours > 0 ? hoursObject.totalHours - hoursObject.settedHours : hoursObject.totalHours;
+
+            const remainHoursHtml = /*html*/ `
                 <span class="${hoursRemainsClass.replace('.', '')}">${remainHours}</span>
             `;
             hoursCounterContainer.insertAdjacentHTML('beforeend', remainHoursHtml);
@@ -241,7 +242,7 @@ export default class LessonDragList extends HTMLElement {
 
             //add listeners
             const lessonComponent = tr.getElementsByTagName('schedule-lesson')[0];
-            const toggleLessonDrag = (remainHours) => {
+            const toggleLessonDrag = remainHours => {
                 if (remainHours > 0) {
                     if (!lessonComponent.isDragEnabled) {
                         lessonComponent.toggleDrag(true);
@@ -251,7 +252,7 @@ export default class LessonDragList extends HTMLElement {
                 }
             };
 
-            const updateRemainsCounter = (settedHours) => {
+            const updateRemainsCounter = settedHours => {
                 if (!isNaN(settedHours)) hoursObject.settedHours = settedHours;
                 const remain = hoursObject.totalHours - hoursObject.settedHours;
                 remainsHoursElement.textContent = remain;
@@ -259,7 +260,7 @@ export default class LessonDragList extends HTMLElement {
                 toggleLessonDrag(remain);
             };
 
-            const updateTotalCounter = (totalAmount) => {
+            const updateTotalCounter = totalAmount => {
                 hoursObject.totalHours = totalAmount;
                 totalHoursElement.textContent = hoursObject.totalHours;
                 updateRemainsCounter();
@@ -281,12 +282,10 @@ export default class LessonDragList extends HTMLElement {
 
                 return () => gudhub.destroy('gh_value_update', address, onAcademicHoursUpdate);
             };
-            
+
             toggleLessonDrag(remainHours);
             controller.addHoursUpdateCallback(uniqueId, updateRemainsCounter);
-            this.onDisconnectCallbacks.push(
-                subscribeOnLessonTotalAcademicHours()
-            );
+            this.onDisconnectCallbacks.push(subscribeOnLessonTotalAcademicHours());
         }
     }
 }

@@ -1,4 +1,3 @@
-
 export const roomClass = '.room';
 export const contentContainerClass = '.content-container';
 export const titleClass = '.title';
@@ -8,7 +7,7 @@ export const removableClass = '.removable';
 export default function getHtml() {
     const { title } = this.room;
 
-    return /*html*/`
+    return /*html*/ `
         <div
             class="${roomClass.replace('.', '')}"
         >
@@ -16,7 +15,7 @@ export default function getHtml() {
                 class="${closeIconClass.replace('.', '')}"
             >
             </div>
-            <div class="${contentContainerClass.replace('.','')}">
+            <div class="${contentContainerClass.replace('.', '')}">
                 <span class="${titleClass.replace('.', '')}">${title}</span>
             </div>
         </div>
