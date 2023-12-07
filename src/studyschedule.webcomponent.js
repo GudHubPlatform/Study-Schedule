@@ -1,21 +1,21 @@
-import GhHtmlElement from "@gudhub/gh-html-element";
-import html from "./studyschedule.html";
-import loader from "./loader.html";
+import GhHtmlElement from '@gudhub/gh-html-element';
+import html from './studyschedule.html';
+import loader from './loader.html';
 import './style.scss';
 
 import Lesson, { dragDisabledClass } from './components/lesson/lesson.webcomponent.js';
 import Classroom from './components/room/room.webcomponent.js';
-import LessonDragList from "./components/lessonDragList/lessonDragList.webcomponent.js";
+import LessonDragList from './components/lessonDragList/lessonDragList.webcomponent.js';
 
 import renderer from './utils/componentsRenderer.js';
 import ScopeSingleton from './utils/ScopeSingleton.js';
 
-import {REDIPS} from './redips-drag-min.js';
-import { getClassesScheme, getClassroomsScheme, getSubjectsScheme } from "./jsonSchemes.js";
-import ScheduleController from "./ScheduleController.js";
-import ScheduleModel from "./ScheduleModel.js";
+import { REDIPS } from './redips-drag-min.js';
+import { getClassesScheme, getClassroomsScheme, getSubjectsScheme } from './jsonSchemes.js';
+import ScheduleController from './ScheduleController.js';
+import ScheduleModel from './ScheduleModel.js';
 
-import { createLessons } from "./utils/dataFunctions.js";
+import { createLessons } from './utils/dataFunctions.js';
 
 import lessonItemsWorker from './utils/lessonItemsWorker.js';
 
@@ -31,7 +31,6 @@ const cellColAttribute = 'col';
 export const columnWidth = 2;
 
 class GhStudySchedule extends GhHtmlElement {
-
     // Constructor with super() is required for native web component initialization
 
     constructor() {
@@ -50,7 +49,7 @@ class GhStudySchedule extends GhHtmlElement {
 
         //data
         this.columnWidth = columnWidth;
-        this.daysOfWeek = ["понеділок","вівторок","середа","четвер","п'ятниця"];
+        this.daysOfWeek = ['понеділок', 'вівторок', 'середа', 'четвер', "п'ятниця"];
         this.lessonsPerDay;
         this.classes;
         this.subjects;
@@ -80,7 +79,7 @@ class GhStudySchedule extends GhHtmlElement {
         this.controller = new ScheduleController(this.scope, this.model, this.lessons, this.rooms);
 
         this.initScopeSingleton();
- 
+
         await this.controller.loadInitialDataFromStorage();
         this.storage = this.controller.getStorage();
 
@@ -96,18 +95,15 @@ class GhStudySchedule extends GhHtmlElement {
         const destroyLessonsSubscribe = this.subscribeOnItemsUpdate.subjects();
         const destroyClassroomsSubscribe = this.subscribeOnItemsUpdate.rooms();
 
-        this.onDisconnectCallbacks.push(
-            destroyLessonsSubscribe,
-            destroyClassroomsSubscribe,
-        );
-    };
+        this.onDisconnectCallbacks.push(destroyLessonsSubscribe, destroyClassroomsSubscribe);
+    }
 
     // disconnectedCallback() is called after the component is destroyed
     disconnectedCallback() {
-        this.onDisconnectCallbacks.forEach((callback) => callback());
+        this.onDisconnectCallbacks.forEach(callback => callback());
 
         ScopeSingleton.reset();
-    };
+    }
 
     loadData = {
         subjects: () => {
@@ -127,10 +123,12 @@ class GhStudySchedule extends GhHtmlElement {
                 subjects_app_academic_hours_field_id,
                 subjects_filters_list,
             });
-            return gudhub.jsonConstructor(subjectsScheme).then((data) => {this.subjects = data.lessons});
+            return gudhub.jsonConstructor(subjectsScheme).then(data => {
+                this.subjects = data.lessons;
+            });
         },
         classes: () => {
-            const { 
+            const {
                 classes_app_id,
                 classes_app_title_field_id,
                 classes_app_course_field_id,
@@ -144,55 +142,51 @@ class GhStudySchedule extends GhHtmlElement {
                 classes_filters_list,
                 classes_sorting_type,
             });
-            return gudhub.jsonConstructor(classesScheme).then((data) => {this.classes = data.classes});
+            return gudhub.jsonConstructor(classesScheme).then(data => {
+                this.classes = data.classes;
+            });
         },
         rooms: () => {
-            const { 
-                cabinets_app_id,
-                cabinets_app_number_field_id,
-            } = this.scope.field_model.data_model;
+            const { cabinets_app_id, cabinets_app_number_field_id } = this.scope.field_model.data_model;
             const roomsScheme = getClassroomsScheme({
                 cabinets_app_id,
                 cabinets_app_number_field_id,
             });
-            return gudhub.jsonConstructor(roomsScheme).then((data) => {this.rooms = data.rooms});
-    
+            return gudhub.jsonConstructor(roomsScheme).then(data => {
+                this.rooms = data.rooms;
+            });
         },
         all: () => {
             const classesPromise = this.loadData.subjects();
             const lessonsPromise = this.loadData.classes();
             const roomsPromise = this.loadData.rooms();
-            return Promise.all([
-                classesPromise,
-                lessonsPromise,
-                roomsPromise,
-            ]);
+            return Promise.all([classesPromise, lessonsPromise, roomsPromise]);
         },
-    }
+    };
 
     subscribeOnItemsUpdate = {
         subjects: () => {
             const { subjects_app_id } = this.scope.field_model.data_model;
-    
+
             const onLessonsItemsUpdate = async () => {
                 await this.loadData.subjects();
                 this.lessons = createLessons(this.subjects, this.classes);
             };
-    
-            gudhub.on('gh_items_update', {subjects_app_id}, onLessonsItemsUpdate);
-    
-            return () => gudhub.destroy('gh_items_update', {subjects_app_id}, onLessonsItemsUpdate);
+
+            gudhub.on('gh_items_update', { subjects_app_id }, onLessonsItemsUpdate);
+
+            return () => gudhub.destroy('gh_items_update', { subjects_app_id }, onLessonsItemsUpdate);
         },
         rooms: () => {
             const { cabinets_app_id } = this.scope.field_model.data_model;
-    
+
             const onClassroomsItemsUpdate = async () => {
                 await this.loadData.rooms();
             };
-    
-            gudhub.on('gh_items_update', {cabinets_app_id}, onClassroomsItemsUpdate);
-    
-            return () => gudhub.destroy('gh_items_update', {cabinets_app_id}, onClassroomsItemsUpdate);
+
+            gudhub.on('gh_items_update', { cabinets_app_id }, onClassroomsItemsUpdate);
+
+            return () => gudhub.destroy('gh_items_update', { cabinets_app_id }, onClassroomsItemsUpdate);
         },
     };
 
@@ -208,14 +202,14 @@ class GhStudySchedule extends GhHtmlElement {
             rd.hover.colorTd = 'rgba(80, 177, 255, 0.2)';
             rd.scroll.bound = 30;
 
-            rd.mark.exceptionClass[roomClass.replace('.','')] = roomAllowedClass.replace('.', '');
-            rd.mark.exceptionClass[lessonClass.replace('.','')] = lessonAllowedClass.replace('.', '');
+            rd.mark.exceptionClass[roomClass.replace('.', '')] = roomAllowedClass.replace('.', '');
+            rd.mark.exceptionClass[lessonClass.replace('.', '')] = lessonAllowedClass.replace('.', '');
 
-            rd.event.clicked = async (clickedCell) => {
+            rd.event.clicked = async clickedCell => {
                 const dndDiv = clickedCell.getElementsByClassName('redips-drag')[0];
                 const scheduleElement = dndDiv.children[0];
                 if (scheduleElement && scheduleElement.isCloseIconClicked) {
-                    await new Promise((resolve) => setTimeout(resolve, 100));
+                    await new Promise(resolve => setTimeout(resolve, 100));
                     if (scheduleElement.isRemoved) return;
                 }
                 const clickedCellCoords = {
@@ -223,25 +217,22 @@ class GhStudySchedule extends GhHtmlElement {
                     col: clickedCell.getAttribute(cellColAttribute),
                 };
                 if (scheduleElement instanceof Lesson) {
-                    this.disableHighlight = controller.highlightLessonsCells(scheduleElement.uniqueId, clickedCellCoords);
+                    this.disableHighlight = controller.highlightLessonsCells(
+                        scheduleElement.uniqueId,
+                        clickedCellCoords
+                    );
                 } else if (scheduleElement instanceof Classroom) {
-                    const  {
-                        app_id,
-                        item_id
-                    } = scheduleElement;
+                    const { app_id, item_id } = scheduleElement;
                     const roomId = [app_id, item_id].join('.');
                     this.disableHighlight = controller.highlightClassroomsCells(roomId, clickedCellCoords);
                 }
             };
 
-            rd.event.droppedBefore = (targetCell) => {
-            };
+            rd.event.droppedBefore = targetCell => {};
 
-            rd.event.dropped = () => {
-            }
+            rd.event.dropped = () => {};
 
-            rd.event.deleted = (clonedAndDirectlyMovedToTrasg) => {
-            };
+            rd.event.deleted = clonedAndDirectlyMovedToTrasg => {};
 
             rd.event.finish = () => {
                 if (this.disableHighlight) {
@@ -250,23 +241,22 @@ class GhStudySchedule extends GhHtmlElement {
                 }
             };
 
-            rd.event.clonedDropped = () => {
-            };
+            rd.event.clonedDropped = () => {};
 
             return rd;
-        }
+        };
 
         const checkForDisabledDivs = () => {
             const dragListContainer = document.getElementById('lesson-table-container');
             const lessons = dragListContainer.getElementsByTagName('schedule-lesson');
-            
-            for (const lesson of  lessons) {
+
+            for (const lesson of lessons) {
                 const dragDiv = lesson.parentElement;
                 if (dragDiv.classList.contains(dragDisabledClass.replace('.', ''))) {
                     this.rd.enableDrag(false, dragDiv);
                 }
             }
-        }
+        };
 
         setTimeout(() => {
             this.rd = redips.init();
@@ -286,17 +276,27 @@ class GhStudySchedule extends GhHtmlElement {
     };
 
     assignButtons = () => {
+        const getCellsForGeneration = () => this.controller.getStorage().reduce((acc, row) => [...acc, ...row], []);
+        const enableButtons = bool => {
+            generateButton.disabled = !bool;
+            deleteButton.disabled = !bool;
+        };
+
         const generateButton = this.getElementsByClassName('generate-button')[0];
         generateButton.addEventListener('click', () => {
-            const cellsToGenerate = this.controller.getStorage().reduce((acc, row) => [...acc, ...row], []);
-            lessonItemsWorker.generateLessons(cellsToGenerate);
+            enableButtons(false);
+            const cellsToGenerate = getCellsForGeneration();
+            lessonItemsWorker.generateLessons(cellsToGenerate).then(() => enableButtons(true));
         });
 
         const deleteButton = this.getElementsByClassName('delete-button')[0];
         deleteButton.addEventListener('click', () => {
-            const cellsToGenerate = this.controller.getStorage().reduce((acc, row) => [...acc, ...row], []);
-            lessonItemsWorker.deleteLessons(cellsToGenerate);
+            enableButtons(false);
+            const cellsToGenerate = getCellsForGeneration();
+            lessonItemsWorker.deleteLessons(cellsToGenerate).then(() => enableButtons(true));
         });
+
+        ScopeSingleton.getInstance().setEnableGenerateButtons(enableButtons);
     };
 
     setCorrespondingHTMLElements() {
@@ -305,21 +305,21 @@ class GhStudySchedule extends GhHtmlElement {
     }
 
     handleEnableHighlight() {
-        this.disableHighlight = this.controller.highlightClassroomsCells()
+        this.disableHighlight = this.controller.highlightClassroomsCells();
     }
 }
 
 // Register web component only if it is not registered yet
 
-if(!customElements.get('gh-study-schedule')){
+if (!customElements.get('gh-study-schedule')) {
     customElements.define('gh-study-schedule', GhStudySchedule);
 }
-if(!customElements.get('schedule-lesson')){
+if (!customElements.get('schedule-lesson')) {
     customElements.define('schedule-lesson', Lesson);
 }
-if(!customElements.get('schedule-room')){
+if (!customElements.get('schedule-room')) {
     customElements.define('schedule-room', Classroom);
 }
-if(!customElements.get('schedule-lesson-drag-list')){
+if (!customElements.get('schedule-lesson-drag-list')) {
     customElements.define('schedule-lesson-drag-list', LessonDragList);
 }
