@@ -281,19 +281,32 @@ class GhStudySchedule extends GhHtmlElement {
             generateButton.disabled = !bool;
             deleteButton.disabled = !bool;
         };
+        const enableLoader = bool => {
+            loader.style.display = bool ? 'block' : 'none';
+        };
+
+        const loader = this.getElementsByClassName('loader-container')[0];
 
         const generateButton = this.getElementsByClassName('generate-button')[0];
         generateButton.addEventListener('click', () => {
             enableButtons(false);
+            enableLoader(true);
             const cellsToGenerate = getCellsForGeneration();
-            lessonItemsWorker.generateLessons(cellsToGenerate).then(() => enableButtons(true));
+            lessonItemsWorker.generateLessons(cellsToGenerate).then(() => {
+                enableButtons(true);
+                enableLoader(false);
+            });
         });
 
         const deleteButton = this.getElementsByClassName('delete-button')[0];
         deleteButton.addEventListener('click', () => {
             enableButtons(false);
+            enableLoader(true);
             const cellsToGenerate = getCellsForGeneration();
-            lessonItemsWorker.deleteLessons(cellsToGenerate).then(() => enableButtons(true));
+            lessonItemsWorker.deleteLessons(cellsToGenerate).then(() => {
+                enableButtons(true);
+                enableLoader(false);
+            });
         });
 
         ScopeSingleton.getInstance().setEnableGenerateButtons(enableButtons);
