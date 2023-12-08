@@ -27,12 +27,21 @@ const lessonItemsWorker = {
         this.weeksCount = await this.getWeeksCount();
         await this.loadItems();
 
+        if (!this.semesterStartDate || isNaN(+this.semesterStartDate) || this.semesterStartDate < 0) {
+            this.enableGenerateButtons(false);
+        }
+
         const subscribeOnSemesterStartDateChanges = () => {
             const onUpdate = (event, dateMilliseconds) => {
-                if (isNaN(+dateMilliseconds)) return;
+                if (!dateMilliseconds || isNaN(+dateMilliseconds) || dateMilliseconds < 0) {
+                    this.semesterStartDate = null;
+                    this.enableGenerateButtons(false);
+                    return;
+                }
                 const date = new Date(+dateMilliseconds).setHours(0, 0, 0, 0);
                 this.semesterStartDate = date;
-                console.log(this.semesterStartDate);
+
+                this.enableGenerateButtons(true);
             };
 
             const { appId: app_id, itemId: item_id } = this.scope;

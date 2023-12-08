@@ -83,14 +83,14 @@ class GhStudySchedule extends GhHtmlElement {
         await this.controller.loadInitialDataFromStorage();
         this.storage = this.controller.getStorage();
 
-        await lessonItemsWorker.initSettings(this.scope);
-
         super.render(html);
 
         this.setCorrespondingHTMLElements();
         this.assignButtons();
 
         this.dndInit();
+
+        await lessonItemsWorker.initSettings(this.scope);
 
         const destroyLessonsSubscribe = this.subscribeOnItemsUpdate.subjects();
         const destroyClassroomsSubscribe = this.subscribeOnItemsUpdate.rooms();
