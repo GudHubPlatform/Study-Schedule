@@ -165,6 +165,10 @@ const lessonItemsWorker = {
 
             const lessonDateInMilliseconds = lessonDate + lessonTime;
 
+            if (lessonDateInMilliseconds < this.semesterStartDate) {
+                continue;
+            }
+
             const itemFields = {
                 fields: [
                     createField(this.fieldsObject.subject, subjectRefId),
@@ -201,7 +205,6 @@ const lessonItemsWorker = {
                 ...updatedFields,
             };
             itemsList.push(itemToUpdate);
-            console.log(itemToUpdate);
         }
 
         return gudhub.updateItems(this.lessonsAppId, itemsList);
@@ -227,7 +230,6 @@ const lessonItemsWorker = {
         });
 
         await Promise.all(promises);
-        console.log(itemsIds);
         const deletedItems = await gudhub.deleteItems(this.lessonsAppId, itemsIds);
         await this.loadItems();
         return deletedItems;
@@ -254,7 +256,9 @@ const lessonItemsWorker = {
         return lessonTime;
     },
     getLessonDate: function (lessonDayOfWeek, weeksToAdd = 0) {
-        const daysToAdd = lessonDayOfWeek + weeksToAdd * 7;
+        const semesterStartDay = new Date(this.semesterStartDate).getDay() - 1;
+        const dayDifference = semesterStartDay - lessonDayOfWeek;
+        const daysToAdd = weeksToAdd * 7 - dayDifference;
 
         const lessonDate = new Date(this.semesterStartDate + daysToAdd * 24 * 60 * 60 * 1000);
 
