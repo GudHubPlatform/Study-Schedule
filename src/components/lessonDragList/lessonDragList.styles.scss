@@ -1,146 +1,143 @@
 @use '../../variables' as *;
 
-table {
-    background-color: #ebebeb;
-    border: solid 1px #000;
-}
-
 .table-lessons-and-tabs-container {
     min-width: $table-lessons-width + 55px; //55px is approximate width of tab-list
-}
 
-.table-scroll {
-    overflow: auto;
-    position: relative;
-    min-width: 100%;
-    max-height: $table-schedule-and-lessons-height;
-
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-
-    scrollbar-gutter: stable;
-    @include scroll();
-
-    &-schedule {
+    .table-scroll {
         overflow: auto;
         position: relative;
-        max-width: $table-schedule-width;
+        min-width: 100%;
         max-height: $table-schedule-and-lessons-height;
 
-        @include scroll();
-    }
-}
-
-th,
-td {
-    box-sizing: border-box;
-    padding: 0;
-    border: solid 1px #000;
-}
-
-.tabs-lesson-list {
-    display: flex;
-    flex-direction: column;
-    align-items: end;
-
-    li {
-        box-sizing: border-box;
-
         display: flex;
-        justify-content: center;
-        align-items: center;
+        flex-direction: row;
+        justify-content: flex-start;
 
-        width: 71px;
-        height: 42px;
+        scrollbar-gutter: stable;
+        @include scroll();
 
-        padding: 6px 15px;
+        &-schedule {
+            overflow: auto;
+            position: relative;
+            max-width: $table-schedule-width;
+            max-height: $table-schedule-and-lessons-height;
 
-        @include tab-lesson-font;
-        color: $tab-lesson-color;
-
-        cursor: pointer;
-
-        border-bottom-left-radius: 10px;
-        border-top-left-radius: 10px;
-
-        border-left: solid 1px $tab-lesson-border-color;
-        border-top: solid 1px $tab-lesson-border-color;
-        border-bottom: solid 1px $tab-lesson-border-color;
-        border-right: solid 1px $table-border-color;
-
-        transition: all 0.2s ease-out;
-
-        &:last-child {
-            border-bottom: solid 1px $tab-lesson-border-color;
+            @include scroll();
         }
 
-        &.selected {
-            background-color: $tab-lesson-border-color;
-            color: #ffffff;
-        }
-    }
-}
+        .tabs-lesson-list {
+            display: flex;
+            flex-direction: column;
+            align-items: end;
 
-.table-lessons {
-    width: $table-lessons-width;
-    max-height: 0px;
+            li {
+                box-sizing: border-box;
 
-    background-color: $table-second-background-color;
-
-    tr {
-        height: $cell-lesson-height;
-
-        .freeze-header {
-            position: sticky;
-            top: 0;
-            left: 0;
-
-            background-color: white;
-            z-index: 2;
-
-            &::after {
                 display: flex;
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
+                justify-content: center;
+                align-items: center;
 
-                border-top: solid 0.5px $table-border-color;
-                border-bottom: solid 0.5px $table-border-color;
+                width: 71px;
+                height: 42px;
+
+                padding: 6px 15px;
+
+                @include tab-lesson-font;
+                color: $tab-lesson-color;
+
+                cursor: pointer;
+
+                border-bottom-left-radius: 10px;
+                border-top-left-radius: 10px;
+
+                border-left: solid 1px $tab-lesson-border-color;
+                border-top: solid 1px $tab-lesson-border-color;
+                border-bottom: solid 1px $tab-lesson-border-color;
+                border-right: solid 1px $table-border-color;
+
+                transition: all 0.2s ease-out;
+
+                &:last-child {
+                    border-bottom: solid 1px $tab-lesson-border-color;
+                }
+
+                &.selected {
+                    background-color: $tab-lesson-border-color;
+                    color: #ffffff;
+                }
             }
         }
-    }
 
-    tbody {
-        th {
-            &.header-hours-counter {
-                width: $cell-room-width;
-            }
+        .table-lessons {
+            width: $table-lessons-width;
+            max-height: 0px;
 
-            &.header-lesson-clone-cell {
-                width: $cell-lesson-width;
-            }
-        }
+            background-color: $table-second-background-color;
 
-        tr {
+            border: solid 1px $table-border-color;
+
+            th,
             td {
-                &.hours-counter-cell {
-                    width: 35px;
-                    background-color: $table-background-color;
-                    .hours-counter-container {
-                        box-sizing: border-box;
+                box-sizing: border-box;
+                padding: 0;
+                border: solid 1px $table-border-color;
+            }
+
+            tr {
+                height: $cell-lesson-height;
+
+                .freeze-header {
+                    position: sticky;
+                    top: 0;
+                    left: 0;
+
+                    background-color: white;
+                    z-index: 2;
+
+                    &::after {
                         display: flex;
-                        flex-direction: column;
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
 
-                        & :not(:last-child) {
-                            border-bottom: solid 1px $table-border-color;
-                        }
+                        border-top: solid 0.5px $table-border-color;
+                        border-bottom: solid 0.5px $table-border-color;
+                    }
+                }
+            }
 
-                        span {
-                            text-align: center;
+            tbody {
+                th {
+                    &.header-hours-counter {
+                        width: $cell-room-width;
+                    }
+
+                    &.header-lesson-clone-cell {
+                        width: $cell-lesson-width;
+                    }
+                }
+
+                tr {
+                    td {
+                        &.hours-counter-cell {
+                            width: 35px;
+                            background-color: $table-background-color;
+                            .hours-counter-container {
+                                box-sizing: border-box;
+                                display: flex;
+                                flex-direction: column;
+
+                                & :not(:last-child) {
+                                    border-bottom: solid 1px $table-border-color;
+                                }
+
+                                span {
+                                    text-align: center;
+                                }
+                            }
                         }
                     }
                 }
