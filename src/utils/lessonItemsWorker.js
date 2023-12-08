@@ -264,6 +264,9 @@ const lessonItemsWorker = {
         });
 
         await Promise.all(promises);
+
+        if (itemsIds.length === 0) return;
+
         const deletedItems = await gudhub.deleteItems(this.lessonsAppId, itemsIds);
         await this.loadItems();
         return deletedItems;
