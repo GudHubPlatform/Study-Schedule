@@ -26,6 +26,29 @@ const lessonItemsWorker = {
         this.semesterStartDate = await this.getSemesterStartDate();
         this.weeksCount = await this.getWeeksCount();
         await this.loadItems();
+
+        const subscribeOnSemesterStartDateChanges = () => {
+            const onUpdate = (event, dateMilliseconds) => {
+                if (isNaN(+dateMilliseconds)) return;
+                const date = new Date(+dateMilliseconds).setHours(0, 0, 0, 0);
+                this.semesterStartDate = date;
+                console.log(this.semesterStartDate);
+            };
+
+            const { appId: app_id, itemId: item_id } = this.scope;
+            const address = {
+                app_id,
+                item_id,
+                field_id: this.fieldsObject.semesterStartDate,
+            };
+            gudhub.on('gh_value_update', address, onUpdate);
+
+            return () => gudhub.destroy('gh_value_update', address, onUpdate);
+        };
+
+        const { onDisconnectCallbacks } = ScopeSingleton.getInstance().getData();
+        const destroySubscribe = subscribeOnSemesterStartDateChanges();
+        onDisconnectCallbacks.push(destroySubscribe);
     },
     loadItems: async function () {
         const { itemId } = this.scope;
@@ -51,6 +74,7 @@ const lessonItemsWorker = {
             lessons_app_schedule_id_field_id,
             lessons_app_room_field_id,
             lessonsTime,
+            semester_start_date_field_id,
         } = this.scope.field_model.data_model;
 
         this.fieldsObject = {
@@ -60,6 +84,7 @@ const lessonItemsWorker = {
             date: lessons_app_date_field_id,
             scheduleId: lessons_app_schedule_id_field_id,
             room: lessons_app_room_field_id,
+            semesterStartDate: semester_start_date_field_id,
             lessonsTime,
         };
     },
