@@ -247,8 +247,10 @@ export default class LessonDragList extends HTMLElement {
                 totalHours: await getTotalHours(),
             };
 
+            const calculateTotalHours = () => hoursObject.totalHours / weeksInSemester;
+
             const totalHoursHtml = /*html*/ `
-                <span class=${hoursTotalAmountClass.replace('.', '')}>${hoursObject.totalHours / weeksInSemester}</span>
+                <span class=${hoursTotalAmountClass.replace('.', '')}>${customToFixed(calculateTotalHours())}</span>
             `;
             hoursCounterContainer.insertAdjacentHTML('afterbegin', totalHoursHtml);
             const totalHoursElement = hoursCounterContainer.querySelector(hoursTotalAmountClass);
@@ -256,12 +258,10 @@ export default class LessonDragList extends HTMLElement {
             // remains hours
             hoursObject.settedHours = controller.getAcademicHours(uniqueId);
             const remainHours =
-                hoursObject.settedHours > 0
-                    ? hoursObject.totalHours / weeksInSemester - hoursObject.settedHours
-                    : hoursObject.totalHours / weeksInSemester;
+                hoursObject.settedHours > 0 ? calculateTotalHours() - hoursObject.settedHours : calculateTotalHours();
 
             const remainHoursHtml = /*html*/ `
-                <span class="${hoursRemainsClass.replace('.', '')}">${remainHours}</span>
+                <span class="${hoursRemainsClass.replace('.', '')}">${customToFixed(remainHours)}</span>
             `;
             hoursCounterContainer.insertAdjacentHTML('beforeend', remainHoursHtml);
 
@@ -281,8 +281,8 @@ export default class LessonDragList extends HTMLElement {
 
             const updateRemainsCounter = settedHours => {
                 if (!isNaN(settedHours)) hoursObject.settedHours = settedHours;
-                const remain = hoursObject.totalHours / weeksInSemester - hoursObject.settedHours;
-                remainsHoursElement.textContent = remain;
+                const remain = calculateTotalHours() - hoursObject.settedHours;
+                remainsHoursElement.textContent = customToFixed(remain);
 
                 toggleLessonDrag(remain);
             };
@@ -291,7 +291,7 @@ export default class LessonDragList extends HTMLElement {
                 if (totalAmount) {
                     hoursObject.totalHours = totalAmount;
                 }
-                totalHoursElement.textContent = hoursObject.totalHours / weeksInSemester;
+                totalHoursElement.textContent = customToFixed(calculateTotalHours());
                 updateRemainsCounter();
             };
 
@@ -319,4 +319,13 @@ export default class LessonDragList extends HTMLElement {
             this.onDisconnectCallbacks.push(subscribeOnLessonTotalAcademicHours());
         }
     }
+}
+
+function customToFixed(number, precision = 2) {
+    const strNumber = number.toString();
+    const dotIndex = strNumber.indexOf('.');
+
+    return dotIndex !== -1
+        ? parseFloat(`${strNumber.slice(0, dotIndex)}.${strNumber.slice(dotIndex + 1, dotIndex + 1 + precision)}`)
+        : number;
 }
