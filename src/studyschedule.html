@@ -28,32 +28,35 @@
                 </tr>
             </thead>
             <tbody>
-                ${ storage.reduce((acc, row, rowIndex) => acc + `
-                <tr>
-                    ${ rowIndex % lessonsPerDay === 0 ? `
-                    <td class="day-of-week column-cell-freeze redips-mark" rowspan="${lessonsPerDay}">
-                        <span>${daysOfWeek[Math.floor(rowIndex / lessonsPerDay) % daysOfWeek.length]}</span>
-                    </td>
-                    ` : '' }
-                    <td class="column-cell-freeze redips-mark">${rowIndex % lessonsPerDay + 1}</td>
-                    ${row.reduce((accRow, {lesson, room}, colIndex) => accRow + `
-                    <td
-                        class="${lessonCellClass.replace('.','')} redips-single redips-mark ${lessonAllowedClass.replace('.', '')}"
-                        ${cellRowAttribute}="${rowIndex}"
-                        ${cellColAttribute}="${colIndex}"
-                    >
-                        ${lesson ? renderer.lesson(lesson.subjectRefId, lesson.clasId, false) : ''}
-                    </td>
-                    <td
-                        class="redips-mark redips-single ${classRoomCellClass.replace('.', '')} ${roomAllowedClass.replace('.', '')}"
-                        ${cellRowAttribute}="${rowIndex}"
-                        ${cellColAttribute}="${colIndex}"
-                    >
-                        ${room ? renderer.room(room.id, false) : ''}
-                    </td>
-                    `, '')}
-                </tr>
-                `, '') }
+                ${storage.length > 0
+                    ? storage.reduce((acc, row, rowIndex) => acc + `
+                        <tr>
+                            ${ rowIndex % lessonsPerDay === 0 ? `
+                            <td class="day-of-week column-cell-freeze redips-mark" rowspan="${lessonsPerDay}">
+                                <span>${daysOfWeek[Math.floor(rowIndex / lessonsPerDay) % daysOfWeek.length]}</span>
+                            </td>
+                            ` : '' }
+                            <td class="column-cell-freeze redips-mark">${rowIndex % lessonsPerDay + 1}</td>
+                            ${row.reduce((accRow, {lesson, room}, colIndex) => accRow + `
+                            <td
+                                class="${lessonCellClass.replace('.','')} redips-single redips-mark ${lessonAllowedClass.replace('.', '')}"
+                                ${cellRowAttribute}="${rowIndex}"
+                                ${cellColAttribute}="${colIndex}"
+                            >
+                                ${lesson ? renderer.lesson(lesson.subjectRefId, lesson.clasId, false) : ''}
+                            </td>
+                            <td
+                                class="redips-mark redips-single ${classRoomCellClass.replace('.', '')} ${roomAllowedClass.replace('.', '')}"
+                                ${cellRowAttribute}="${rowIndex}"
+                                ${cellColAttribute}="${colIndex}"
+                            >
+                                ${room ? renderer.room(room.id, false) : ''}
+                            </td>
+                            `, '')}
+                        </tr>
+                        `, '')
+                    : `<tr><td colspan="100%" style="padding: 5px;">Add lessons in schedule settings</td></tr>`
+                }
             </tbody>
         </table>
     </div>
