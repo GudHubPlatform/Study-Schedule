@@ -200,6 +200,12 @@ gh-study-schedule {
         }
 
         th {
+            &.header-teacher {
+                min-width: $cell-lesson-width;
+            }
+            &.header-room {
+                min-width: $cell-room-width;
+            }
             &.header-teacher,
             &.header-room {
                 font-weight: 300;
