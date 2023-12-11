@@ -18,6 +18,9 @@ import ScheduleModel from './ScheduleModel.js';
 import { createLessons } from './utils/dataFunctions.js';
 
 import lessonItemsWorker from './utils/lessonItemsWorker.js';
+import resizeElements from './utils/resizeComponent.js';
+
+export const scheduleScrollId = 'schedule-scroll';
 
 export const lessonClass = '.lesson';
 export const roomClass = '.room';
@@ -36,6 +39,8 @@ class GhStudySchedule extends GhHtmlElement {
     constructor() {
         super();
         this.renderer = renderer;
+
+        this.scheduleScrollId = scheduleScrollId;
 
         //table classes
         this.lessonCellClass = lessonCellClass;
@@ -96,6 +101,7 @@ class GhStudySchedule extends GhHtmlElement {
         const destroyClassroomsSubscribe = this.subscribeOnItemsUpdate.rooms();
 
         this.onDisconnectCallbacks.push(destroyLessonsSubscribe, destroyClassroomsSubscribe);
+        resizeElements.subscribe();
     }
 
     // disconnectedCallback() is called after the component is destroyed
@@ -103,6 +109,7 @@ class GhStudySchedule extends GhHtmlElement {
         this.onDisconnectCallbacks.forEach(callback => callback());
 
         ScopeSingleton.reset();
+        resizeElements.destroy();
     }
 
     loadData = {

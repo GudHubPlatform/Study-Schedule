@@ -1,6 +1,8 @@
 import { defaultTitle, roomsTab } from './lessonDragList.webcomponent.js';
 import { lessonCellClass, classRoomCellClass } from '../../studyschedule.webcomponent.js';
 
+export const dragListScrollId = 'drag-list-scroll';
+
 export const selectedTabClass = '.selected';
 
 export const lessonsListTitleClass = '.lessons-list-title';
@@ -21,7 +23,7 @@ export default function getHtml() {
 
     return /*html*/ `
     <div class="table-lessons-and-tabs-container">
-        <div class="table-scroll">
+        <div id=${dragListScrollId} class="table-scroll">
             <ul class="tabs-lesson-list">
                 ${this.classes.reduce(
                     (acc, clas, index) =>
