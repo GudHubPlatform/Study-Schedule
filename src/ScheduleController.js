@@ -23,10 +23,7 @@ export default class ScheduleController {
         if (!foundLesson) return;
 
         const cellToSave = this.model.setLesson(row, col, foundLesson);
-
-        if (!cellToSave) {
-            return;
-        }
+        if (!cellToSave) return;
 
         if (cellToSave) {
             this.addAcademicHour(uniqueId);

@@ -20,8 +20,8 @@ import { createLessons } from './utils/dataFunctions.js';
 import lessonItemsWorker from './utils/lessonItemsWorker.js';
 import resizeElements from './utils/resizeComponent.js';
 
+// Constants for class and attribute selectors
 export const scheduleScrollId = 'schedule-scroll';
-
 export const lessonClass = '.lesson';
 export const roomClass = '.room';
 export const lessonCellClass = '.lesson-cell';
@@ -76,18 +76,20 @@ class GhStudySchedule extends GhHtmlElement {
 
     async onInit() {
         super.render(loader);
+
         await this.loadData.all();
+
+        // Initialize necessary data
         this.lessonsPerDay = this.scope.field_model.data_model.lessonsTime.length;
         this.lessons = createLessons(this.subjects, this.classes);
 
+        // Initialize model, controller, and storage
         this.model = new ScheduleModel(this.classes, this.daysOfWeek, this.lessonsPerDay);
         this.controller = new ScheduleController(this.scope, this.model, this.lessons, this.rooms);
-
         this.initScopeSingleton();
 
         await this.controller.loadInitialDataFromStorage();
         this.storage = this.controller.getStorage();
-
         super.render(html);
 
         this.setCorrespondingHTMLElements();

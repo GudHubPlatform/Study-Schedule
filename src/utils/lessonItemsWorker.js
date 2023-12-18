@@ -96,6 +96,17 @@ const lessonItemsWorker = {
             semesterStartDate: semester_start_date_field_id,
             lessonsTime,
         };
+
+        const fields = {
+            lessons_app_date_field_id,
+            lessons_app_schedule_id_field_id,
+            semester_start_date_field_id,
+            lessonsTime
+        };
+        const isFieldsUndefined = Object.values(fields).some(field_id => !field_id);
+        if (isFieldsUndefined) {
+            this.enableGenerateButtons(false);
+        }
     },
     getSemesterStartDate: async function () {
         const { appId, itemId } = this.scope;
