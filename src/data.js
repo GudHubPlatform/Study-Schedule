@@ -8,6 +8,7 @@ export default class GhStudyScheduleData {
             constructor: 'field',
             name: 'Study Schedule',
             icon: 'text_icon',
+            type: 'study_schedule',
             model: {
                 field_id: 0,
                 field_name: 'Study Schedule',
