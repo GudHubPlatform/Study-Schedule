@@ -51,14 +51,14 @@ export const classRoomFieldIdAttributes = {
 };
 const room = (classRefId, isClone = 0) => {
     const scope = getScope();
-    const { cabinets_app_number_field_id } = scope.field_model.data_model;
+    const { rooms_app_number_field_id } = scope.field_model.data_model;
 
     const { title } = classRoomFieldIdAttributes;
 
     return `<div class="${roomClass.replace('.', '')} redips-drag ${isClone ? 'redips-clone' : ''}">
                 <schedule-room
                     ${itemRefIdAttribute}=${classRefId}
-                    ${title}=${cabinets_app_number_field_id}
+                    ${title}=${rooms_app_number_field_id}
                 >
                 </schedule-room>
             </div>`;

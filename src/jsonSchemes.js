@@ -85,9 +85,10 @@ export const getSubjectsScheme = settings => {
 };
 
 export const getClassroomsScheme = settings => {
-    const { cabinets_app_id } = settings;
+    debugger
+    const { rooms_app_id } = settings;
 
-    if (!cabinets_app_id) return;
+    if (!rooms_app_id) return;
 
     return {
         type: 'array',
@@ -102,7 +103,7 @@ export const getClassroomsScheme = settings => {
             },
         ],
         property_name: 'rooms',
-        app_id: cabinets_app_id,
+        app_id: rooms_app_id,
         filter: [],
         isSortable: 1,
         field_id_to_sort: '807581',

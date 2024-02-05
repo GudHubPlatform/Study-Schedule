@@ -156,10 +156,10 @@ class GhStudySchedule extends GhHtmlElement {
             });
         },
         rooms: () => {
-            const { cabinets_app_id, cabinets_app_number_field_id } = this.scope.field_model.data_model;
+            const { rooms_app_id, rooms_app_number_field_id } = this.scope.field_model.data_model;
             const roomsScheme = getClassroomsScheme({
-                cabinets_app_id,
-                cabinets_app_number_field_id,
+                rooms_app_id,
+                rooms_app_number_field_id,
             });
             return gudhub.jsonConstructor(roomsScheme).then(data => {
                 this.rooms = data.rooms;
@@ -187,15 +187,15 @@ class GhStudySchedule extends GhHtmlElement {
             return () => gudhub.destroy('gh_items_update', { subjects_app_id }, onLessonsItemsUpdate);
         },
         rooms: () => {
-            const { cabinets_app_id } = this.scope.field_model.data_model;
+            const { rooms_app_id } = this.scope.field_model.data_model;
 
             const onClassroomsItemsUpdate = async () => {
                 await this.loadData.rooms();
             };
 
-            gudhub.on('gh_items_update', { cabinets_app_id }, onClassroomsItemsUpdate);
+            gudhub.on('gh_items_update', { rooms_app_id }, onClassroomsItemsUpdate);
 
-            return () => gudhub.destroy('gh_items_update', { cabinets_app_id }, onClassroomsItemsUpdate);
+            return () => gudhub.destroy('gh_items_update', { rooms_app_id }, onClassroomsItemsUpdate);
         },
     };
 
