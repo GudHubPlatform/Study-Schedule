@@ -33,6 +33,8 @@ const cellColAttribute = 'col';
 
 export const columnWidth = 2;
 
+const daysOfWeek = ['понеділок', 'вівторок', 'середа', 'четвер', "п'ятниця", "субота", "неділя"];
+
 class GhStudySchedule extends GhHtmlElement {
     // Constructor with super() is required for native web component initialization
 
@@ -54,7 +56,7 @@ class GhStudySchedule extends GhHtmlElement {
 
         //data
         this.columnWidth = columnWidth;
-        this.daysOfWeek = ['понеділок', 'вівторок', 'середа', 'четвер', "п'ятниця"];
+        this.daysOfWeek;
         this.lessonsPerDay;
         this.classes;
         this.subjects;
@@ -80,6 +82,8 @@ class GhStudySchedule extends GhHtmlElement {
         await this.loadData.all();
 
         // Initialize necessary data
+        this.daysOfWeek = daysOfWeek.slice(0, this.scope.field_model.data_model.show_days_count || 5);
+
         this.lessonsPerDay = this.scope.field_model.data_model.lessonsTime.length;
         this.lessons = createLessons(this.subjects, this.classes);
 

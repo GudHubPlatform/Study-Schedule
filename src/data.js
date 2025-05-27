@@ -17,6 +17,7 @@ export default class GhStudyScheduleData {
                 data_model: {
                     academic_weeks_in_semester_field_id: null,
                     semester_start_date_field_id: null,
+                    show_days_count: null,
                     classes_app_id: null,
                     classes_app_title_field_id: null,
                     classes_app_course_field_id: null,
@@ -133,6 +134,33 @@ export default class GhStudyScheduleData {
                                         settingScope.field_model.app_id = newValue;
                                     }
                                 );
+                            },
+                        },
+                        {
+                            type: 'ghElement',
+                            property: 'data_model.show_days_count',
+                            data_model() {
+                                return {
+                                    field_name: 'Show Days',
+                                    name_space: 'show_days_count',
+                                    data_type: 'text_opt',
+                                    data_model: {
+                                        options: [
+                                            {
+                                                name: '5',
+                                                value: 5,
+                                            },
+                                            {
+                                                name: '6',
+                                                value: 6,
+                                            },
+                                            {
+                                                name: '7',
+                                                value: 7,
+                                            },
+                                        ],
+                                    },
+                                };
                             },
                         },
                     ],

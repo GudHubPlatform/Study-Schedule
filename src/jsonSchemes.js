@@ -85,7 +85,6 @@ export const getSubjectsScheme = settings => {
 };
 
 export const getClassroomsScheme = settings => {
-    debugger
     const { rooms_app_id } = settings;
 
     if (!rooms_app_id) return;
