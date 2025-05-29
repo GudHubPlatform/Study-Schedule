@@ -1,8 +1,9 @@
 export default class ScheduleModel {
-    constructor(classes, daysOfWeek, lessonsPerDay) {
+    constructor(classes, daysOfWeek, lessonsPerDay, selectedDayIndexes = null) {
         this.classes = classes;
         this.daysOfWeek = daysOfWeek;
         this.lessonsPerDay = lessonsPerDay;
+        this.selectedDayIndexes = selectedDayIndexes || daysOfWeek.map((_, index) => index);
         this.rowCount = this.daysOfWeek.length * this.lessonsPerDay;
         this.colCount = this.classes.length;
         this.scheduleStorage = [];
@@ -117,6 +118,22 @@ export default class ScheduleModel {
                 delete this.academicHours[lessonId];
             }
         }
+    }
+
+    // Convert display row to original day index
+    getOriginalDayIndex(row) {
+        const displayDayIndex = Math.floor(row / this.lessonsPerDay);
+        return this.selectedDayIndexes[displayDayIndex];
+    }
+
+    // Convert original day index to display row range
+    getDisplayRowsForOriginalDay(originalDayIndex) {
+        const displayDayIndex = this.selectedDayIndexes.indexOf(originalDayIndex);
+        if (displayDayIndex === -1) return null;
+        
+        const startRow = displayDayIndex * this.lessonsPerDay;
+        const endRow = startRow + this.lessonsPerDay - 1;
+        return { startRow, endRow, displayDayIndex };
     }
 }
 

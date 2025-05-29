@@ -33,7 +33,7 @@
                         <tr>
                             ${ rowIndex % lessonsPerDay === 0 ? `
                             <td class="day-of-week column-cell-freeze redips-mark" rowspan="${lessonsPerDay}">
-                                <span>${daysOfWeek[Math.floor(rowIndex / lessonsPerDay) % daysOfWeek.length]}</span>
+                                <span>${daysOfWeek[Math.floor(rowIndex / lessonsPerDay)]}</span>
                             </td>
                             ` : '' }
                             <td class="column-cell-freeze redips-mark">${rowIndex % lessonsPerDay + 1}</td>

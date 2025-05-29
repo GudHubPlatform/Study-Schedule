@@ -219,7 +219,16 @@ export default class ScheduleController {
 
     getCellCoordsByCellData(cell) {
         const { lessonsPerDay } = this.model;
-        const row = cell.dayOfWeekIndex * lessonsPerDay + cell.lessonNumber - 1;
+        // Find the display row for this original day index
+        const displayRowsInfo = this.model.getDisplayRowsForOriginalDay(cell.dayOfWeekIndex);
+        
+        if (!displayRowsInfo) {
+            console.log(`Day is not selected for display: ${cell.dayOfWeekIndex}`, cell);
+            // Day is not selected for display
+            return null;
+        }
+        
+        const row = displayRowsInfo.startRow + cell.lessonNumber - 1;
         const col = this.model.classes.findIndex(({ id }) => id == cell.clas.id);
         const cellCoords = {
             row,
@@ -271,9 +280,14 @@ export default class ScheduleController {
         await documentStorage.initStorage(this.scope);
         const storageCells = await documentStorage.getCells();
 
+        // Filter storage cells to only include selected days
+        const filteredStorageCells = storageCells.filter(cell => 
+            this.model.selectedDayIndexes.includes(cell.dayOfWeekIndex)
+        );
+
         const storageCellsObj = {};
 
-        for (const cell of storageCells) {
+        for (const cell of filteredStorageCells) {
             const key = getKeyFromCell(cell);
             storageCellsObj[key] = cell;
         }
@@ -283,8 +297,11 @@ export default class ScheduleController {
 
             const { lessonsPerDay } = this.model;
             for (const clas of this.model.classes) {
+                // Use original day index for storage compatibility
+                const originalDayIndex = this.model.getOriginalDayIndex(i);
+                
                 let cell = {
-                    dayOfWeekIndex: Math.floor(i / lessonsPerDay),
+                    dayOfWeekIndex: originalDayIndex,
                     clas: clas,
                     lessonNumber: (i % lessonsPerDay) + 1,
                     lesson: null,
@@ -299,11 +316,9 @@ export default class ScheduleController {
                 const foundStorageCell = storageCellsObj[key];
 
                 if (foundStorageCell) {
-                    const row = cell.dayOfWeekIndex * lessonsPerDay + cell.lessonNumber - 1;
-                    const col = this.model.classes.findIndex(({ id }) => id == foundStorageCell.clas.id);
                     const cellCoords = {
-                        row,
-                        col,
+                        row: i,
+                        col: this.model.classes.findIndex(({ id }) => id == foundStorageCell.clas.id),
                     };
 
                     if (foundStorageCell.lesson) {
@@ -320,9 +335,14 @@ export default class ScheduleController {
     }
 
     updateModelFromStorageChanges(storageCells) {
+        // Filter storage cells to only include selected days
+        const filteredStorageCells = storageCells.filter(cell => 
+            this.model.selectedDayIndexes.includes(cell.dayOfWeekIndex)
+        );
+        
         const modelStorage = this.getStorage();
         const storageCellsObj = {};
-        storageCells.forEach(cell => {
+        filteredStorageCells.forEach(cell => {
             const key = getKeyFromCell(cell);
             storageCellsObj[key] = cell;
         });
@@ -349,6 +369,9 @@ export default class ScheduleController {
             }
 
             const cellCoords = this.getCellCoordsByCellData(modelCell);
+            
+            // Skip if cell is not in current display (day not selected)
+            if (!cellCoords) return;
 
             if (modelProperty) {
                 await removeFunction(cellCoords, false);
@@ -385,6 +408,9 @@ export default class ScheduleController {
                     );
                 } else {
                     const cellCoords = this.getCellCoordsByCellData(modelCell);
+                    
+                    // Skip if cell is not in current display (day not selected)
+                    if (!cellCoords) return;
 
                     if (modelCell.lesson) {
                         this.removeLesson(cellCoords, false);

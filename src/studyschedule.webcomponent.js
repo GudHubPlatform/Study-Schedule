@@ -14,6 +14,7 @@ import { REDIPS } from './redips-drag-min.js';
 import { getClassesScheme, getClassroomsScheme, getSubjectsScheme } from './jsonSchemes.js';
 import ScheduleController from './ScheduleController.js';
 import ScheduleModel from './ScheduleModel.js';
+import { daysOfWeek } from './data.js';
 
 import { createLessons } from './utils/dataFunctions.js';
 
@@ -33,7 +34,11 @@ const cellColAttribute = 'col';
 
 export const columnWidth = 2;
 
-const daysOfWeek = ['понеділок', 'вівторок', 'середа', 'четвер', "п'ятниця", "субота", "неділя"];
+// Remove hardcoded selectedDays - will be loaded from scope
+// const selectedDays = [
+//     {id: 1, name: 'вівторок', originalIndex: 1},
+//     {id: 3, name: 'четвер', originalIndex: 3}
+// ];
 
 class GhStudySchedule extends GhHtmlElement {
     // Constructor with super() is required for native web component initialization
@@ -81,14 +86,40 @@ class GhStudySchedule extends GhHtmlElement {
 
         await this.loadData.all();
 
-        // Initialize necessary data
-        this.daysOfWeek = daysOfWeek.slice(0, this.scope.field_model.data_model.show_days_count || 5);
+        // Get selected days from scope configuration or use default fallback
+        const showDaysCountCommaSeparated = this.scope.field_model.data_model.show_days_count;
+        const showDaysCount = showDaysCountCommaSeparated.split(',').map(Number).sort((a, b) => a - b);
+
+        let selectedDays;
+        
+        if (showDaysCount && Array.isArray(showDaysCount) && showDaysCount.length > 0) {
+            // Convert scope data to selectedDays format using daysOfWeek from data.js
+            selectedDays = showDaysCount.map(dayValue => {
+                const dayInfo = daysOfWeek.find(day => day.value === dayValue);
+                return {
+                    id: dayValue,
+                    name: dayInfo?.scheduleName || dayInfo?.optionsName || `День ${dayValue}`,
+                    originalIndex: dayValue
+                };
+            });
+        } else {
+            selectedDays = daysOfWeek.map(day => ({
+                id: day.value,
+                name: day.scheduleName,
+                originalIndex: day.value
+            }));
+        }
+
+        // Initialize necessary data - use selectedDays from scope
+        this.selectedDays = selectedDays;
+        this.selectedDayIndexes = selectedDays.map(day => day.originalIndex);
+        this.daysOfWeek = selectedDays.map(day => day.name);
 
         this.lessonsPerDay = this.scope.field_model.data_model.lessonsTime.length;
         this.lessons = createLessons(this.subjects, this.classes);
 
-        // Initialize model, controller, and storage
-        this.model = new ScheduleModel(this.classes, this.daysOfWeek, this.lessonsPerDay);
+        // Initialize model, controller, and storage - pass selectedDayIndexes
+        this.model = new ScheduleModel(this.classes, this.daysOfWeek, this.lessonsPerDay, this.selectedDayIndexes);
         this.controller = new ScheduleController(this.scope, this.model, this.lessons, this.rooms);
         this.initScopeSingleton();
 

@@ -1,5 +1,44 @@
 import './studyschedule.webcomponent.js';
 
+
+export const daysOfWeek = [
+    {
+        optionsName: 'Mon',
+        scheduleName: 'понеділок',
+        value: 0,
+    },
+    {
+        optionsName: 'Tue',
+        scheduleName: 'вівторок',
+        value: 1,
+    },
+    {
+        optionsName: 'Wed',
+        scheduleName: 'середа',
+        value: 2,
+    },
+    {
+        optionsName: 'Thu',
+        scheduleName: 'четвер',
+        value: 3,
+    },
+    {
+        optionsName: 'Fri',
+        scheduleName: "п'ятниця",
+        value: 4,
+    },
+    {
+        optionsName: 'Sat',
+        scheduleName: 'субота',
+        value: 5,
+    },
+    {
+        optionsName: 'Sun',
+        scheduleName: 'неділя',
+        value: 6,
+    }
+];
+
 export default class GhStudyScheduleData {
     /*------------------------------- FIELD TEMPLATE --------------------------------------*/
 
@@ -145,20 +184,11 @@ export default class GhStudyScheduleData {
                                     name_space: 'show_days_count',
                                     data_type: 'text_opt',
                                     data_model: {
-                                        options: [
-                                            {
-                                                name: '5',
-                                                value: 5,
-                                            },
-                                            {
-                                                name: '6',
-                                                value: 6,
-                                            },
-                                            {
-                                                name: '7',
-                                                value: 7,
-                                            },
-                                        ],
+                                        multiple_value: true,
+                                        options: daysOfWeek.map(day => ({
+                                            name: day.optionsName,
+                                            value: day.value
+                                        })),
                                     },
                                 };
                             },
