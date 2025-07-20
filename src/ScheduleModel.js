@@ -98,23 +98,23 @@ export default class ScheduleModel {
         return hours;
     }
 
-    addAcademicHour(lessonId) {
+    addAcademicHour(lessonId, duration = 1) {
         const isExist = Object.hasOwnProperty.call(this.academicHours, [lessonId]);
 
         if (isExist) {
-            this.academicHours[lessonId]++;
+            this.academicHours[lessonId] += duration;
         } else {
-            this.academicHours[lessonId] = 1;
+            this.academicHours[lessonId] = duration;
         }
     }
 
-    subtractAcademicHour(lessonId) {
+    subtractAcademicHour(lessonId, duration = 1) {
         const isExist = Object.hasOwnProperty.call(this.academicHours, [lessonId]);
 
         if (isExist) {
-            this.academicHours[lessonId]--;
+            this.academicHours[lessonId] -= duration;
 
-            if (this.academicHours[lessonId] === 0) {
+            if (this.academicHours[lessonId] <= 0) {
                 delete this.academicHours[lessonId];
             }
         }
@@ -130,7 +130,7 @@ export default class ScheduleModel {
     getDisplayRowsForOriginalDay(originalDayIndex) {
         const displayDayIndex = this.selectedDayIndexes.indexOf(originalDayIndex);
         if (displayDayIndex === -1) return null;
-        
+
         const startRow = displayDayIndex * this.lessonsPerDay;
         const endRow = startRow + this.lessonsPerDay - 1;
         return { startRow, endRow, displayDayIndex };

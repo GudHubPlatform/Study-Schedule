@@ -46,37 +46,55 @@ export const getClassesScheme = settings => {
 };
 
 export const getSubjectsScheme = settings => {
-    const { subjects_app_id, subjects_app_course_field_id, subjects_filters_list, subjects_app_teacher_field_id } =
-        settings;
+    const {
+        subjects_app_id,
+        subjects_app_course_field_id,
+        subjects_filters_list,
+        subjects_app_teacher_field_id,
+        subjects_app_duration_field_id,
+    } = settings;
 
     if (!subjects_app_id || !subjects_app_course_field_id || !subjects_app_teacher_field_id) return;
+
+    const childs = [
+        {
+            type: 'property',
+            id: 3,
+            property_name: 'id',
+            property_type: 'variable',
+            variable_type: 'current_item',
+        },
+        {
+            type: 'property',
+            id: 6,
+            property_name: 'course',
+            property_type: 'field_value',
+            field_id: subjects_app_course_field_id,
+        },
+        {
+            type: 'property',
+            id: 7,
+            property_name: 'teacherRefId',
+            property_type: 'field_value',
+            field_id: subjects_app_teacher_field_id,
+        },
+    ];
+
+    // Add duration field if provided
+    if (subjects_app_duration_field_id) {
+        childs.push({
+            type: 'property',
+            id: 8,
+            property_name: 'duration',
+            property_type: 'field_value',
+            field_id: subjects_app_duration_field_id,
+        });
+    }
 
     return {
         type: 'array',
         id: 1,
-        childs: [
-            {
-                type: 'property',
-                id: 3,
-                property_name: 'id',
-                property_type: 'variable',
-                variable_type: 'current_item',
-            },
-            {
-                type: 'property',
-                id: 6,
-                property_name: 'course',
-                property_type: 'field_value',
-                field_id: subjects_app_course_field_id,
-            },
-            {
-                type: 'property',
-                id: 7,
-                property_name: 'teacherRefId',
-                property_type: 'field_value',
-                field_id: subjects_app_teacher_field_id,
-            },
-        ],
+        childs,
         property_name: 'lessons',
         app_id: subjects_app_id,
         filter: subjects_filters_list,

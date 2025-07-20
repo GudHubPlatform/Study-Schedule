@@ -1,5 +1,5 @@
-import ScopeSingleton from '../utils/ScopeSingleton.js';
 import { lessonClass, roomClass } from '../studyschedule.webcomponent.js';
+import ScopeSingleton from '../utils/ScopeSingleton.js';
 
 export const isCloneAttribute = 'is-clone';
 export const itemRefIdAttribute = 'item-id';
@@ -13,6 +13,7 @@ export const lessonFieldIdAttributes = {
     title: 'lesson-title-field-id',
     academicHours: 'lesson-academic-hours-field-id',
     course: 'lesson-course-field-id',
+    duration: 'lesson-duration-field-id',
 };
 
 const getScope = () => ScopeSingleton.getInstance().getScope();
@@ -24,10 +25,11 @@ const lesson = (lessonItemRefId, classRefId, isClone = 0) => {
         subjects_app_course_field_id,
         subjects_app_teacher_field_id,
         subjects_app_academic_hours_field_id,
+        subjects_app_duration_field_id,
         classes_app_title_field_id,
     } = scope.field_model.data_model;
 
-    const { title, teacher, course, academicHours } = lessonFieldIdAttributes;
+    const { title, teacher, course, academicHours, duration } = lessonFieldIdAttributes;
 
     return `<div class="${lessonClass.replace('.', '')} redips-drag ${isClone ? 'redips-clone' : ''}">
                 <schedule-lesson
@@ -36,6 +38,7 @@ const lesson = (lessonItemRefId, classRefId, isClone = 0) => {
                     ${teacher}=${subjects_app_teacher_field_id}
                     ${course}=${subjects_app_course_field_id}
                     ${academicHours}=${subjects_app_academic_hours_field_id}
+                    ${duration}=${subjects_app_duration_field_id || ''}
 
                     ${classItemRefIdAttribute}=${classRefId}
                     ${classFieldIdAttributes.title}=${classes_app_title_field_id}

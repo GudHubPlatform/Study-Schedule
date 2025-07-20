@@ -1,6 +1,6 @@
-import getHtml, { closeIconClass, contentContainerClass, removableClass } from './lessonLayout.js';
-import styles from './lesson.styles.scss';
 import ScopeSingleton from '../../utils/ScopeSingleton.js';
+import styles from './lesson.styles.scss';
+import getHtml, { closeIconClass, contentContainerClass, removableClass } from './lessonLayout.js';
 
 import {
     classFieldIdAttributes,
@@ -141,16 +141,18 @@ export default class Lesson extends HTMLElement {
     }
 
     async getInterpretatedLesson() {
-        const { title, teacher, course, academicHours } = lessonFieldIdAttributes;
+        const { title, teacher, course, academicHours, duration } = lessonFieldIdAttributes;
         const titleField = this.getAttribute(title);
         const courseField = this.getAttribute(course);
         const teacherField = this.getAttribute(lessonFieldIdAttributes.teacher);
         const academicHoursField = this.getAttribute(academicHours);
+        const durationField = this.getAttribute(duration);
         const resultLesson = {
             title,
             teacher,
             course,
             academicHours,
+            duration,
         };
 
         const promises = [
@@ -167,6 +169,15 @@ export default class Lesson extends HTMLElement {
                 resultLesson.academicHours = value;
             }),
         ];
+
+        // Add duration processing if field exists
+        if (durationField) {
+            promises.push(
+                gudhub.getInterpretationById(this.appId, this.itemId, durationField, 'value').then(value => {
+                    resultLesson.duration = value;
+                })
+            );
+        }
 
         await Promise.all(promises);
 

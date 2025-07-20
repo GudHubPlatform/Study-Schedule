@@ -1,6 +1,5 @@
 import './studyschedule.webcomponent.js';
 
-
 export const daysOfWeek = [
     {
         optionsName: 'Mon',
@@ -36,7 +35,7 @@ export const daysOfWeek = [
         optionsName: 'Sun',
         scheduleName: 'неділя',
         value: 6,
-    }
+    },
 ];
 
 export default class GhStudyScheduleData {
@@ -67,6 +66,7 @@ export default class GhStudyScheduleData {
                     subjects_app_teacher_field_id: null,
                     subjects_app_course_field_id: null,
                     subjects_app_academic_hours_field_id: null,
+                    subjects_app_duration_field_id: null,
                     subjects_filters_list: [],
                     rooms_app_id: null,
                     rooms_app_number_field_id: null,
@@ -187,7 +187,7 @@ export default class GhStudyScheduleData {
                                         multiple_value: true,
                                         options: daysOfWeek.map(day => ({
                                             name: day.optionsName,
-                                            value: day.value
+                                            value: day.value,
                                         })),
                                     },
                                 };
@@ -432,6 +432,30 @@ export default class GhStudyScheduleData {
                                     data_type: 'field',
                                     field_name: 'Subject academic hours',
                                     name_space: 'subject_academic_hours',
+                                    data_model: {
+                                        app_id: fieldModel.data_model.subjects_app_id,
+                                    },
+                                };
+                            },
+                            onInit: function (settingScope, fieldModel) {
+                                settingScope.$watch(
+                                    function () {
+                                        return fieldModel.data_model.subjects_app_id;
+                                    },
+                                    function (newValue) {
+                                        settingScope.field_model.data_model.app_id = newValue;
+                                    }
+                                );
+                            },
+                        },
+                        {
+                            type: 'ghElement',
+                            property: 'data_model.subjects_app_duration_field_id',
+                            data_model: function (fieldModel) {
+                                return {
+                                    data_type: 'field',
+                                    field_name: 'Subject duration',
+                                    name_space: 'subject_duration',
                                     data_model: {
                                         app_id: fieldModel.data_model.subjects_app_id,
                                     },

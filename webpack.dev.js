@@ -1,6 +1,6 @@
 import pkg from 'webpack-merge';
+import common from './webpack.common.js';
 const { merge } = pkg;
-import common from './webpack.common.js'
 
 export default merge(common, {
     mode: 'development',
@@ -15,4 +15,4 @@ export default merge(common, {
         hot: false,
         liveReload: false,
     },
-})
+});

@@ -1,20 +1,20 @@
 import GhHtmlElement from '@gudhub/gh-html-element';
-import html from './studyschedule.html';
 import loader from './loader.html';
+import html from './studyschedule.html';
 import './style.scss';
 
 import Lesson, { dragDisabledClass } from './components/lesson/lesson.webcomponent.js';
-import Classroom from './components/room/room.webcomponent.js';
 import LessonDragList from './components/lessonDragList/lessonDragList.webcomponent.js';
+import Classroom from './components/room/room.webcomponent.js';
 
 import renderer from './utils/componentsRenderer.js';
 import ScopeSingleton from './utils/ScopeSingleton.js';
 
-import { REDIPS } from './redips-drag-min.js';
+import { daysOfWeek } from './data.js';
 import { getClassesScheme, getClassroomsScheme, getSubjectsScheme } from './jsonSchemes.js';
+import { REDIPS } from './redips-drag-min.js';
 import ScheduleController from './ScheduleController.js';
 import ScheduleModel from './ScheduleModel.js';
-import { daysOfWeek } from './data.js';
 
 import { createLessons } from './utils/dataFunctions.js';
 
@@ -88,10 +88,13 @@ class GhStudySchedule extends GhHtmlElement {
 
         // Get selected days from scope configuration or use default fallback
         const showDaysCountCommaSeparated = this.scope.field_model.data_model.show_days_count;
-        const showDaysCount = showDaysCountCommaSeparated.split(',').map(Number).sort((a, b) => a - b);
+        const showDaysCount = showDaysCountCommaSeparated
+            .split(',')
+            .map(Number)
+            .sort((a, b) => a - b);
 
         let selectedDays;
-        
+
         if (showDaysCount && Array.isArray(showDaysCount) && showDaysCount.length > 0) {
             // Convert scope data to selectedDays format using daysOfWeek from data.js
             selectedDays = showDaysCount.map(dayValue => {
@@ -99,14 +102,14 @@ class GhStudySchedule extends GhHtmlElement {
                 return {
                     id: dayValue,
                     name: dayInfo?.scheduleName || dayInfo?.optionsName || `День ${dayValue}`,
-                    originalIndex: dayValue
+                    originalIndex: dayValue,
                 };
             });
         } else {
             selectedDays = daysOfWeek.map(day => ({
                 id: day.value,
                 name: day.scheduleName,
-                originalIndex: day.value
+                originalIndex: day.value,
             }));
         }
 
@@ -157,6 +160,7 @@ class GhStudySchedule extends GhHtmlElement {
                 subjects_app_teacher_field_id,
                 subjects_app_course_field_id,
                 subjects_app_academic_hours_field_id,
+                subjects_app_duration_field_id,
                 subjects_filters_list = [],
             } = this.scope.field_model.data_model;
             const subjectsScheme = getSubjectsScheme({
@@ -165,6 +169,7 @@ class GhStudySchedule extends GhHtmlElement {
                 subjects_app_teacher_field_id,
                 subjects_app_course_field_id,
                 subjects_app_academic_hours_field_id,
+                subjects_app_duration_field_id,
                 subjects_filters_list,
             });
             return gudhub.jsonConstructor(subjectsScheme).then(data => {

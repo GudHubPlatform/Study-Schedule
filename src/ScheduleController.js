@@ -1,8 +1,8 @@
 import { getKeyFromCell } from './ScheduleModel.js';
-import documentStorage from './utils/documentStorage.js';
+import { lessonUniqueIdAttribute, roomIdAttribute } from './components/lessonDragList/lessonDragListLayout.js';
 import { lessonAllowedClass, roomAllowedClass } from './studyschedule.webcomponent.js';
 import ScopeSingleton from './utils/ScopeSingleton.js';
-import { lessonUniqueIdAttribute, roomIdAttribute } from './components/lessonDragList/lessonDragListLayout.js';
+import documentStorage from './utils/documentStorage.js';
 
 export default class ScheduleController {
     constructor(scope, model, lessons, rooms) {
@@ -12,6 +12,27 @@ export default class ScheduleController {
         this.rooms = rooms;
 
         this.academicHoursCallbackObject = {};
+    }
+
+    // Helper method to get lesson duration from subject, defaults to 1 if not available
+    async getLessonDuration(uniqueId) {
+        const foundLesson = this.findLessonById(uniqueId);
+        if (!foundLesson) return 1;
+
+        const { subjects_app_duration_field_id } = this.scope.field_model.data_model;
+        if (!subjects_app_duration_field_id) return 1;
+
+        try {
+            const [appId, itemId] = foundLesson.subjectRefId.split('.');
+            const duration = await gudhub.getInterpretationById(appId, itemId, subjects_app_duration_field_id, 'value');
+
+            // Return duration if it's a valid positive number, otherwise default to 1
+            const parsedDuration = parseFloat(duration);
+            return parsedDuration && parsedDuration > 0 ? parsedDuration : 1;
+        } catch (error) {
+            console.warn('Error getting lesson duration, defaulting to 1:', error);
+            return 1;
+        }
     }
 
     async setLesson(uniqueId, cell, saveToStorage = true) {
@@ -26,7 +47,8 @@ export default class ScheduleController {
         if (!cellToSave) return;
 
         if (cellToSave) {
-            this.addAcademicHour(uniqueId);
+            const duration = await this.getLessonDuration(uniqueId);
+            this.addAcademicHour(uniqueId, duration);
             if (saveToStorage) await this.addCellToDocumentStorage(cellToSave, foundLesson);
         }
 
@@ -52,7 +74,8 @@ export default class ScheduleController {
 
         const cellToRemove = this.model.getCell(row, col);
 
-        this.subtractAcademicHour(removedLessonId);
+        const duration = await this.getLessonDuration(removedLessonId);
+        this.subtractAcademicHour(removedLessonId, duration);
 
         const lessonCellElement = this.model.getLessonCellHTMLElement(row, col);
         removeRdObject(lessonCellElement);
@@ -221,13 +244,13 @@ export default class ScheduleController {
         const { lessonsPerDay } = this.model;
         // Find the display row for this original day index
         const displayRowsInfo = this.model.getDisplayRowsForOriginalDay(cell.dayOfWeekIndex);
-        
+
         if (!displayRowsInfo) {
             console.log(`Day is not selected for display: ${cell.dayOfWeekIndex}`, cell);
             // Day is not selected for display
             return null;
         }
-        
+
         const row = displayRowsInfo.startRow + cell.lessonNumber - 1;
         const col = this.model.classes.findIndex(({ id }) => id == cell.clas.id);
         const cellCoords = {
@@ -238,13 +261,13 @@ export default class ScheduleController {
         return cellCoords;
     }
 
-    addAcademicHour(uniqueId) {
-        this.model.addAcademicHour(uniqueId);
+    addAcademicHour(uniqueId, duration = 1) {
+        this.model.addAcademicHour(uniqueId, duration);
         this.handleHourUpdate(uniqueId);
     }
 
-    subtractAcademicHour(uniqueId) {
-        this.model.subtractAcademicHour(uniqueId);
+    subtractAcademicHour(uniqueId, duration = 1) {
+        this.model.subtractAcademicHour(uniqueId, duration);
         this.handleHourUpdate(uniqueId);
     }
 
@@ -281,7 +304,7 @@ export default class ScheduleController {
         const storageCells = await documentStorage.getCells();
 
         // Filter storage cells to only include selected days
-        const filteredStorageCells = storageCells.filter(cell => 
+        const filteredStorageCells = storageCells.filter(cell =>
             this.model.selectedDayIndexes.includes(cell.dayOfWeekIndex)
         );
 
@@ -299,7 +322,7 @@ export default class ScheduleController {
             for (const clas of this.model.classes) {
                 // Use original day index for storage compatibility
                 const originalDayIndex = this.model.getOriginalDayIndex(i);
-                
+
                 let cell = {
                     dayOfWeekIndex: originalDayIndex,
                     clas: clas,
@@ -336,10 +359,10 @@ export default class ScheduleController {
 
     updateModelFromStorageChanges(storageCells) {
         // Filter storage cells to only include selected days
-        const filteredStorageCells = storageCells.filter(cell => 
+        const filteredStorageCells = storageCells.filter(cell =>
             this.model.selectedDayIndexes.includes(cell.dayOfWeekIndex)
         );
-        
+
         const modelStorage = this.getStorage();
         const storageCellsObj = {};
         filteredStorageCells.forEach(cell => {
@@ -369,7 +392,7 @@ export default class ScheduleController {
             }
 
             const cellCoords = this.getCellCoordsByCellData(modelCell);
-            
+
             // Skip if cell is not in current display (day not selected)
             if (!cellCoords) return;
 
@@ -408,7 +431,7 @@ export default class ScheduleController {
                     );
                 } else {
                     const cellCoords = this.getCellCoordsByCellData(modelCell);
-                    
+
                     // Skip if cell is not in current display (day not selected)
                     if (!cellCoords) return;
 
