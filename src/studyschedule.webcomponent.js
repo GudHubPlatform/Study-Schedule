@@ -160,7 +160,6 @@ class GhStudySchedule extends GhHtmlElement {
                 subjects_app_teacher_field_id,
                 subjects_app_course_field_id,
                 subjects_app_academic_hours_field_id,
-                subjects_app_duration_field_id,
                 subjects_filters_list = [],
             } = this.scope.field_model.data_model;
             const subjectsScheme = getSubjectsScheme({
@@ -169,7 +168,6 @@ class GhStudySchedule extends GhHtmlElement {
                 subjects_app_teacher_field_id,
                 subjects_app_course_field_id,
                 subjects_app_academic_hours_field_id,
-                subjects_app_duration_field_id,
                 subjects_filters_list,
             });
             return gudhub.jsonConstructor(subjectsScheme).then(data => {

@@ -32,6 +32,7 @@ export default class Lesson extends HTMLElement {
         this.classRefId;
         this.classTitle;
         this.isSubscribedOnItemUpdate = null;
+        this.duration = 1; // Default duration
 
         this.controller;
 
@@ -53,11 +54,15 @@ export default class Lesson extends HTMLElement {
         if (this.parentCell && this.parentCell.classList.contains(lessonAllowedClass.replace('.', ''))) {
             this.attachCloseIconListeners();
         }
+
+        this.checkParentCellIsRedipsMark() && this.applyDurationStyling();
+
         this.itemUpdateSubscribe();
     }
 
     onItemUpdate = async () => {
         await this.determineProperties();
+        this.checkParentCellIsRedipsMark() && this.applyDurationStyling();
         this.render();
     };
 
@@ -95,6 +100,7 @@ export default class Lesson extends HTMLElement {
         }
     }
 
+    // Called when element is added to DOM
     connectedCallback() {
         if (this.isSubscribedOnItemUpdate !== null) {
             this.itemUpdateSubscribe();
@@ -107,8 +113,11 @@ export default class Lesson extends HTMLElement {
                 this.toggleDrag(true);
             }
         }
+
+        this.checkParentCellIsRedipsMark() && this.applyDurationStyling();
     }
 
+    // Called when element is removed from DOM
     disconnectedCallback() {
         this.destroySubscribe();
         this.handleDrop();
@@ -126,6 +135,9 @@ export default class Lesson extends HTMLElement {
         this.appId = app_id;
         this.itemId = item_id;
         this.lesson = await this.getInterpretatedLesson();
+
+        // Get duration from lesson data, default to 1 if not available
+        this.duration = this.lesson.duration && this.lesson.duration > 0 ? parseFloat(this.lesson.duration) : 1;
 
         const newTeacherRefId = await this.getTeacherRefId();
         if (this.teacherRefId && this.teacherRefId !== newTeacherRefId) {
@@ -277,5 +289,49 @@ export default class Lesson extends HTMLElement {
         } else {
             dndWrap.classList.add(dragDisabledClass.replace('.', ''));
         }
+    }
+
+    // Calculate and apply height based on lesson duration
+    applyDurationStyling() {
+        if (this.duration === 1) return;
+
+        setTimeout(() => {
+            const cellHeight = 38; // Height of table cell in pixels
+            const standardHeight = 30; // Standard lesson height
+            const marginVertical = (cellHeight - standardHeight) / 2; // Margin top for lesson
+            let calculatedHeight = standardHeight; //
+
+            if (this.duration <= 1) {
+                // Standard height for 1 hour or less
+                calculatedHeight = standardHeight;
+            } else if (this.duration <= 1.2) {
+                // Add 20% of cell height for lessons between 1 and 1.2 hours
+                calculatedHeight = standardHeight + cellHeight * 0.2;
+            } else {
+                // For lessons > 1.2 hours: occupy proportional space of next cells
+                // Base cell height + additional cells based on duration
+                calculatedHeight = standardHeight + (this.duration - 1) * cellHeight;
+            }
+
+            if (this.duration % 1 > 0 && this.duration % 1 < 0.2) {
+                calculatedHeight += cellHeight * 0.2;
+            }
+
+            // Apply styling only if lesson is in schedule (not in drag list)
+            const isInScheduleCell = this.closest('.lesson-cell');
+            if (isInScheduleCell && this.duration > 1) {
+                this.classList.add('extended-duration', 'custom-height');
+                this.style.setProperty('--lesson-height', `${calculatedHeight}px`);
+            } else {
+                // Remove extended duration styling if not in schedule or duration <= 1
+                this.classList.remove('extended-duration', 'custom-height');
+                this.style.removeProperty('--lesson-height');
+            }
+        }, 0);
+    }
+
+    checkParentCellIsRedipsMark() {
+        const parentCell = this.parentElement.parentElement;
+        return parentCell && checkForNodeNameTd(parentCell) && parentCell.classList.contains('redips-mark');
     }
 }

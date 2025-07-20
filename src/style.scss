@@ -330,6 +330,11 @@ gh-study-schedule {
         &.lesson {
             height: $drag-lesson-element-height;
             width: $drag-lesson-element-width;
+
+            border: none;
+            border-style: none !important;
+
+            overflow: visible;
         }
     }
 }

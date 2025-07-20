@@ -1,5 +1,20 @@
 @use '../../variables' as *;
 
+:host(.extended-duration) {
+    position: absolute !important;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    pointer-events: auto;
+}
+
+:host(.custom-height) {
+    .container {
+        height: var(--lesson-height, $drag-lesson-element-height);
+    }
+}
+
 .container {
     position: relative;
 
@@ -11,6 +26,16 @@
     width: $drag-lesson-element-width;
 
     overflow: hidden;
+    border: $drag-element-border;
+    border-radius: 4px;
+    transition: border 0.5s;
+    display: block;
+
+    background-color: white;
+
+    &:hover {
+        border-color: $drag-element-hover-border-color;
+    }
 
     &:hover {
         .content-container.removable {
@@ -29,7 +54,6 @@
 
         padding: 3px 6px;
 
-        border-radius: inherit;
         background-color: $drag-element-background-color;
         z-index: 1;
 
